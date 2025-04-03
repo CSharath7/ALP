@@ -1,0 +1,16 @@
+@import "tailwindcss";
+.hero {
+  background: url("your-image-url.jpg") no-repeat center center/cover;
+  height: 100vh;
+  position: relative;
+  background-attachment: fixed;
+}
+
+.hero-overlay {
+  background: rgba(0, 0, 0, 0.5);
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
