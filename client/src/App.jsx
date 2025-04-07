@@ -1,5 +1,6 @@
 import { BrowserRouter as Router, Route, Routes, useLocation } from "react-router-dom";
 import HomePage from "./pages/Home";
+import ChildLogin from "./pages/ChildLogin";
 import LoginPage from "./pages/Login";
 import SignupPage from "./pages/Signup";
 import AdminPanel from "./pages/Admin";
@@ -34,6 +35,7 @@ function Layout() {
         <Route path="/login" element={<LoginPage />} />
         <Route path="/signup" element={<SignupPage />} />
         <Route path="/admin" element={<AdminPanel />} />
+        <Route path="/child" element={<ChildLogin />} />
 
         {/* Protected Routes */}
         <Route element={<ProtectedRoute />}>
