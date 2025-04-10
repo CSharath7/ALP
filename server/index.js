@@ -16,7 +16,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use(cors());
 
 // Database Connection
-mongoose.connect("mongodb://localhost:27017/therapistDB", {
+mongoose.connect("mongodb+srv://G373:DeleteDyslexia@cluster0.rtm72oj.mongodb.net/therapistDB", {
   useNewUrlParser: true,
   useUnifiedTopology: true,
 });
