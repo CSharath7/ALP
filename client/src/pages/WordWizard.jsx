@@ -1,9 +1,6 @@
-<<<<<<< HEAD
 import React, { useState, } from 'react';
-=======
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
->>>>>>> daf380386cbd7e829b781cbae58ece31c950213a
 
 const WordWizard = () => {
   const levels = [
