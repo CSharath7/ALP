@@ -38,7 +38,7 @@ function Layout() {
         <Route path="/child" element={<ChildLogin />} />
 
         {/* Protected Routes */}
-        <Route element={<ProtectedRoute />}>
+  
           <Route path="/math" element={<Math />} />
           <Route path="/Memory" element={<Memory />} />
           <Route path="/SpellBee" element={<SpellBee />} />
@@ -52,7 +52,7 @@ function Layout() {
           <Route path="/reset-password" element={<ResetPassword />} />
           <Route path="/profile" element={<Profile />} />
           <Route path="/games" element={<Games />} />
-        </Route>
+        
       </Routes>
     </>
   );

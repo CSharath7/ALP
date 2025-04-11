@@ -47,7 +47,7 @@ function ChildLogin() {
     setSuccessMessage("");
     
     try {
-      await axios.post("http://localhost:5000/api/student-login", loginData);
+      await axios.post("http://localhost:5000/child-login", loginData);
       setSuccessMessage("Welcome back! Redirecting to your dashboard...");
       setTimeout(() => {
         navigate("/student-dashboard");
@@ -64,19 +64,19 @@ function ChildLogin() {
     e.preventDefault();
     setIsSubmittingRegister(true);
     setErrorMessage("");
-    setSuccessMessage("");
-    
+    setSuccessMessage(""); 
     try {
-      const response = await axios.post("http://localhost:5000/api/student-register", registerData);
-      setSuccessMessage(`Registration successful! Your Student ID is ${response.data.studentId}`);
+      const response = await axios.post("http://localhost:5000/child-register", registerData);
+      console.log(response)
+      setSuccessMessage(`Registration successful! Please check you email for UID`);
       setRegisterData({
         name: "",
         age: "",
         gender: "",
         email: ""
       });
-    } catch (e) {
-      setErrorMessage("Registration failed. Please check your details and try again.");
+    } catch (error) {
+      setErrorMessage(`${error.response.data.message}`,);
       console.error(e);
     } finally {
       setIsSubmittingRegister(false);

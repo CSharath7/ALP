@@ -1,3 +1,4 @@
+require("dotenv").config();
 const express = require("express");
 const cors = require("cors");
 const mongoose = require("mongoose");
@@ -8,7 +9,7 @@ const apiRouter = require("./routes/api");
 const defaultRouter = require("./routes/default");
 const app = express();
 const port = 5000;
-const JWT_SECRET = "mohit@123"; // Replace with a secure secret key
+const JWT_SECRET =process.env.JWT_SECRET; // Replace with a secure secret key
 
 // Middleware
 app.use(express.json());
@@ -16,15 +17,14 @@ app.use(express.urlencoded({ extended: true }));
 app.use(cors());
 
 // Database Connection
-mongoose.connect("mongodb+srv://G373:DeleteDyslexia@cluster0.rtm72oj.mongodb.net/therapistDB", {
+mongoose.connect("mongodb://127.0.0.1:27017/therapistDB", {
   useNewUrlParser: true,
   useUnifiedTopology: true,
 });
-app.use('/',defaultRouter)
+app.use("/", defaultRouter);
 app.use("/api", apiRouter);
 
 // Login Route
-
 
 // Start Server
 app.listen(port, () => console.log(`Server running on port ${port}`));

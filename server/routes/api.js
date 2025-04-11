@@ -1,26 +1,19 @@
 const express = require("express");
 const router = express.Router();
-const nodemailer = require("nodemailer");
 const bcrypt = require("bcryptjs");
 const { PendingTherapist, Therapist } = require("../model/therapist");
 const JWT_SECRET = "mohit@123"; 
 const cors = require("cors");
-const mongoose = require("mongoose");
+
  // Import bcrypt
 const jwt = require("jsonwebtoken"); // Import jsonwebtoken
-
+const {therapistmail} = require("./mail")
 const generateRandomPassword = () => {
   return Math.random().toString(36).slice(-8);
 };
 
 // ✅ Configure Nodemailer
-const transporter = nodemailer.createTransport({
-  service: "gmail",
-  auth: {
-    user: "college9652@gmail.com",
-    pass: "zidmjidvtjgvzghf",
-  },
-});
+
 
 // Route: Register therapist request
 router.post("/register", async (req, res) => {
@@ -68,10 +61,10 @@ router.get("/admin", async (req, res) => {
 // Route: Approve a therapist
 router.post("/admin/approve/:id", async (req, res) => {
   try {
-    
+  
 
     const request = await PendingTherapist.findById(req.params.id);
-
+console.log(request);
     // ✅ Generate and hash password
     const randomPassword = generateRandomPassword();
     const hashedPassword = await bcrypt.hash(randomPassword, 10);
@@ -90,34 +83,9 @@ router.post("/admin/approve/:id", async (req, res) => {
 
     await approvedTherapist.save();
     await PendingTherapist.findByIdAndDelete(req.params.id);
-
-    // ✅ Send email
-    const mailOptions = {
-      from: "college9652@gmail.com",
-      to: request.email,
-      subject: "Therapist Account Approved",
-      html: `
-      <div style="font-family: Arial, sans-serif; padding: 20px; text-align: center;">
-        <h1 style="font-size: 32px; color: #4CAF50;">🎉 Congratulations! 🎉 ${request.name}</h1>
-        <p style="font-size: 22px; font-weight: bold; color: #333;">
-          Your Therapist account has been approved!
-        </p>
-        <div style="background: #f4f4f4; padding: 15px; border-radius: 8px; margin-top: 20px;">
-          <p style="font-size: 20px; font-weight: bold; color: #000;">Login Details:</p>
-          <p style="font-size: 18px;"><strong>Email:</strong> ${request.email}</p>
-          <p style="font-size: 18px;"><strong>Password:</strong> ${randomPassword}</p>
-        </div>
-        <p style="font-size: 18px; color: #666; margin-top: 20px;">
-          Please change your password after logging in for security purposes.
-        </p>
-      </div>
-    `,
-    };
-
-
-    await transporter.sendMail(mailOptions);
-    console.log("Email sent successfully");
-    res.json({ message: "Therapist approved and email sent!" });
+    console.log(request)
+    const response = await therapistmail(request,randomPassword)
+    res.json(response);
   } catch (error) {
     console.error("Error approving therapist:", error);
     res.status(500).json({ error: "Server error" });

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, } from 'react';
 
 const WordWizard = () => {
   // Game levels with phonics-based words (structured literacy approach)
