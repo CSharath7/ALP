@@ -1,26 +1,25 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 const WordWizard = () => {
-  // Game levels with phonics-based words (structured literacy approach)
   const levels = [
     {
       name: "CVC Words",
       words: ["cat", "dog", "sun", "hat", "pen", "red", "big", "hot"],
-      hintType: "phonics" // Focus on blending sounds
+      hintType: "phonics"
     },
     {
       name: "Digraphs",
       words: ["ship", "chat", "fish", "thin", "when", "bath"],
-      hintType: "sound-boxes" // Breaks words into phonemes
+      hintType: "sound-boxes"
     },
     {
       name: "Blends",
       words: ["frog", "step", "crab", "spin", "twin", "glad"],
-      hintType: "color-coded" // Highlights blends
+      hintType: "color-coded"
     }
   ];
 
-  // Game state
   const [currentLevel, setCurrentLevel] = useState(0);
   const [currentWord, setCurrentWord] = useState("");
   const [scrambledLetters, setScrambledLetters] = useState([]);
@@ -30,8 +29,23 @@ const WordWizard = () => {
   const [feedback, setFeedback] = useState({ text: "", color: "" });
   const [showHint, setShowHint] = useState(false);
   const [gameWon, setGameWon] = useState(false);
+  const [wordChecked, setWordChecked] = useState(false);
 
-  // Initialize a new word
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    if (!gameWon) newWord();
+  }, [currentLevel]);
+
+  useEffect(() => {
+    if (gameWon) {
+      const timer = setTimeout(() => {
+        navigate('/games');
+      }, 3000);
+      return () => clearTimeout(timer);
+    }
+  }, [gameWon, navigate]);
+
   const newWord = () => {
     const words = levels[currentLevel].words;
     const randomWord = words[Math.floor(Math.random() * words.length)];
@@ -39,9 +53,9 @@ const WordWizard = () => {
     setScrambledLetters(shuffleArray([...randomWord]));
     setUserLetters([]);
     setShowHint(false);
+    setWordChecked(false);
   };
 
-  // Shuffle letters (Fisher-Yates algorithm)
   const shuffleArray = (array) => {
     for (let i = array.length - 1; i > 0; i--) {
       const j = Math.floor(Math.random() * (i + 1));
@@ -50,15 +64,15 @@ const WordWizard = () => {
     return array;
   };
 
-  // Handle letter selection
   const handleLetterClick = (letter) => {
     if (userLetters.length < currentWord.length) {
       setUserLetters([...userLetters, letter]);
     }
   };
 
-  // Check if the word is correct
   const checkWord = () => {
+    if (wordChecked) return; // Prevent rechecking same word
+
     const userWord = userLetters.join("");
     if (userWord === currentWord) {
       const newScore = score + 10 + (streak * 2);
@@ -66,48 +80,44 @@ const WordWizard = () => {
       setScore(newScore);
       setStreak(newStreak);
       setFeedback({ text: `Correct! +${10 + streak * 2} points`, color: "green" });
+      setWordChecked(true);
 
-      // Level progression
       if (newScore >= (currentLevel + 1) * 50) {
         if (currentLevel < levels.length - 1) {
-          setCurrentLevel(currentLevel + 1);
+          setTimeout(() => setCurrentLevel(currentLevel + 1), 1500);
         } else {
           setGameWon(true);
         }
+      } else {
+        setTimeout(newWord, 1500);
       }
-      setTimeout(newWord, 1500);
     } else {
       setStreak(0);
       setFeedback({ text: "Try again!", color: "red" });
     }
   };
 
-  // Reset the current word
   const resetWord = () => {
     setUserLetters([]);
     setFeedback({ text: "", color: "" });
   };
 
-  // Get a dyslexia-friendly hint
   const getHint = () => {
     setShowHint(true);
-    setStreak(0); // Resets streak to encourage independent solving
+    setStreak(0);
   };
 
-  // Render phonics hint (sound boxes)
   const renderHint = () => {
     switch (levels[currentLevel].hintType) {
       case "phonics":
         return (
           <div style={{ fontSize: "1.5rem", margin: "10px 0" }}>
             {currentWord.split("").map((letter, i) => (
-              <span key={i} style={{ 
-                borderBottom: "2px solid #4b6a88", 
+              <span key={i} style={{
+                borderBottom: "2px solid #4b6a88",
                 margin: "0 5px",
                 padding: "0 5px"
-              }}>
-                {letter}
-              </span>
+              }}>{letter}</span>
             ))}
           </div>
         );
@@ -116,7 +126,9 @@ const WordWizard = () => {
           <div style={{ fontSize: "1.5rem", margin: "10px 0" }}>
             {currentWord.match(/sh|ch|th|wh|ph|ck|ng/g) ? (
               <div>
-                <span style={{ color: "#FF5252" }}>{currentWord.match(/sh|ch|th|wh|ph|ck|ng/g)[0]}</span>
+                <span style={{ color: "#FF5252" }}>
+                  {currentWord.match(/sh|ch|th|wh|ph|ck|ng/g)[0]}
+                </span>
                 <span>{currentWord.replace(/sh|ch|th|wh|ph|ck|ng/g, '')}</span>
               </div>
             ) : (
@@ -128,7 +140,7 @@ const WordWizard = () => {
         return (
           <div style={{ fontSize: "1.5rem", margin: "10px 0" }}>
             {currentWord.split("").map((letter, i) => (
-              <span key={i} style={{ 
+              <span key={i} style={{
                 color: i < 2 ? "#4285F4" : "#0F9D58",
                 fontWeight: "bold"
               }}>
@@ -142,7 +154,6 @@ const WordWizard = () => {
     }
   };
 
-  // Dyslexia-friendly styling
   const styles = {
     container: {
       fontFamily: '"Comic Sans MS", "OpenDyslexic", sans-serif',
@@ -247,17 +258,9 @@ const WordWizard = () => {
           <p style={{ textAlign: 'center', fontSize: '1.5rem' }}>
             Final Score: <strong>{score}</strong>
           </p>
-          <button 
-            style={{ ...styles.button, display: 'block', margin: '20px auto' }}
-            onClick={() => {
-              setCurrentLevel(0);
-              setScore(0);
-              setGameWon(false);
-              newWord();
-            }}
-          >
-            Play Again
-          </button>
+          <p style={{ textAlign: 'center', fontSize: '1rem', color: '#666' }}>
+            Redirecting to games in 3 seconds...
+          </p>
         </div>
       ) : (
         <div style={styles.gameArea}>
@@ -268,9 +271,7 @@ const WordWizard = () => {
 
           <div style={{ textAlign: 'center' }}>
             <div style={styles.userLetters}>
-              {userLetters.length > 0 ? (
-                userLetters.join("")
-              ) : (
+              {userLetters.length > 0 ? userLetters.join("") : (
                 <span style={{ color: '#aaa' }}>Build the word...</span>
               )}
             </div>
@@ -292,22 +293,14 @@ const WordWizard = () => {
               </button>
             ))}
           </div>
-
           <div style={{ textAlign: 'center', marginTop: '20px' }}>
-            <button style={styles.button} onClick={checkWord}>
-              Check
-            </button>
-            <button style={{ ...styles.button, ...styles.hintButton }} onClick={getHint}>
-              Get Hint
-            </button>
-            <button style={styles.button} onClick={resetWord}>
-              Reset
-            </button>
+            <button style={styles.button} onClick={checkWord}>Check</button>
+            <button style={{ ...styles.button, ...styles.hintButton }} onClick={getHint}>Get Hint</button>
+            <button style={styles.button} onClick={resetWord}>Reset</button>
           </div>
         </div>
       )}
     </div>
   );
 };
-
 export default WordWizard;
