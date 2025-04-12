@@ -1,5 +1,7 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
+import * as faceapi from 'face-api.js';
+import '../styles/WordWizard.css';
 
 const WordWizard = () => {
   const levels = [
@@ -20,6 +22,8 @@ const WordWizard = () => {
     }
   ];
 
+  const videoRef = useRef(null);
+  const [expression, setExpression] = useState("neutral");
   const [currentLevel, setCurrentLevel] = useState(0);
   const [currentWord, setCurrentWord] = useState("");
   const [scrambledLetters, setScrambledLetters] = useState([]);
@@ -32,6 +36,52 @@ const WordWizard = () => {
   const [wordChecked, setWordChecked] = useState(false);
 
   const navigate = useNavigate();
+
+  // Load face-api models and setup camera (hidden)
+  useEffect(() => {
+    const loadModels = async () => {    
+      await faceapi.nets.tinyFaceDetector.loadFromUri("/models");
+      await faceapi.nets.faceExpressionNet.loadFromUri("/models");
+    };
+
+    const setupCamera = async () => {
+      try {
+        const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+        if (videoRef.current) {
+          videoRef.current.srcObject = stream;
+          videoRef.current.onloadeddata = startExpressionDetection;
+        }
+      } catch (error) {
+        console.error("Error accessing webcam:", error);
+      }
+    };
+
+    loadModels().then(setupCamera);
+
+    return () => {
+      if (videoRef.current?.srcObject) {
+        videoRef.current.srcObject.getTracks().forEach(track => track.stop());
+      }
+    };
+  }, []);
+
+  const startExpressionDetection = async () => {
+    if (!videoRef.current) return;
+
+    setInterval(async () => {
+      const detections = await faceapi
+        .detectSingleFace(videoRef.current, new faceapi.TinyFaceDetectorOptions())
+        .withFaceExpressions();
+
+      if (detections) {
+        const expressions = detections.expressions;
+        const maxExpression = Object.keys(expressions).reduce((a, b) =>
+          expressions[a] > expressions[b] ? a : b
+        );
+        setExpression(maxExpression);
+      }
+    }, 1000);
+  };
 
   useEffect(() => {
     if (!gameWon) newWord();
@@ -70,16 +120,36 @@ const WordWizard = () => {
     }
   };
 
+  const calculateEmotionBonus = () => {
+    const emotionScores = {
+      happy: 5,
+      surprised: 3,
+      neutral: 1,
+      sad: 0,
+      angry: 0,
+      disgusted: 0,
+      fearful: 0
+    };
+    return emotionScores[expression] || 0;
+  };
+
   const checkWord = () => {
-    if (wordChecked) return; // Prevent rechecking same word
+    if (wordChecked) return;
 
     const userWord = userLetters.join("");
     if (userWord === currentWord) {
-      const newScore = score + 10 + (streak * 2);
+      const emotionBonus = calculateEmotionBonus();
+      const newScore = score + 10 + (streak * 2) + emotionBonus;
       const newStreak = streak + 1;
       setScore(newScore);
       setStreak(newStreak);
-      setFeedback({ text: `Correct! +${10 + streak * 2} points`, color: "green" });
+      
+      let feedbackText = `Correct! +${10 + streak * 2} points`;
+      if (emotionBonus > 0) {
+        feedbackText += ` (+${emotionBonus} for ${expression} face)`;
+      }
+      
+      setFeedback({ text: feedbackText, color: "green" });
       setWordChecked(true);
 
       if (newScore >= (currentLevel + 1) * 50) {
@@ -92,8 +162,13 @@ const WordWizard = () => {
         setTimeout(newWord, 1500);
       }
     } else {
+      const emotionPenalty = expression === 'frustrated' ? -2 : 0;
+      setScore(prev => Math.max(0, prev + emotionPenalty));
       setStreak(0);
-      setFeedback({ text: "Try again!", color: "red" });
+      setFeedback({ 
+        text: emotionPenalty ? "Try again! (-2 for frustration)" : "Try again!", 
+        color: "red" 
+      });
     }
   };
 
@@ -111,22 +186,20 @@ const WordWizard = () => {
     switch (levels[currentLevel].hintType) {
       case "phonics":
         return (
-          <div style={{ fontSize: "1.5rem", margin: "10px 0" }}>
+          <div className="hint-container">
             {currentWord.split("").map((letter, i) => (
-              <span key={i} style={{
-                borderBottom: "2px solid #4b6a88",
-                margin: "0 5px",
-                padding: "0 5px"
-              }}>{letter}</span>
+              <span key={i} className="phonics-letter">
+                {letter}
+              </span>
             ))}
           </div>
         );
       case "sound-boxes":
         return (
-          <div style={{ fontSize: "1.5rem", margin: "10px 0" }}>
+          <div className="hint-container">
             {currentWord.match(/sh|ch|th|wh|ph|ck|ng/g) ? (
               <div>
-                <span style={{ color: "#FF5252" }}>
+                <span className="digraph">
                   {currentWord.match(/sh|ch|th|wh|ph|ck|ng/g)[0]}
                 </span>
                 <span>{currentWord.replace(/sh|ch|th|wh|ph|ck|ng/g, '')}</span>
@@ -138,12 +211,9 @@ const WordWizard = () => {
         );
       case "color-coded":
         return (
-          <div style={{ fontSize: "1.5rem", margin: "10px 0" }}>
+          <div className="hint-container">
             {currentWord.split("").map((letter, i) => (
-              <span key={i} style={{
-                color: i < 2 ? "#4285F4" : "#0F9D58",
-                fontWeight: "bold"
-              }}>
+              <span key={i} className={i < 2 ? "blend-start" : "blend-end"}>
                 {letter}
               </span>
             ))}
@@ -154,153 +224,77 @@ const WordWizard = () => {
     }
   };
 
-  const styles = {
-    container: {
-      fontFamily: '"Comic Sans MS", "OpenDyslexic", sans-serif',
-      backgroundColor: '#f0f8ff',
-      minHeight: '100vh',
-      padding: '20px',
-      color: '#333',
-      lineHeight: '1.6',
-      maxWidth: '800px',
-      margin: '0 auto',
-    },
-    header: {
-      textAlign: 'center',
-      marginBottom: '30px',
-    },
-    title: {
-      fontSize: '2.5rem',
-      fontWeight: 'bold',
-      color: '#4b6a88',
-      marginBottom: '10px',
-    },
-    gameArea: {
-      backgroundColor: 'white',
-      borderRadius: '15px',
-      padding: '25px',
-      boxShadow: '0 4px 8px rgba(0,0,0,0.1)',
-    },
-    lettersContainer: {
-      display: 'flex',
-      flexWrap: 'wrap',
-      justifyContent: 'center',
-      gap: '10px',
-      margin: '20px 0',
-    },
-    letterButton: {
-      fontSize: '1.8rem',
-      padding: '10px',
-      minWidth: '50px',
-      backgroundColor: '#e0f7fa',
-      border: '2px solid #4b6a88',
-      borderRadius: '8px',
-      cursor: 'pointer',
-      userSelect: 'none',
-    },
-    userLetters: {
-      fontSize: '2rem',
-      letterSpacing: '5px',
-      margin: '20px 0',
-      fontWeight: 'bold',
-    },
-    feedback: {
-      fontSize: '1.5rem',
-      color: (feedback.color === "green" ? '#0F9D58' : '#FF5252'),
-      margin: '10px 0',
-      minHeight: '30px',
-    },
-    scoreBoard: {
-      display: 'flex',
-      justifyContent: 'space-around',
-      margin: '20px 0',
-      fontSize: '1.3rem',
-    },
-    button: {
-      padding: '12px 24px',
-      fontSize: '1.2rem',
-      backgroundColor: '#4b6a88',
-      color: 'white',
-      border: 'none',
-      borderRadius: '8px',
-      cursor: 'pointer',
-      margin: '0 10px',
-      fontFamily: '"Comic Sans MS", sans-serif',
-    },
-    hintButton: {
-      backgroundColor: '#FFC107',
-    },
-    levelIndicator: {
-      backgroundColor: '#4b6a88',
-      color: 'white',
-      padding: '5px 15px',
-      borderRadius: '20px',
-      display: 'inline-block',
-    },
-    streakIndicator: {
-      color: '#FFD600',
-      fontWeight: 'bold',
-    }
-  };
-
   return (
-    <div style={styles.container}>
-      <div style={styles.header}>
-        <h1 style={styles.title}>Word Wizard 🧙‍♂️</h1>
-        <div style={styles.levelIndicator}>
+    <div className="word-wizard-container">
+      {/* Hidden video element for emotion detection */}
+      <video 
+        ref={videoRef} 
+        autoPlay 
+        playsInline 
+        className="hidden-video"
+      ></video>
+      
+      <div className="emotion-indicator">
+        Detected Emotion: {expression}
+      </div>
+
+      <div className="header">
+        <h1 className="title">Word Wizard 🧙‍♂️</h1>
+        <div className="level-indicator">
           Level: {levels[currentLevel].name}
         </div>
       </div>
 
       {gameWon ? (
-        <div style={styles.gameArea}>
-          <h2 style={{ textAlign: 'center', color: '#4b6a88' }}>You're a Word Wizard! 🎉</h2>
-          <p style={{ textAlign: 'center', fontSize: '1.5rem' }}>
+        <div className="game-area">
+          <h2 className="game-won-title">You're a Word Wizard! 🎉</h2>
+          <p className="final-score">
             Final Score: <strong>{score}</strong>
           </p>
-          <p style={{ textAlign: 'center', fontSize: '1rem', color: '#666' }}>
+          <p className="redirect-message">
             Redirecting to games in 3 seconds...
           </p>
         </div>
       ) : (
-        <div style={styles.gameArea}>
-          <div style={styles.scoreBoard}>
+        <div className="game-area">
+          <div className="score-board">
             <div>Score: <strong>{score}</strong></div>
-            <div>Streak: <strong style={styles.streakIndicator}>{streak} 🔥</strong></div>
+            <div>Streak: <strong className="streak-indicator">{streak} 🔥</strong></div>
           </div>
 
-          <div style={{ textAlign: 'center' }}>
-            <div style={styles.userLetters}>
+          <div className="word-display">
+            <div className="user-letters">
               {userLetters.length > 0 ? userLetters.join("") : (
-                <span style={{ color: '#aaa' }}>Build the word...</span>
+                <span className="placeholder">Build the word...</span>
               )}
             </div>
-            <div style={styles.feedback}>
+            <div className={`feedback ${feedback.color}`}>
               {feedback.text}
             </div>
           </div>
 
           {showHint && renderHint()}
 
-          <div style={styles.lettersContainer}>
+          <div className="letters-container">
             {scrambledLetters.map((letter, index) => (
               <button
                 key={index}
-                style={styles.letterButton}
+                className="letter-button"
                 onClick={() => handleLetterClick(letter)}
               >
                 {letter}
               </button>
             ))}
           </div>
-          <div style={{ textAlign: 'center', marginTop: '20px' }}>
-            <button style={styles.button} onClick={checkWord}>Check</button>
-            <button style={{ ...styles.button, ...styles.hintButton }} onClick={getHint}>Get Hint</button>
-            <button style={styles.button} onClick={resetWord}>Reset</button>
+          <div className="action-buttons">
+            <button className="action-button" onClick={checkWord}>Check</button>
+            <button className="action-button hint-button" onClick={getHint}>Get Hint</button>
+            <button className="action-button" onClick={resetWord}>Reset</button>
           </div>
         </div>
       )}
     </div>
   );
 };
+
 export default WordWizard;

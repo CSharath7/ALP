@@ -1,0 +1,174 @@
+.word-wizard-container {
+    font-family: "Comic Sans MS", "OpenDyslexic", sans-serif;
+    background-color: #f0f8ff;
+    min-height: 100vh;
+    padding: 20px;
+    color: #333;
+    line-height: 1.6;
+    max-width: 800px;
+    margin: 0 auto;
+    position: relative;
+}
+
+.hidden-video {
+    display: none;
+}
+
+.emotion-indicator {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background-color: rgba(255, 255, 255, 0.7);
+    padding: 5px 10px;
+    border-radius: 15px;
+    font-size: 0.9rem;
+}
+
+.header {
+    text-align: center;
+    margin-bottom: 30px;
+}
+
+.title {
+    font-size: 2.5rem;
+    font-weight: bold;
+    color: #4b6a88;
+    margin-bottom: 10px;
+}
+
+.level-indicator {
+    background-color: #4b6a88;
+    color: white;
+    padding: 5px 15px;
+    border-radius: 20px;
+    display: inline-block;
+}
+
+.game-area {
+    background-color: white;
+    border-radius: 15px;
+    padding: 25px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.score-board {
+    display: flex;
+    justify-content: space-around;
+    margin: 20px 0;
+    font-size: 1.3rem;
+}
+
+.streak-indicator {
+    color: #FFD600;
+    font-weight: bold;
+}
+
+.word-display {
+    text-align: center;
+}
+
+.user-letters {
+    font-size: 2rem;
+    letter-spacing: 5px;
+    margin: 20px 0;
+    font-weight: bold;
+}
+
+.placeholder {
+    color: #aaa;
+}
+
+.feedback {
+    font-size: 1.5rem;
+    margin: 10px 0;
+    min-height: 30px;
+}
+
+.feedback.green {
+    color: #0F9D58;
+}
+
+.feedback.red {
+    color: #FF5252;
+}
+
+.hint-container {
+    font-size: 1.5rem;
+    margin: 10px 0;
+}
+
+.phonics-letter {
+    border-bottom: 2px solid #4b6a88;
+    margin: 0 5px;
+    padding: 0 5px;
+}
+
+.digraph {
+    color: #FF5252;
+}
+
+.blend-start {
+    color: #4285F4;
+    font-weight: bold;
+}
+
+.blend-end {
+    color: #0F9D58;
+    font-weight: bold;
+}
+
+.letters-container {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 10px;
+    margin: 20px 0;
+}
+
+.letter-button {
+    font-size: 1.8rem;
+    padding: 10px;
+    min-width: 50px;
+    background-color: #e0f7fa;
+    border: 2px solid #4b6a88;
+    border-radius: 8px;
+    cursor: pointer;
+    user-select: none;
+}
+
+.action-buttons {
+    text-align: center;
+    margin-top: 20px;
+}
+
+.action-button {
+    padding: 12px 24px;
+    font-size: 1.2rem;
+    background-color: #4b6a88;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    margin: 0 10px;
+    font-family: "Comic Sans MS", sans-serif;
+}
+
+.hint-button {
+    background-color: #FFC107;
+}
+
+.game-won-title {
+    text-align: center;
+    color: #4b6a88;
+}
+
+.final-score {
+    text-align: center;
+    font-size: 1.5rem;
+}
+
+.redirect-message {
+    text-align: center;
+    font-size: 1rem;
+    color: #666;
+}
