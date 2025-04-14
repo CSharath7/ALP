@@ -6,13 +6,14 @@ const MemoryMatrix = () => {
   const [userPattern, setUserPattern] = useState([]);
   const [gameState, setGameState] = useState('memorize'); // 'memorize' | 'recall' | 'result'
   const [score, setScore] = useState(0);
+  const [recallStartTime, setRecallStartTime] = useState(null);
+  const [isCorrectAnswer, setIsCorrectAnswer] = useState(false);
 
-  // Generate a new random pattern
   const generatePattern = () => {
     const pattern = [];
     const totalTiles = gridSize * gridSize;
-    const numActive = Math.floor(totalTiles * 0.4); // 40% of tiles lit
-    
+    const numActive = Math.floor(totalTiles * 0.4);
+
     while (pattern.length < numActive) {
       const randomTile = Math.floor(Math.random() * totalTiles);
       if (!pattern.includes(randomTile)) {
@@ -22,40 +23,45 @@ const MemoryMatrix = () => {
     return pattern;
   };
 
-  // Start a new round
   const startNewRound = () => {
     setTargetPattern(generatePattern());
     setUserPattern([]);
     setGameState('memorize');
-    
+
     setTimeout(() => {
       setGameState('recall');
-    }, 2000 + (gridSize * 500)); // More time for larger grids
+      setRecallStartTime(Date.now());
+    }, 2000 + (gridSize * 500));
   };
 
-  // Handle tile click during recall
   const handleTileClick = (tileIndex) => {
     if (gameState !== 'recall') return;
-    
+
     const newPattern = [...userPattern, tileIndex];
     setUserPattern(newPattern);
-    
-    // Check if pattern is complete
+
     if (newPattern.length === targetPattern.length) {
-      const isCorrect = targetPattern.every(tile => newPattern.includes(tile));
+      const isCorrect =
+        targetPattern.every(tile => newPattern.includes(tile)) &&
+        newPattern.every(tile => targetPattern.includes(tile));
+      setIsCorrectAnswer(isCorrect);
+
+      const timeTaken = (Date.now() - recallStartTime) / 1000;
+      const timeBonus = isCorrect ? Math.max(0, 5 - Math.floor(timeTaken)) : 0;
+      const points = isCorrect ? 10 + timeBonus : 0;
+
       setGameState('result');
-      setScore(score + (isCorrect ? 10 : 0));
-      
+      setScore(prev => prev + points);
+
       setTimeout(() => {
         if (isCorrect && score % 30 === 0) {
-          setGridSize(Math.min(gridSize + 1, 6)); // Increase difficulty
+          setGridSize(Math.min(gridSize + 1, 6));
         }
         startNewRound();
       }, 2000);
     }
   };
 
-  // Initialize game
   useEffect(() => {
     startNewRound();
   }, [gridSize]);
@@ -64,8 +70,8 @@ const MemoryMatrix = () => {
     <div style={{ fontFamily: 'Comic Sans MS, sans-serif', textAlign: 'center', padding: '20px' }}>
       <h1>🧠 Memory Matrix</h1>
       <p>Memorize the pattern and recreate it!</p>
-      
-      <div style={{ 
+
+      <div style={{
         display: 'grid',
         gridTemplateColumns: `repeat(${gridSize}, 60px)`,
         gap: '10px',
@@ -80,7 +86,7 @@ const MemoryMatrix = () => {
             style={{
               width: '60px',
               height: '60px',
-              backgroundColor: 
+              backgroundColor:
                 gameState === 'memorize' && targetPattern.includes(index) ? '#4CAF50' :
                 gameState === 'recall' && userPattern.includes(index) ? '#FFC107' :
                 '#E0E0E0',
@@ -91,13 +97,13 @@ const MemoryMatrix = () => {
           />
         ))}
       </div>
-      
+
       <p>Score: <strong>{score}</strong></p>
       <p>Grid Size: {gridSize}x{gridSize}</p>
-      
+
       {gameState === 'result' && (
-        <p style={{ color: userPattern.length === targetPattern.length ? 'green' : 'red' }}>
-          {userPattern.length === targetPattern.length ? '✅ Perfect!' : '❌ Try again!'}
+        <p style={{ color: isCorrectAnswer ? 'green' : 'red' }}>
+          {isCorrectAnswer ? '✅ Perfect!' : '❌ Try again!'}
         </p>
       )}
     </div>
