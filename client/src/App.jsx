@@ -14,6 +14,7 @@ import Math from "./pages/Math";
 import Story from "./pages/Story";
 import Pattern from "./pages/Pattern";
 import Memory from "./pages/Memory";
+import EmotionStream from './pages/EmotionStream';
 import SpellBee from "./pages/SpellBee";
 import WordWizard from "./pages/WordWizard";
 import WordDetective from "./pages/WordDetective";
@@ -36,6 +37,7 @@ function Layout() {
         <Route path="/signup" element={<SignupPage />} />
         <Route path="/admin" element={<AdminPanel />} />
         <Route path="/child" element={<ChildLogin />} />
+        <Route path="/camera" element={<EmotionStream />} />
 
         {/* Protected Routes */}
   
