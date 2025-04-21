@@ -6,7 +6,7 @@ const bcrypt = require("bcryptjs");
 const { PendingTherapist, Therapist } = require("../model/therapist");
 const Child = require("../model/child")
 const Id = require("../model/id")
-const JWT_SECRET = "Sharath_7";
+const JWT_SECRET = process.env.JWT_SECRET; // Replace with a secure secret key
 const cors = require("cors");
 const mongoose = require("mongoose");
  // Import bcrypt
