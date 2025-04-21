@@ -27,11 +27,6 @@ router.post("/register", async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 });
-router.get("/auth/protected", verifyToken, (req, res) => {
-  res.json({ message: "This is a protected route!" });
-});
-
-// ✅ MIDDLEWARE TO VERIFY JWT
 function verifyToken(req, res, next) {
   const token = req.header("Authorization");
   console.log(`from line 39 ${token}`);
@@ -47,6 +42,12 @@ function verifyToken(req, res, next) {
     res.status(400).json({ error: "Invalid Token" });
   }
 }
+router.get("/auth/protected", verifyToken, (req, res) => {
+  res.json({ message: "This is a protected route!" });
+});
+
+// ✅ MIDDLEWARE TO VERIFY JWT
+
 // Route: Get all pending requests
 router.get("/admin", async (req, res) => {
   try {

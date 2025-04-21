@@ -1,3 +1,4 @@
+require("dotenv").config()
 const express = require("express");
 const router = express.Router();
 const nodemailer = require("nodemailer");
@@ -5,7 +6,7 @@ const bcrypt = require("bcryptjs");
 const { PendingTherapist, Therapist } = require("../model/therapist");
 const Child = require("../model/child")
 const Id = require("../model/id")
-const JWT_SECRET = process.env.JWT_SECRET;
+const JWT_SECRET = "Sharath_7";
 const cors = require("cors");
 const mongoose = require("mongoose");
  // Import bcrypt
