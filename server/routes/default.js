@@ -15,14 +15,14 @@ const {childmail} = require("./mail")
 router.post("/login", async (req, res) => {
   try {
     const { email, password } = req.body;
-     //checking whether user exists or not
+
     const user = await Therapist.findOne({ email });
     if (!user) {
       console.log(user)
       return res.status(400).json({ error: "Invalid credentials" });
     }
 
-    // Comparing password
+    // Compare password
     const isMatch = await bcrypt.compare(password, user.password);
     console.log("isMatch: " + isMatch)
     if (!isMatch) {
@@ -76,7 +76,7 @@ router.post("/child-login", async (req, res) => {
       return res.status(400).json({ error: "Invalid Student ID" });
     }
 
-    // Generating JWT Token
+    // Generate JWT Token
     const token = jwt.sign({ id: user._id }, JWT_SECRET, { expiresIn: "1h" });
     console.log("token: " + token);
 
