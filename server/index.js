@@ -17,14 +17,17 @@ app.use(express.urlencoded({ extended: true }));
 app.use(cors());
 
 // Database Connection
-mongoose.connect("mongodb+srv://G373:DeleteDyslexia@cluster0.rtm72oj.mongodb.net", {
-  useNewUrlParser: true,
-  useUnifiedTopology: true,
-}).then(() => {
-  console.log("Connected to MongoDB");
-}).catch((err) => {
-  console.error("MongoDB connection error:", err);
-});
+mongoose
+  .connect("mongodb://127.0.0.1:27017/therapistDB", {
+    useNewUrlParser: true,
+    useUnifiedTopology: true,
+  })
+  .then(() => {
+    console.log("Connected to MongoDB");
+  })
+  .catch((err) => {
+    console.error("MongoDB connection error:", err);
+  });
 app.use("/", defaultRouter);
 app.use("/api", apiRouter);
 

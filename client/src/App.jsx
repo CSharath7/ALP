@@ -54,9 +54,9 @@ function Layout() {
         <Route
           path="/admin"
           element={
-            <ProtectedRoute>
+            
               <AdminPanel />
-            </ProtectedRoute>
+  
           }
         />
         <Route
