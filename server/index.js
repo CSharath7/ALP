@@ -17,6 +17,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use(cors());
 
 // Database Connection
+<<<<<<< HEAD
 mongoose.connect("mongodb+srv://G373:DeleteDyslexia@cluster0.rtm72oj.mongodb.net/test", {
   useNewUrlParser: true,
   useUnifiedTopology: true,
@@ -25,6 +26,19 @@ mongoose.connect("mongodb+srv://G373:DeleteDyslexia@cluster0.rtm72oj.mongodb.net
 }).catch((err) => {
   console.error("MongoDB connection error:", err);
 });
+=======
+mongoose
+  .connect("mongodb+srv://G373:DeleteDyslexia@cluster0.rtm72oj.mongodb.net/therapistDB", {
+    useNewUrlParser: true,
+    useUnifiedTopology: true,
+  })
+  .then(() => {
+    console.log("Connected to MongoDB");
+  })
+  .catch((err) => {
+    console.error("MongoDB connection error:", err);
+  });
+>>>>>>> 010cbc12dfe368b42b4f539f42fddff8b332ae1d
 app.use("/", defaultRouter);
 app.use("/api", apiRouter);
 

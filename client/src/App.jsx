@@ -53,10 +53,17 @@ function Layout() {
         {/* Protected Routes */}
         <Route
           path="/admin"
+<<<<<<< HEAD
           element={<AdminPanel />
             // <ProtectedRoute>
             //   <AdminPanel />
             // </ProtectedRoute>
+=======
+          element={
+            
+              <AdminPanel />
+  
+>>>>>>> 010cbc12dfe368b42b4f539f42fddff8b332ae1d
           }
         />
         <Route

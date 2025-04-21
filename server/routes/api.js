@@ -27,6 +27,15 @@ router.post("/register", async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 });
+<<<<<<< HEAD
+=======
+//protected route
+router.get("/auth/protected", verifyToken, (req, res) => {
+  res.json({ message: "This is a protected route!" });
+});
+
+// ✅ MIDDLEWARE TO VERIFY JWT
+>>>>>>> 010cbc12dfe368b42b4f539f42fddff8b332ae1d
 function verifyToken(req, res, next) {
   const token = req.header("Authorization");
   console.log(`from line 39 ${token}`);
