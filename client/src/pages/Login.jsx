@@ -227,9 +227,10 @@ function LoginPage() {
         password,
       });
       localStorage.setItem("token", response.data.token);
+      localStorage.setItem("role", response.data.role);
       navigate("/dashboard");
     } catch (err) {
-      setError("Oops! That email and password combination didn't work. Please try again.");
+      setError(err.response.msg);
     } finally {
       setIsLoading(false);
     }

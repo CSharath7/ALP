@@ -5,7 +5,7 @@ const nodemailer = require("nodemailer");
 const bcrypt = require("bcryptjs");
 const { PendingTherapist, Therapist } = require("../model/therapist");
 const Child = require("../model/child")
-const Id = require("../model/id")
+const Id = require("../model/childuniqueid")
 const JWT_SECRET = process.env.JWT_SECRET; // Replace with a secure secret key
 const cors = require("cors");
 const mongoose = require("mongoose");
@@ -20,21 +20,34 @@ router.post("/login", async (req, res) => {
     const user = await Therapist.findOne({ email });
     if (!user) {
       console.log(user)
-      return res.status(400).json({ error: "Invalid credentials" });
+      return res.status(400).json({ msg: "User Not Found" });
     }
 
     // Compare password
     const isMatch = await bcrypt.compare(password, user.password);
     console.log("isMatch: " + isMatch)
     if (!isMatch) {
-      return res.status(400).json({ error: "Invalid credentials" });
+      return res.status(400).json({ msg: "Invalid credentials" });
     }
 
     // Generate JWT Token
     const token = jwt.sign({ id: user._id }, JWT_SECRET, { expiresIn: "1h" });
     console.log("token: " + token)
 
-    res.json({ token});
+    res.json({
+      message: "Login successful",
+      token,
+      therapist: {
+        name: user.name,
+        age: user.age,
+        gender: user.gender,
+        email: user.email,
+        contact: user.contact,
+        experience: user.experience,
+        specialization:user.experience
+      },
+      role:"therapist",
+    });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
@@ -60,7 +73,7 @@ router.post("/reset-password/:token", async (req, res) => {
      });
   } catch (error) {
     console.log("JWT Error:", error.message); // Debugging
-    res.status(400).json({ error: "Invalid or expired token." });
+    res.status(400).json({ msg: "Invalid or expired token." });
   }
 });
 
@@ -74,7 +87,7 @@ router.post("/child-login", async (req, res) => {
     const user = await Child.findOne({uid:studentId});
     if (!user) {
       console.log(user);
-      return res.status(400).json({ error: "Invalid Student ID" });
+      return res.status(400).json({ msg: "Invalid Student ID" });
     }
 
     // Generate JWT Token
@@ -91,6 +104,7 @@ router.post("/child-login", async (req, res) => {
           email: user.email,
           uid: user.uid,
         },
+        role:"child"
       });
   } catch (error) {
     res.status(500).json({ error: error.message });
@@ -103,7 +117,7 @@ router.post("/child-register", async (req, res) => {
     //  user existence
    const existingChild = await Child.findOne({ email });
    if (existingChild) {
-     return res.status(400).json({ message: "A child with this email already exists." });}
+     return res.status(400).json({ msg: "A child with this email already exists." });}
     
       const uidDoc = await Id.findOneAndUpdate(
         { key: "ALP" },
