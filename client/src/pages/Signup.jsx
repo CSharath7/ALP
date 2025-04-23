@@ -197,7 +197,7 @@ function TherapistSignup() {
         contact: ""
       });
     } catch (e) {
-      setErrorMessage(e.response.data.msg);
+      setErrorMessage("Error submitting request. Please try again later.");
       console.error(e);
     } finally {
       setIsSubmitting(false);

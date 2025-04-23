@@ -19,10 +19,6 @@ const generateRandomPassword = () => {
 router.post("/register", async (req, res) => {
   try {
     console.log("Received data:", req.body);
-    const user = await Therapist.findOne({email:req.body.email})
-    if(user){
-      return res.status(400).json({msg:"A Therapist Already exists with same Mail"})
-    }
     const newTherapist = new PendingTherapist(req.body);
     await newTherapist.save();
     res.status(201).json({ message: "Therapist request submitted" });
