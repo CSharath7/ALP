@@ -13,5 +13,4 @@ const EmotionStream = () => {
         </div>
     );
 };
-
 export default EmotionStream;
