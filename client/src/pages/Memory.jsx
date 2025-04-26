@@ -1,30 +1,30 @@
 import React, { useState, useEffect } from 'react';
 
 const Memory = () => {
-  // Game symbols - using simple, distinct shapes and colors
   const symbols = [
-    { id: 1, char: '🔴', color: '#FF5252' }, // Red circle
-    { id: 2, char: '🔵', color: '#4285F4' }, // Blue circle
-    { id: 3, char: '🟡', color: '#FFD600' }, // Yellow circle
-    { id: 4, char: '🟢', color: '#0F9D58' }, // Green circle
-    { id: 5, char: '⭐', color: '#FFC107' }, // Star
-    { id: 6, char: '🟣', color: '#9C27B0' }, // Purple circle
+    { id: 1, char: '🔴', color: '#FF5252' },
+    { id: 2, char: '🔵', color: '#4285F4' },
+    { id: 3, char: '🟡', color: '#FFD600' },
+    { id: 4, char: '🟢', color: '#0F9D58' },
+    { id: 5, char: '⭐', color: '#FFC107' },
+    { id: 6, char: '🟣', color: '#9C27B0' },
   ];
 
-  // Game state
   const [cards, setCards] = useState([]);
   const [flipped, setFlipped] = useState([]);
   const [matched, setMatched] = useState([]);
   const [moves, setMoves] = useState(0);
   const [gameWon, setGameWon] = useState(false);
 
-  // Initialize game
+  const [startTime, setStartTime] = useState(null);
+  const [endTime, setEndTime] = useState(null);
+  const [score, setScore] = useState(0);
+
   useEffect(() => {
     initializeGame();
   }, []);
 
   const initializeGame = () => {
-    // Create pairs of cards
     const cardPairs = [...symbols, ...symbols]
       .sort(() => Math.random() - 0.5)
       .map((card, index) => ({ ...card, uniqueId: index }));
@@ -34,11 +34,12 @@ const Memory = () => {
     setMatched([]);
     setMoves(0);
     setGameWon(false);
+    setStartTime(Date.now());
+    setEndTime(null);
+    setScore(0);
   };
 
-  // Handle card click
   const handleCardClick = (id) => {
-    // Don't allow flipping if already flipped or matched
     if (flipped.length === 2 || flipped.includes(id) || matched.includes(id)) {
       return;
     }
@@ -46,35 +47,38 @@ const Memory = () => {
     const newFlipped = [...flipped, id];
     setFlipped(newFlipped);
 
-    // If two cards are flipped, check for a match
     if (newFlipped.length === 2) {
       setMoves(moves + 1);
-      
+
       const [firstId, secondId] = newFlipped;
       const firstCard = cards.find(card => card.uniqueId === firstId);
       const secondCard = cards.find(card => card.uniqueId === secondId);
 
       if (firstCard.id === secondCard.id) {
-        // Match found
         setMatched([...matched, firstId, secondId]);
         setFlipped([]);
-        
-        // Check if all cards are matched
+
         if (matched.length + 2 === cards.length) {
+          const finishedTime = Date.now();
+          setEndTime(finishedTime);
+
+          const timeTaken = (finishedTime - startTime) / 1000; // in seconds
+          const timeBonus = Math.max(0, 30 - Math.floor(timeTaken)); // bonus decreases as time increases
+          const finalScore = 100 - moves * 2 + timeBonus; // simple formula: fewer moves + quicker = better
+          
+          setScore(finalScore);
           setGameWon(true);
         }
       } else {
-        // No match - flip back after delay
         setTimeout(() => setFlipped([]), 1000);
       }
     }
   };
 
-  // Dyslexia-friendly styling
   const styles = {
     container: {
       fontFamily: '"Comic Sans MS", "OpenDyslexic", sans-serif',
-      backgroundColor: '#f0f8ff', // Light blue background
+      backgroundColor: '#f0f8ff',
       minHeight: '100vh',
       padding: '20px',
       color: '#333',
@@ -109,10 +113,10 @@ const Memory = () => {
       userSelect: 'none',
     },
     cardFlipped: {
-      backgroundColor: '#ffeb99', // Light yellow
+      backgroundColor: '#ffeb99',
     },
     cardMatched: {
-      backgroundColor: '#a8e6cf', // Light green
+      backgroundColor: '#a8e6cf',
       cursor: 'default',
     },
     controls: {
@@ -142,23 +146,29 @@ const Memory = () => {
     },
   };
 
+  const timeTaken = endTime ? ((endTime - startTime) / 1000).toFixed(1) : null;
+
   return (
     <div style={styles.container}>
       <h1 style={styles.title}>Memory Match Game</h1>
-      
+
       <div style={styles.info}>Moves: {moves}</div>
-      
+
+      {/* {timeTaken && <div style={styles.info}>Time Taken: {timeTaken} seconds</div>} */}
+
       {gameWon && (
         <div style={styles.winMessage}>
-          Congratulations! You won in {moves} moves! 🎉
+          🎉 Congratulations!<br />
+          You won the game!<br />
+          Final Score: {score}
         </div>
       )}
-      
+
       <div style={styles.gameBoard}>
         {cards.map((card) => {
           const isFlipped = flipped.includes(card.uniqueId);
           const isMatched = matched.includes(card.uniqueId);
-          
+
           return (
             <div
               key={card.uniqueId}
@@ -175,7 +185,7 @@ const Memory = () => {
           );
         })}
       </div>
-      
+
       <div style={styles.controls}>
         <button style={styles.button} onClick={initializeGame}>
           Restart Game
