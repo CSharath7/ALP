@@ -5,7 +5,7 @@ const nodemailer = require("nodemailer");
 const bcrypt = require("bcryptjs");
 const { PendingTherapist, Therapist } = require("../model/therapist");
 const Child = require("../model/child")
-const Id = require("../model/id")
+const Id = require("../model/Childid")
 const JWT_SECRET = process.env.JWT_SECRET; // Replace with a secure secret key
 const cors = require("cors");
 const mongoose = require("mongoose");
@@ -34,7 +34,7 @@ router.post("/login", async (req, res) => {
     const token = jwt.sign({ id: user._id }, JWT_SECRET, { expiresIn: "1h" });
     console.log("token: " + token)
 
-    res.json({ token});
+    res.json({ token,role:"admin",adminname:user.name,adminage:user.age});
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
@@ -98,7 +98,7 @@ router.post("/child-login", async (req, res) => {
 });
 router.post("/child-register", async (req, res) => {
   try {
-    const {name,age,gender,email} = req.body;
+    const {name,age,gender,email,therapist} = req.body;
      
     //  user existence
    const existingChild = await Child.findOne({ email });
@@ -119,6 +119,7 @@ router.post("/child-register", async (req, res) => {
       gender,
       email,
       uid: currentValue,
+      therapist
     });
 
     await newChild.save();

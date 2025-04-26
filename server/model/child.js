@@ -18,11 +18,12 @@ const childSchema = new mongoose.Schema(
       required: true,
       unique:true
     },
-
     uid: {
       type: Number,
-      
     },
+    therapist:{
+      type:String
+    }
   },
   { timestamps: true }
 );
