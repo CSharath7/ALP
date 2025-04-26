@@ -32,10 +32,12 @@ function ChildLogin() {
     setSuccessMessage("");
     
     try {
-      await axios.post("http://localhost:5000/child-login", loginData);
+      const response = await axios.post("http://localhost:5000/child-login", loginData);
+      localStorage.setItem("token",response.data.token);
+            localStorage.setItem("role", response.data.role);
       setSuccessMessage("Welcome back! Redirecting to your dashboard...");
       setTimeout(() => {
-        navigate("/student-dashboard");
+        navigate("/dashboard");
       }, 2000);
     } catch (e) {
       setErrorMessage("Login failed. Please check your Student ID and try again.");

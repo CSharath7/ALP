@@ -57,7 +57,7 @@ function Navbar() {
                     Change Password
                   </Link>
                   <Link
-                    to="/register-child"
+                    to="/ChildRegister"
                     className="block px-4 py-2 hover:bg-gray-200"
                   >
                     Register Child

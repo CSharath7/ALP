@@ -34,7 +34,7 @@ router.post("/login", async (req, res) => {
     const token = jwt.sign({ id: user._id }, JWT_SECRET, { expiresIn: "1h" });
     console.log("token: " + token)
 
-    res.json({ token,role:"admin",adminname:user.name,adminage:user.age});
+    res.json({ token,role:"therapist",adminname:user.name,adminage:user.age});
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
@@ -82,7 +82,6 @@ router.post("/child-login", async (req, res) => {
     console.log("token: " + token);
 
       res.json({
-        message: "Login successful",
         token,
         child: {
           name: user.name,
@@ -91,7 +90,8 @@ router.post("/child-login", async (req, res) => {
           email: user.email,
           uid: user.uid,
         },
-      });
+        role:"child"
+      },);
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
