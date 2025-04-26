@@ -2,9 +2,12 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 
-function ChildLogin() {
-  const [loginData, setLoginData] = useState({
-    studentId: ""
+function ChildRegister() {
+  const [registerData, setRegisterData] = useState({
+    name: "",
+    age: "",
+    gender: "",
+    email: ""
   });
 
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -22,24 +25,31 @@ function ChildLogin() {
   };
 
   const handleChange = (e) => {
-    setLoginData({ ...loginData, [e.target.name]: e.target.value });
+    setRegisterData({ ...registerData, [e.target.name]: e.target.value });
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsSubmitting(true);
     setErrorMessage("");
-    setSuccessMessage("");
-    
+    setSuccessMessage(""); 
     try {
-      await axios.post("http://localhost:5000/child-login", loginData);
-      setSuccessMessage("Welcome back! Redirecting to your dashboard...");
-      setTimeout(() => {
-        navigate("/student-dashboard");
-      }, 2000);
-    } catch (e) {
-      setErrorMessage("Login failed. Please check your Student ID and try again.");
-      console.error(e);
+        const therapistName = localStorage.getItem("adminname");
+        // Create the complete registration data including therapist name
+        const completeRegistrationData = {
+          ...registerData,
+          therapistName: therapistName || "Unknown Therapist" // Fallback if not found
+        };
+      const response = await axios.post("http://localhost:5000/child-register", completeRegistrationData);
+      setSuccessMessage(`Registration successful! Please check your email for UID`);
+      setRegisterData({
+        name: "",
+        age: "",
+        gender: "",
+        email: ""
+      });
+    } catch (error) {
+      setErrorMessage(`${error.response?.data?.message || "Registration failed. Please try again."}`);
     } finally {
       setIsSubmitting(false);
     }
@@ -54,10 +64,10 @@ function ChildLogin() {
         {/* Colorful header */}
         <div className="bg-gradient-to-r from-blue-500 to-purple-600 p-6">
           <h2 className="text-3xl font-bold text-white text-center">
-            Student Login
+            Student Registration
           </h2>
           <p className="text-white text-center mt-2 text-lg">
-            Access your learning dashboard
+            Create your learning account
           </p>
         </div>
 
@@ -76,19 +86,74 @@ function ChildLogin() {
           )}
 
           <form onSubmit={handleSubmit} className="space-y-5">
+            {/* Name Field */}
             <div className="space-y-1">
               <label className="block text-lg font-medium text-blue-800 flex items-center">
-                <span className="mr-2">🆔</span> Student ID
+                <span className="mr-2">👤</span> Full Name
               </label>
               <input
                 type="text"
-                name="studentId"
-                value={loginData.studentId}
+                name="name"
+                value={registerData.name}
                 onChange={handleChange}
                 className="w-full p-3 border-2 border-blue-200 rounded-lg focus:border-blue-500 focus:ring-2 focus:ring-blue-200"
                 style={dyslexicStyles}
                 required
-                placeholder="Enter your student ID"
+              />
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+              {/* Age Field */}
+              <div className="space-y-1">
+                <label className="block text-lg font-medium text-blue-800 flex items-center">
+                  <span className="mr-2">🎂</span> Age
+                </label>
+                <input
+                  type="number"
+                  name="age"
+                  value={registerData.age}
+                  onChange={handleChange}
+                  className="w-full p-3 border-2 border-blue-200 rounded-lg focus:border-blue-500 focus:ring-2 focus:ring-blue-200"
+                  style={dyslexicStyles}
+                  required
+                />
+              </div>
+
+              {/* Gender Field */}
+              <div className="space-y-1">
+                <label className="block text-lg font-medium text-blue-800 flex items-center">
+                  <span className="mr-2">👫</span> Gender
+                </label>
+                <select
+                  name="gender"
+                  value={registerData.gender}
+                  onChange={handleChange}
+                  className="w-full p-3 border-2 border-blue-200 rounded-lg focus:border-blue-500 focus:ring-2 focus:ring-blue-200"
+                  style={dyslexicStyles}
+                  required
+                >
+                  <option value="">Select your gender</option>
+                  <option value="Male">Male</option>
+                  <option value="Female">Female</option>
+                  <option value="Other">Other</option>
+                  <option value="Prefer not to say">Prefer not to say</option>
+                </select>
+              </div>
+            </div>
+
+            {/* Email Field */}
+            <div className="space-y-1">
+              <label className="block text-lg font-medium text-blue-800 flex items-center">
+                <span className="mr-2">📧</span> Email
+              </label>
+              <input
+                type="email"
+                name="email"
+                value={registerData.email}
+                onChange={handleChange}
+                className="w-full p-3 border-2 border-blue-200 rounded-lg focus:border-blue-500 focus:ring-2 focus:ring-blue-200"
+                style={dyslexicStyles}
+                required
               />
             </div>
 
@@ -103,10 +168,10 @@ function ChildLogin() {
                     <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                     <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                   </svg>
-                  Logging In...
+                  Registering...
                 </span>
               ) : (
-                "Login to Dashboard"
+                "Create Account"
               )}
             </button>
           </form>
@@ -116,12 +181,12 @@ function ChildLogin() {
         <div className="bg-blue-100 p-4 text-center border-t border-blue-200">
           <div className="flex flex-col space-y-2">
             <p className="text-blue-800">
-              Don't have an account?{' '}
+              Already have an account?{' '}
               <button 
-                onClick={() => navigate("/register")}
+                onClick={() => navigate("/login")}
                 className="font-bold underline focus:outline-none text-blue-600"
               >
-                Register here
+                Login here
               </button>
             </p>
             <button 
@@ -137,4 +202,4 @@ function ChildLogin() {
   );
 }
 
-export default ChildLogin;
+export default ChildRegister;

@@ -8,6 +8,7 @@ import {
 
 import HomePage from "./pages/Home";
 import ChildLogin from "./pages/ChildLogin";
+import ChildRegister from "./pages/ChildRegister";
 import LoginPage from "./pages/Login";
 import SignupPage from "./pages/Signup";
 import AdminPanel from "./pages/Admin";
@@ -48,6 +49,7 @@ function Layout() {
         {/* Public Routes */}
         <Route path="/" element={<HomePage />} />
         <Route path="/login" element={<LoginPage />} />
+        <Route path="/Childlogin" element={<ChildLogin />} />
         <Route path="/signup" element={<SignupPage />} />
 
         {/* Protected Routes */}
@@ -63,10 +65,10 @@ function Layout() {
           }
         />
         <Route
-          path="/child"
+          path="/ChildRegister"
           element={
             <ProtectedRoute>
-              <ChildLogin />
+              <ChildRegister/>
             </ProtectedRoute>
           }
         />
