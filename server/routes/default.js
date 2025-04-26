@@ -98,43 +98,35 @@ router.post("/child-login", async (req, res) => {
 });
 router.post("/child-register", async (req, res) => {
   try {
-    const {name,age,gender,email,therapist} = req.body;
-     
-    //  user existence
-   const existingChild = await Child.findOne({ email });
-   if (existingChild) {
-     return res.status(400).json({ message: "A child with this email already exists." });}
-    
-      const uidDoc = await Id.findOneAndUpdate(
-        { key: "ALP" },
-        { $inc: { value: 1 } },
-        { new: false }
-      );
-          const currentValue = uidDoc.value;
+    const { name, age, gender, email, therapist } = req.body;
 
-    //   new child creation
+    const uidDoc = await Id.findOneAndUpdate(
+      { key: "ALP" },
+      { $inc: { value: 1 } },
+      { new: false }
+    );
+    const currentValue = uidDoc.value;
+
     const newChild = new Child({
       name,
       age,
       gender,
       email,
       uid: currentValue,
-      therapist
+      therapist,
     });
 
     await newChild.save();
 
-    // send email
     await childmail(req.body, currentValue);
 
-    // client response
     res.status(201).json({ studentId: currentValue });
-
   } catch (error) {
     console.error("Error during child registration:", error);
     res.status(500).json({ error: error.message });
   }
 });
+
 
 module.exports = router;
 

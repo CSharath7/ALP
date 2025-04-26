@@ -15,7 +15,6 @@ function ChildRegister() {
   const [errorMessage, setErrorMessage] = useState("");
   const navigate = useNavigate();
 
-  // Dyslexia-friendly styles
   const dyslexicStyles = {
     fontFamily: "'Comic Sans MS', 'OpenDyslexic', sans-serif",
     letterSpacing: "0.05em",
@@ -35,10 +34,9 @@ function ChildRegister() {
     setSuccessMessage(""); 
     try {
         const therapistName = localStorage.getItem("adminname");
-        // Create the complete registration data including therapist name
         const completeRegistrationData = {
           ...registerData,
-          therapistName: therapistName || "Unknown Therapist" // Fallback if not found
+          therapistName: therapistName || "Unknown Therapist"
         };
       const response = await axios.post("http://localhost:5000/child-register", completeRegistrationData);
       setSuccessMessage(`Registration successful! Please check your email for UID`);
@@ -61,7 +59,6 @@ function ChildRegister() {
       style={dyslexicStyles}
     >
       <div className="w-full max-w-md bg-white shadow-lg rounded-xl overflow-hidden">
-        {/* Colorful header */}
         <div className="bg-gradient-to-r from-blue-500 to-purple-600 p-6">
           <h2 className="text-3xl font-bold text-white text-center">
             Student Registration
@@ -71,9 +68,7 @@ function ChildRegister() {
           </p>
         </div>
 
-        {/* Main content */}
         <div className="p-6">
-          {/* Success/Error messages */}
           {successMessage && (
             <div className="bg-green-100 border-l-4 border-green-500 p-4 rounded mb-6">
               <p className="text-green-700 font-medium">✅ {successMessage}</p>
@@ -86,7 +81,6 @@ function ChildRegister() {
           )}
 
           <form onSubmit={handleSubmit} className="space-y-5">
-            {/* Name Field */}
             <div className="space-y-1">
               <label className="block text-lg font-medium text-blue-800 flex items-center">
                 <span className="mr-2">👤</span> Full Name
@@ -103,7 +97,6 @@ function ChildRegister() {
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-              {/* Age Field */}
               <div className="space-y-1">
                 <label className="block text-lg font-medium text-blue-800 flex items-center">
                   <span className="mr-2">🎂</span> Age
@@ -119,7 +112,6 @@ function ChildRegister() {
                 />
               </div>
 
-              {/* Gender Field */}
               <div className="space-y-1">
                 <label className="block text-lg font-medium text-blue-800 flex items-center">
                   <span className="mr-2">👫</span> Gender
@@ -141,7 +133,6 @@ function ChildRegister() {
               </div>
             </div>
 
-            {/* Email Field */}
             <div className="space-y-1">
               <label className="block text-lg font-medium text-blue-800 flex items-center">
                 <span className="mr-2">📧</span> Email
@@ -175,27 +166,6 @@ function ChildRegister() {
               )}
             </button>
           </form>
-        </div>
-
-        {/* Footer Links */}
-        <div className="bg-blue-100 p-4 text-center border-t border-blue-200">
-          <div className="flex flex-col space-y-2">
-            <p className="text-blue-800">
-              Already have an account?{' '}
-              <button 
-                onClick={() => navigate("/login")}
-                className="font-bold underline focus:outline-none text-blue-600"
-              >
-                Login here
-              </button>
-            </p>
-            <button 
-              onClick={() => navigate("/help")}
-              className="text-blue-700 hover:underline focus:outline-none"
-            >
-              Need help?
-            </button>
-          </div>
         </div>
       </div>
     </div>

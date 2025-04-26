@@ -12,7 +12,7 @@ const HomePage = () => {
     color: "#333",
   };
 
-  // Blue color theme (same as TherapistSignup)
+  // Blue color theme
   const blueTheme = {
     bgLight: "#EFF6FF",       // bg-blue-50
     bgMedium: "#BFDBFE",      // bg-blue-200
@@ -27,11 +27,11 @@ const HomePage = () => {
   };
 
   return (
-    <div style={{...dyslexicStyles, backgroundColor: blueTheme.bgLight}}>
+    <div style={{ ...dyslexicStyles, backgroundColor: blueTheme.bgLight }}>
       {/* Navbar */}
       <nav className="navbar navbar-expand-lg navbar-light bg-white shadow-sm py-3 sticky-top">
         <div className="container">
-          <a className="navbar-brand fw-bold fs-3" href="#" style={{...dyslexicStyles, color: blueTheme.textDark}}>
+          <a className="navbar-brand fw-bold fs-3" href="#" style={{ ...dyslexicStyles, color: blueTheme.textDark }}>
             <span role="img" aria-label="Graduation cap">🎓</span> EduPlatform
           </a>
           <div className="ms-auto d-flex align-items-center">
@@ -39,7 +39,7 @@ const HomePage = () => {
               className="btn btn-outline-primary me-3 px-4 py-2 rounded-pill"
               onClick={() => navigate("/login")}
               style={{
-                ...dyslexicStyles, 
+                ...dyslexicStyles,
                 fontSize: "1.1rem",
                 color: blueTheme.borderDark,
                 borderColor: blueTheme.borderDark
@@ -48,10 +48,22 @@ const HomePage = () => {
               Login
             </button>
             <button
+              className="btn btn-outline-primary me-3 px-4 py-2 rounded-pill"
+              onClick={() => navigate("/ChildLogin")}
+              style={{
+                ...dyslexicStyles,
+                fontSize: "1.1rem",
+                color: blueTheme.borderDark,
+                borderColor: blueTheme.borderDark
+              }}
+            >
+              Child Login
+            </button>
+            <button
               className="btn btn-primary px-4 py-2 rounded-pill"
               onClick={() => navigate("/signup")}
               style={{
-                ...dyslexicStyles, 
+                ...dyslexicStyles,
                 fontSize: "1.1rem",
                 backgroundColor: blueTheme.button,
                 borderColor: blueTheme.button
@@ -64,7 +76,7 @@ const HomePage = () => {
       </nav>
 
       {/* Hero Section */}
-      <section 
+      <section
         className="hero d-flex align-items-center justify-content-center text-center py-5"
         style={{
           background: `linear-gradient(rgba(59, 130, 246, 0.8), rgba(99, 102, 241, 0.8)), url('https://images.unsplash.com/photo-1523050854058-8df90110c9f1')`,
@@ -74,21 +86,21 @@ const HomePage = () => {
         }}
       >
         <div className="container text-white py-5">
-          <h1 className="display-4 fw-bold mb-4" style={{fontSize: "2.8rem"}}>
-            Empowering <span style={{color: "#FBBF24"}}>Dyslexic Learners</span>, One Step at a Time
+          <h1 className="display-4 fw-bold mb-4" style={{ fontSize: "2.8rem" }}>
+            Empowering <span style={{ color: "#FBBF24" }}>Dyslexic Learners</span>, One Step at a Time
           </h1>
           <p className="lead fs-3 mb-5">
             A platform designed to make learning accessible and enjoyable for everyone.
           </p>
           <div className="d-flex justify-content-center gap-4">
-            <button 
+            <button
               className="btn btn-warning btn-lg px-5 py-3 rounded-pill fw-bold"
               onClick={() => navigate("/games")}
               style={dyslexicStyles}
             >
               Start Learning Now
             </button>
-            <button 
+            <button
               className="btn btn-outline-light btn-lg px-5 py-3 rounded-pill fw-bold"
               onClick={() => navigate("/about")}
               style={dyslexicStyles}
@@ -100,9 +112,9 @@ const HomePage = () => {
       </section>
 
       {/* Features Section */}
-      <section className="py-5" style={{backgroundColor: blueTheme.bgLight}}>
+      <section className="py-5" style={{ backgroundColor: blueTheme.bgLight }}>
         <div className="container py-5">
-          <h2 className="text-center mb-5 fw-bold" style={{fontSize: "2.2rem", color: blueTheme.textDark}}>
+          <h2 className="text-center mb-5 fw-bold" style={{ fontSize: "2.2rem", color: blueTheme.textDark }}>
             Why Choose Our Platform?
           </h2>
           <div className="row g-4">
@@ -144,10 +156,10 @@ const HomePage = () => {
                     <div className="fs-1 mb-3" role="img" aria-hidden="true">
                       {feature.icon}
                     </div>
-                    <h3 className="card-title fw-bold mb-3" style={{fontSize: "1.5rem", color: blueTheme.textDark}}>
+                    <h3 className="card-title fw-bold mb-3" style={{ fontSize: "1.5rem", color: blueTheme.textDark }}>
                       {feature.title}
                     </h3>
-                    <p className="card-text" style={{fontSize: "1.1rem"}}>
+                    <p className="card-text" style={{ fontSize: "1.1rem" }}>
                       {feature.desc}
                     </p>
                   </div>
@@ -159,9 +171,9 @@ const HomePage = () => {
       </section>
 
       {/* Testimonials */}
-      <section className="py-5" style={{backgroundColor: blueTheme.borderDark}}>
+      <section className="py-5" style={{ backgroundColor: blueTheme.borderDark }}>
         <div className="container py-5">
-          <h2 className="text-center mb-5 fw-bold text-white" style={{fontSize: "2.2rem"}}>
+          <h2 className="text-center mb-5 fw-bold text-white" style={{ fontSize: "2.2rem" }}>
             Success Stories
           </h2>
           <div className="row g-4">
@@ -182,10 +194,10 @@ const HomePage = () => {
               <div className="col-md-4" key={index}>
                 <div className="card h-100 p-4 border-0 rounded-3 bg-white">
                   <div className="card-body">
-                    <p className="card-text fs-5 mb-4" style={{fontStyle: "italic"}}>
+                    <p className="card-text fs-5 mb-4" style={{ fontStyle: "italic" }}>
                       "{testimonial.quote}"
                     </p>
-                    <p className="card-text fw-bold" style={{color: blueTheme.borderDark}}>
+                    <p className="card-text fw-bold" style={{ color: blueTheme.borderDark }}>
                       — {testimonial.author}
                     </p>
                   </div>
@@ -197,15 +209,15 @@ const HomePage = () => {
       </section>
 
       {/* Call to Action */}
-      <section className="py-5" style={{backgroundColor: blueTheme.bgLight}}>
+      <section className="py-5" style={{ backgroundColor: blueTheme.bgLight }}>
         <div className="container py-5 text-center">
-          <h2 className="fw-bold mb-4" style={{fontSize: "2.2rem", color: blueTheme.textDark}}>
+          <h2 className="fw-bold mb-4" style={{ fontSize: "2.2rem", color: blueTheme.textDark }}>
             Ready to Begin Your Learning Journey?
           </h2>
-          <p className="lead mb-5" style={{fontSize: "1.3rem"}}>
+          <p className="lead mb-5" style={{ fontSize: "1.3rem" }}>
             Join thousands of dyslexic learners who are discovering the joy of learning.
           </p>
-          <button 
+          <button
             className="btn btn-primary btn-lg px-5 py-3 rounded-pill fw-bold"
             onClick={() => navigate("/signup")}
             style={{
@@ -266,4 +278,4 @@ const HomePage = () => {
   );
 };
 
-export default HomePage; 
+export default HomePage;
