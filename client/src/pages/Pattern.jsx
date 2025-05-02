@@ -1,24 +1,33 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 
 const shapes = ["🔺", "🔵", "🟡", "🟥", "🔶"];
-const levels = [
-  { pattern: ["🔺", "🔺", "?"], answer: "🔺" },
-  { pattern: ["🔵", "🔺", "🔵", "?"], answer: "🔺" },
-  { pattern: ["🟡", "🔺", "🟡", "🔺", "?"], answer: "🟡" },
-];
 
 export default function Pattern() {
+  const [levels, setLevels] = useState([]);
   const [level, setLevel] = useState(0);
   const [selectedShape, setSelectedShape] = useState(null);
   const [message, setMessage] = useState("");
 
+  useEffect(() => {
+    fetch("/question.json")
+      .then((response) => response.json())
+      .then((data) => {
+        setLevels(data.pattern);
+      })
+      .catch((error) => {
+        console.error("Error fetching questions:", error);
+      });
+  }, []);
+
   const checkAnswer = () => {
+    if (!levels.length) return; // Wait until levels loaded
     if (selectedShape === levels[level].answer) {
       setMessage("Correct! Moving to next level.");
       setTimeout(() => {
         if (level < levels.length - 1) {
           setLevel(level + 1);
           setMessage("");
+          setSelectedShape(null);
         } else {
           setMessage("🎉 You completed all levels!");
         }
@@ -27,6 +36,10 @@ export default function Pattern() {
       setMessage("Try again!");
     }
   };
+
+  if (!levels.length) {
+    return <div>Loading...</div>; // Show loading until data is fetched
+  }
 
   return (
     <div className="flex flex-col items-center p-6 bg-gray-100 h-screen">

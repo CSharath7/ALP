@@ -1,0 +1,233 @@
+.home-container {
+    font-family: 'Comic Sans MS', sans-serif;
+    letter-spacing: 0.05em;
+    line-height: 1.6;
+    color: #333;
+    background-color: #eff6ff;
+  }
+  
+  /* Navbar styles */
+  .navbar {
+    background-color: white;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    padding: 1rem 0;
+  }
+  
+  .navbar-brand {
+    font-weight: bold;
+    font-size: 1.5rem;
+    color: #1e40af;
+    text-decoration: none;
+  }
+  
+  .nav-btn {
+    font-family: 'Comic Sans MS', sans-serif;
+    letter-spacing: 0.05em;
+    line-height: 1.6;
+    font-size: 1.1rem;
+    padding: 0.5rem 1.5rem;
+    border-radius: 9999px;
+  }
+  
+  .nav-btn-outline {
+    color: #3b82f6;
+    border: 1px solid #3b82f6;
+  }
+  
+  .nav-btn-primary {
+    background-color: #2563eb;
+    border: 1px solid #2563eb;
+    color: white;
+  }
+  
+  /* Hero section */
+  .hero {
+    background: linear-gradient(rgba(59, 130, 246, 0.8), rgba(99, 102, 241, 0.8)), url('https://images.unsplash.com/photo-1523050854058-8df90110c9f1');
+    background-size: cover;
+    background-attachment: fixed;
+    min-height: 80vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    color: white;
+    padding: 5rem 0;
+  }
+  
+  .hero-title {
+    font-size: 2.8rem;
+    font-weight: bold;
+    margin-bottom: 1.5rem;
+  }
+  
+  .hero-highlight {
+    color: #fbbf24;
+  }
+  
+  .hero-subtitle {
+    font-size: 1.8rem;
+    margin-bottom: 2.5rem;
+  }
+  
+  .hero-btn {
+    font-family: 'Comic Sans MS', sans-serif;
+    letter-spacing: 0.05em;
+    line-height: 1.6;
+    padding: 0.75rem 2.5rem;
+    border-radius: 9999px;
+    font-weight: bold;
+    font-size: 1.2rem;
+  }
+  
+  .hero-btn-primary {
+    background-color: #fbbf24;
+    color: #333;
+  }
+  
+  .hero-btn-outline {
+    border: 2px solid white;
+    color: white;
+  }
+  
+  /* Features section */
+  .features-section {
+    padding: 5rem 0;
+    background-color: #eff6ff;
+  }
+  
+  .section-title {
+    font-size: 2.2rem;
+    font-weight: bold;
+    color: #1e40af;
+    text-align: center;
+    margin-bottom: 3rem;
+  }
+  
+  .feature-card {
+    height: 100%;
+    padding: 1.5rem;
+    background-color: white;
+    border: none;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+    border-radius: 0.75rem;
+    text-align: center;
+  }
+  
+  .feature-icon {
+    font-size: 3rem;
+    margin-bottom: 1rem;
+  }
+  
+  .feature-title {
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: #1e40af;
+    margin-bottom: 1rem;
+  }
+  
+  .feature-desc {
+    font-size: 1.1rem;
+  }
+  
+  /* Testimonials section */
+  .testimonials-section {
+    padding: 5rem 0;
+    background-color: #3b82f6;
+  }
+  
+  .testimonial-title {
+    font-size: 2.2rem;
+    font-weight: bold;
+    color: white;
+    text-align: center;
+    margin-bottom: 3rem;
+  }
+  
+  .testimonial-card {
+    height: 100%;
+    padding: 1.5rem;
+    background-color: white;
+    border: none;
+    border-radius: 0.75rem;
+  }
+  
+  .testimonial-quote {
+    font-size: 1.25rem;
+    font-style: italic;
+    margin-bottom: 1.5rem;
+  }
+  
+  .testimonial-author {
+    font-weight: bold;
+    color: #3b82f6;
+  }
+  
+  /* CTA section */
+  .cta-section {
+    padding: 5rem 0;
+    background-color: #eff6ff;
+    text-align: center;
+  }
+  
+  .cta-title {
+    font-size: 2.2rem;
+    font-weight: bold;
+    color: #1e40af;
+    margin-bottom: 1.5rem;
+  }
+  
+  .cta-subtitle {
+    font-size: 1.3rem;
+    margin-bottom: 2.5rem;
+  }
+  
+  .cta-btn {
+    font-family: 'Comic Sans MS', sans-serif;
+    letter-spacing: 0.05em;
+    line-height: 1.6;
+    padding: 0.75rem 2.5rem;
+    border-radius: 9999px;
+    font-weight: bold;
+    font-size: 1.2rem;
+    background-color: #2563eb;
+    color: white;
+    border: 1px solid #2563eb;
+  }
+  
+  /* Footer */
+  .footer {
+    background-color: #1e293b;
+    color: white;
+    padding: 3rem 0;
+  }
+  
+  .footer-title {
+    font-weight: bold;
+    margin-bottom: 1.5rem;
+    font-size: 1.5rem;
+  }
+  
+  .footer-links-list {
+    list-style: none;
+    padding-left: 0;
+  }
+  
+  .footer-link {
+    color: white;
+    text-decoration: none;
+    margin-bottom: 0.5rem;
+    display: block;
+  }
+  
+  .footer-link:hover {
+    text-decoration: underline;
+  }
+  
+  .footer-divider {
+    border-color: rgba(255, 255, 255, 0.1);
+    margin: 1.5rem 0;
+  }
+  
+  .footer-copyright {
+    text-align: center;
+  }

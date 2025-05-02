@@ -5,21 +5,9 @@ import '../styles/WordWizard.css';
 
 const WordWizard = () => {
   const levels = [
-    {
-      name: "CVC Words",
-      words: ["cat", "dog", "sun", "hat", "pen", "red", "big", "hot"],
-      hintType: "phonics"
-    },
-    {
-      name: "Digraphs",
-      words: ["ship", "chat", "fish", "thin", "when", "bath"],
-      hintType: "sound-boxes"
-    },
-    {
-      name: "Blends",
-      words: ["frog", "step", "crab", "spin", "twin", "glad"],
-      hintType: "color-coded"
-    }
+    { name: "CVC Words", words: ["cat", "dog", "sun", "hat", "pen", "red", "big", "hot"], hintType: "phonics" },
+    { name: "Digraphs", words: ["ship", "chat", "fish", "thin", "when", "bath"], hintType: "sound-boxes" },
+    { name: "Blends", words: ["frog", "step", "crab", "spin", "twin", "glad"], hintType: "color-coded" }
   ];
 
   const videoRef = useRef(null);
@@ -34,12 +22,10 @@ const WordWizard = () => {
   const [showHint, setShowHint] = useState(false);
   const [gameWon, setGameWon] = useState(false);
   const [wordChecked, setWordChecked] = useState(false);
-
   const navigate = useNavigate();
 
-  // Load face-api models and setup camera (hidden)
   useEffect(() => {
-    const loadModels = async () => {    
+    const loadModels = async () => {
       await faceapi.nets.tinyFaceDetector.loadFromUri("/models");
       await faceapi.nets.faceExpressionNet.loadFromUri("/models");
     };
@@ -72,7 +58,6 @@ const WordWizard = () => {
       const detections = await faceapi
         .detectSingleFace(videoRef.current, new faceapi.TinyFaceDetectorOptions())
         .withFaceExpressions();
-
       if (detections) {
         const expressions = detections.expressions;
         const maxExpression = Object.keys(expressions).reduce((a, b) =>
@@ -125,12 +110,12 @@ const WordWizard = () => {
       happy: 5,
       surprised: 3,
       neutral: 1,
-      sad: 0,
-      angry: 0,
-      disgusted: 0,
-      fearful: 0
+      sad: -1,
+      angry: -1,
+      disgusted: -1,
+      fearful: -1
     };
-    return emotionScores[expression] || 0;
+    return emotionScores[expression] ?? 0;
   };
 
   const checkWord = () => {
@@ -139,20 +124,21 @@ const WordWizard = () => {
     const userWord = userLetters.join("");
     if (userWord === currentWord) {
       const emotionBonus = calculateEmotionBonus();
-      const newScore = score + 10 + (streak * 2) + emotionBonus;
-      const newStreak = streak + 1;
-      setScore(newScore);
-      setStreak(newStreak);
-      
-      let feedbackText = `Correct! +${10 + streak * 2} points`;
-      if (emotionBonus > 0) {
-        feedbackText += ` (+${emotionBonus} for ${expression} face)`;
+      const baseScore = 10 + (streak * 2);
+      const totalScore = baseScore + emotionBonus;
+
+      setScore(prev => Math.max(0, prev + totalScore));
+      setStreak(prev => prev + 1);
+
+      let feedbackText = `Correct! +${baseScore} points`;
+      if (emotionBonus !== 0) {
+        feedbackText += ` (${emotionBonus > 0 ? "+" : ""}${emotionBonus} for ${expression} face)`;
       }
-      
+
       setFeedback({ text: feedbackText, color: "green" });
       setWordChecked(true);
 
-      if (newScore >= (currentLevel + 1) * 50) {
+      if (score + totalScore >= (currentLevel + 1) * 50) {
         if (currentLevel < levels.length - 1) {
           setTimeout(() => setCurrentLevel(currentLevel + 1), 1500);
         } else {
@@ -162,12 +148,11 @@ const WordWizard = () => {
         setTimeout(newWord, 1500);
       }
     } else {
-      const emotionPenalty = expression === 'frustrated' ? -2 : 0;
-      setScore(prev => Math.max(0, prev + emotionPenalty));
+      setScore(prev => Math.max(0, prev));
       setStreak(0);
-      setFeedback({ 
-        text: emotionPenalty ? "Try again! (-2 for frustration)" : "Try again!", 
-        color: "red" 
+      setFeedback({
+        text: "Try again!",
+        color: "red"
       });
     }
   };
@@ -188,21 +173,18 @@ const WordWizard = () => {
         return (
           <div className="hint-container">
             {currentWord.split("").map((letter, i) => (
-              <span key={i} className="phonics-letter">
-                {letter}
-              </span>
+              <span key={i} className="phonics-letter">{letter}</span>
             ))}
           </div>
         );
       case "sound-boxes":
+        const digraphMatch = currentWord.match(/sh|ch|th|wh|ph|ck|ng/g);
         return (
           <div className="hint-container">
-            {currentWord.match(/sh|ch|th|wh|ph|ck|ng/g) ? (
+            {digraphMatch ? (
               <div>
-                <span className="digraph">
-                  {currentWord.match(/sh|ch|th|wh|ph|ck|ng/g)[0]}
-                </span>
-                <span>{currentWord.replace(/sh|ch|th|wh|ph|ck|ng/g, '')}</span>
+                <span className="digraph">{digraphMatch[0]}</span>
+                <span>{currentWord.replace(digraphMatch[0], '')}</span>
               </div>
             ) : (
               <div>{currentWord}</div>
@@ -226,23 +208,12 @@ const WordWizard = () => {
 
   return (
     <div className="word-wizard-container">
-      {/* Hidden video element for emotion detection */}
-      <video 
-        ref={videoRef} 
-        autoPlay 
-        playsInline 
-        className="hidden-video"
-      ></video>
-      
-      <div className="emotion-indicator">
-        Detected Emotion: {expression}
-      </div>
+      <video ref={videoRef} autoPlay playsInline className="hidden-video"></video>
+      <div className="emotion-indicator">Detected Emotion: {expression}</div>
 
       <div className="header">
         <h1 className="title">Word Wizard 🧙‍♂️</h1>
-        <div className="level-indicator">
-          Level: {levels[currentLevel].name}
-        </div>
+        <div className="level-indicator">Level: {levels[currentLevel]?.name || "Loading..."}</div>
       </div>
 
       {gameWon ? (
@@ -251,9 +222,7 @@ const WordWizard = () => {
           <p className="final-score">
             Final Score: <strong>{score}</strong>
           </p>
-          <p className="redirect-message">
-            Redirecting to games in 3 seconds...
-          </p>
+          <p className="redirect-message">Redirecting to games in 3 seconds...</p>
         </div>
       ) : (
         <div className="game-area">
@@ -275,21 +244,18 @@ const WordWizard = () => {
 
           {showHint && renderHint()}
 
-          <div className="letters-container">
+          <div className="letter-buttons">
             {scrambledLetters.map((letter, index) => (
-              <button
-                key={index}
-                className="letter-button"
-                onClick={() => handleLetterClick(letter)}
-              >
+              <button key={index} className="letter-button" onClick={() => handleLetterClick(letter)}>
                 {letter}
               </button>
             ))}
           </div>
-          <div className="action-buttons">
-            <button className="action-button" onClick={checkWord}>Check</button>
-            <button className="action-button hint-button" onClick={getHint}>Get Hint</button>
-            <button className="action-button" onClick={resetWord}>Reset</button>
+
+          <div className="game-actions">
+            <button className="action-button" onClick={checkWord}>Check Word</button>
+            <button className="action-button" onClick={resetWord}>Reset Word</button>
+            <button className="action-button" onClick={getHint}>Get Hint</button>
           </div>
         </div>
       )}

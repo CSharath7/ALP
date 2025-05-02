@@ -1,0 +1,296 @@
+{
+  "math": {
+    "easy": [
+      {
+        "question": "2 + 2 = ?",
+        "options": ["5", "4", "6", "3"],
+        "answer": "4"
+      },
+      {
+        "question": "5 - 3 = ?",
+        "options": ["2", "3", "1", "4"],
+        "answer": "2"
+      },
+      {
+        "question": "3 + 1 = ?",
+        "options": ["6", "2", "5", "4"],
+        "answer": "4"
+      },
+      {
+        "question": "6 - 2 = ?",
+        "options": ["4", "5", "3", "2"],
+        "answer": "4"
+      },
+      {
+        "question": "1 + 2 = ?",
+        "options": ["3", "2", "4", "5"],
+        "answer": "3"
+      },
+      {
+        "question": "4 + 0 = ?",
+        "options": ["5", "3", "4", "6"],
+        "answer": "4"
+      },
+      {
+        "question": "2 + 3 = ?",
+        "options": ["6", "4", "5", "7"],
+        "answer": "5"
+      },
+      {
+        "question": "5 - 1 = ?",
+        "options": ["5", "6", "3", "4"],
+        "answer": "4"
+      },
+      {
+        "question": "1 + 1 = ?",
+        "options": ["3", "2", "1", "4"],
+        "answer": "2"
+      },
+      {
+        "question": "6 - 3 = ?",
+        "options": ["2", "5", "3", "4"],
+        "answer": "3"
+      }
+    ],
+    "medium": [
+      {
+        "question": "12 + 15 = ?",
+        "options": ["26", "28", "27", "25"],
+        "answer": "27"
+      },
+      {
+        "question": "20 - 8 = ?",
+        "options": ["14", "12", "11", "13"],
+        "answer": "12"
+      },
+      {
+        "question": "14 + 5 = ?",
+        "options": ["18", "20", "19", "21"],
+        "answer": "19"
+      },
+      {
+        "question": "25 - 10 = ?",
+        "options": ["14", "16", "15", "13"],
+        "answer": "15"
+      },
+      {
+        "question": "9 + 6 = ?",
+        "options": ["15", "14", "13", "16"],
+        "answer": "15"
+      },
+      {
+        "question": "18 - 4 = ?",
+        "options": ["13", "14", "15", "12"],
+        "answer": "14"
+      },
+      {
+        "question": "10 + 11 = ?",
+        "options": ["22", "23", "21", "20"],
+        "answer": "21"
+      },
+      {
+        "question": "17 - 9 = ?",
+        "options": ["8", "10", "9", "7"],
+        "answer": "8"
+      },
+      {
+        "question": "8 + 5 = ?",
+        "options": ["14", "13", "11", "12"],
+        "answer": "13"
+      },
+      {
+        "question": "30 - 15 = ?",
+        "options": ["14", "13", "15", "16"],
+        "answer": "15"
+      }
+    ],
+    "hard": [
+      {
+        "question": "45 + 38 = ?",
+        "options": ["83", "82", "84", "85"],
+        "answer": "83"
+      },
+      {
+        "question": "92 - 47 = ?",
+        "options": ["43", "45", "44", "46"],
+        "answer": "45"
+      },
+      {
+        "question": "56 + 29 = ?",
+        "options": ["84", "85", "83", "86"],
+        "answer": "85"
+      },
+      {
+        "question": "78 - 34 = ?",
+        "options": ["43", "45", "44", "46"],
+        "answer": "44"
+      },
+      {
+        "question": "67 + 18 = ?",
+        "options": ["83", "85", "84", "86"],
+        "answer": "85"
+      },
+      {
+        "question": "90 - 45 = ?",
+        "options": ["42", "44", "43", "45"],
+        "answer": "45"
+      },
+      {
+        "question": "38 + 47 = ?",
+        "options": ["83", "84", "85", "86"],
+        "answer": "85"
+      },
+      {
+        "question": "66 - 22 = ?",
+        "options": ["43", "42", "45", "44"],
+        "answer": "44"
+      },
+      {
+        "question": "29 + 56 = ?",
+        "options": ["85", "83", "84", "86"],
+        "answer": "85"
+      },
+      {
+        "question": "80 - 35 = ?",
+        "options": ["43", "44", "46", "45"],
+        "answer": "45"
+      }
+    ]
+  },
+  "pattern": [
+    {
+      "pattern": ["🔺", "🔺", "?"],
+      "answer": "🔺"
+    },
+    {
+      "pattern": ["🔵", "🔺", "🔵", "?"],
+      "answer": "🔺"
+    },
+    {
+      "pattern": ["🟡", "🔺", "🟡", "🔺", "?"],
+      "answer": "🟡"
+    },
+    {
+      "pattern": ["🟥", "🔶", "🟥", "?"],
+      "answer": "🔶"
+    },
+    {
+      "pattern": ["🔶", "🟡", "🔶", "🟡", "?"],
+      "answer": "🔶"
+    },
+    {
+      "pattern": ["🔵", "🔵", "🔺", "🔺", "?"],
+      "answer": "🔵"
+    },
+    {
+      "pattern": ["🟡", "🟡", "🟡", "?"],
+      "answer": "🟡"
+    },
+    {
+      "pattern": ["🔵", "🟡", "🔵", "🟡", "?"],
+      "answer": "🔵"
+    },
+    {
+      "pattern": ["🟥", "🟡", "🟥", "🟡", "?"],
+      "answer": "🟥"
+    },
+    {
+      "pattern": ["🔶", "🔺", "🔶", "🔺", "?"],
+      "answer": "🔶"
+    }
+  ],
+  "wordWizardLevels": [
+    {
+      "level": 1,
+      "name": "CVC Words",
+      "words": [
+        "cat",
+        "dog",
+        "sun",
+        "hat",
+        "pen",
+        "red",
+        "big",
+        "hot",
+        "map",
+        "pot",
+        "pig",
+        "log",
+        "cap",
+        "rat",
+        "fan"
+      ],
+      "hintType": "phonics"
+    },
+    {
+      "level": 2,
+      "name": "Simple Digraphs",
+      "words": [
+        "ship",
+        "chat",
+        "fish",
+        "thin",
+        "when",
+        "bath",
+        "whale",
+        "chin",
+        "shine",
+        "that",
+        "cash"
+      ],
+      "hintType": "sound-boxes"
+    },
+    {
+      "level": 3,
+      "name": "Blends",
+      "words": [
+        "frog",
+        "step",
+        "crab",
+        "spin",
+        "twin",
+        "glad",
+        "clap",
+        "bump",
+        "flag",
+        "drip",
+        "skip"
+      ],
+      "hintType": "color-coded"
+    },
+    {
+      "level": 4,
+      "name": "Longer Words",
+      "words": [
+        "planet",
+        "basket",
+        "candle",
+        "window",
+        "rocket",
+        "garden",
+        "pencil",
+        "dollar",
+        "jungle",
+        "kitten"
+      ],
+      "hintType": "first-letter clues"
+    },
+    {
+      "level": 5,
+      "name": "Tricky Words",
+      "words": [
+        "thought",
+        "friend",
+        "through",
+        "caught",
+        "laugh",
+        "rough",
+        "enough",
+        "though",
+        "brought",
+        "height"
+      ],
+      "hintType": "meaning hints"
+    }
+  ]
+}
