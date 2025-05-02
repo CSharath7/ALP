@@ -117,26 +117,31 @@
     font-weight: bold;
 }
 
-.letters-container {
+.letters-container, .letter-buttons {
     display: flex;
     flex-wrap: wrap;
     justify-content: center;
-    gap: 10px;
+    gap: 12px;
     margin: 20px 0;
 }
 
 .letter-button {
-    font-size: 1.8rem;
-    padding: 10px;
-    min-width: 50px;
+    font-size: 2rem;
+    padding: 12px 20px;
     background-color: #e0f7fa;
     border: 2px solid #4b6a88;
     border-radius: 8px;
     cursor: pointer;
     user-select: none;
+    transition: background-color 0.3s, transform 0.2s;
 }
 
-.action-buttons {
+.letter-button:hover {
+    background-color: #b2ebf2;
+    transform: scale(1.1);
+}
+
+.action-buttons, .game-actions {
     text-align: center;
     margin-top: 20px;
 }
@@ -149,8 +154,13 @@
     border: none;
     border-radius: 8px;
     cursor: pointer;
-    margin: 0 10px;
+    margin: 10px;
     font-family: "Comic Sans MS", sans-serif;
+    transition: background-color 0.3s;
+}
+
+.action-button:hover {
+    background-color: #3a526a;
 }
 
 .hint-button {

@@ -8,55 +8,25 @@ const QuizGame = () => {
   const [expression, setExpression] = useState("neutral");
   const [message, setMessage] = useState("");
   const [gameCompleted, setGameCompleted] = useState(false);
+  const [allLevels, setAllLevels] = useState([]);
 
   const videoRef = useRef(null);
 
-  const levels = {
-    easy: [
-      { question: "2 + 2 = ?", options: ["3", "4", "5", "6"], answer: "4" },
-      { question: "5 - 3 = ?", options: ["1", "2", "3", "4"], answer: "2" },
-      { question: "3 + 1 = ?", options: ["2", "4", "5", "6"], answer: "4" },
-      { question: "6 - 2 = ?", options: ["2", "3", "4", "5"], answer: "4" },
-      { question: "1 + 2 = ?", options: ["2", "3", "4", "5"], answer: "3" },
-      { question: "4 + 0 = ?", options: ["3", "4", "5", "6"], answer: "4" },
-      { question: "2 + 3 = ?", options: ["4", "5", "6", "7"], answer: "5" },
-      { question: "5 - 1 = ?", options: ["3", "4", "5", "6"], answer: "4" },
-      { question: "1 + 1 = ?", options: ["1", "2", "3", "4"], answer: "2" },
-      { question: "6 - 3 = ?", options: ["2", "3", "4", "5"], answer: "3" },
-    ],
-    medium: [
-      { question: "12 + 15 = ?", options: ["27", "26", "28", "25"], answer: "27" },
-      { question: "20 - 8 = ?", options: ["12", "13", "11", "14"], answer: "12" },
-      { question: "14 + 5 = ?", options: ["18", "19", "20", "21"], answer: "19" },
-      { question: "25 - 10 = ?", options: ["14", "15", "16", "13"], answer: "15" },
-      { question: "9 + 6 = ?", options: ["14", "15", "16", "13"], answer: "15" },
-      { question: "18 - 4 = ?", options: ["14", "13", "15", "12"], answer: "14" },
-      { question: "10 + 11 = ?", options: ["20", "21", "22", "23"], answer: "21" },
-      { question: "17 - 9 = ?", options: ["7", "8", "9", "10"], answer: "8" },
-      { question: "8 + 5 = ?", options: ["13", "12", "14", "11"], answer: "13" },
-      { question: "30 - 15 = ?", options: ["15", "16", "14", "13"], answer: "15" },
-    ],
-    hard: [
-      { question: "45 + 38 = ?", options: ["82", "83", "84", "85"], answer: "83" },
-      { question: "92 - 47 = ?", options: ["45", "46", "44", "43"], answer: "45" },
-      { question: "56 + 29 = ?", options: ["84", "85", "83", "86"], answer: "85" },
-      { question: "78 - 34 = ?", options: ["44", "45", "43", "46"], answer: "44" },
-      { question: "67 + 18 = ?", options: ["84", "85", "83", "86"], answer: "85" },
-      { question: "90 - 45 = ?", options: ["45", "44", "43", "42"], answer: "45" },
-      { question: "38 + 47 = ?", options: ["85", "84", "83", "86"], answer: "85" },
-      { question: "66 - 22 = ?", options: ["44", "45", "43", "42"], answer: "44" },
-      { question: "29 + 56 = ?", options: ["85", "84", "83", "86"], answer: "85" },
-      { question: "80 - 35 = ?", options: ["45", "44", "43", "46"], answer: "45" },
-    ],
-  };
-
-  const allLevels = [...levels.easy, ...levels.medium, ...levels.hard];
-
   useEffect(() => {
-    const loadModelsAndStart = async () => {
+    const loadQuestionsAndModels = async () => {
+      // Load face-api models
       await faceapi.nets.tinyFaceDetector.loadFromUri("/models");
       await faceapi.nets.faceExpressionNet.loadFromUri("/models");
 
+      // Fetch questions.json
+      const response = await fetch("../../public/question.json");
+      const data = await response.json();
+
+      // Combine easy, medium, hard into one array
+      const levels = [...data.math.easy, ...data.math.medium, ...data.math.hard];
+      setAllLevels(levels);
+
+      // Start webcam
       try {
         const stream = await navigator.mediaDevices.getUserMedia({ video: true });
         if (videoRef.current) {
@@ -69,7 +39,7 @@ const QuizGame = () => {
       }
     };
 
-    loadModelsAndStart();
+    loadQuestionsAndModels();
 
     return () => {
       if (videoRef.current?.srcObject) {
@@ -131,6 +101,14 @@ const QuizGame = () => {
       setScore(Math.max(0, score - 2));
     }
   };
+
+  if (allLevels.length === 0) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <p className="text-xl">Loading questions...</p>
+      </div>
+    );
+  }
 
   if (gameCompleted) {
     return (
