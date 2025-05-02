@@ -70,7 +70,13 @@ mongoose.connect("mongodb+srv://G373:DeleteDyslexia@cluster0.rtm72oj.mongodb.net
 }).catch((err) => {
   console.error("MongoDB connection error:", err);
 });
+app.post('/landmark_emotion', (req, res) => {
+  const data = req.body;
+  console.log("🎭 Received emotion data:", data);
 
+  // You can process, log, store, or emit this data here
+  res.status(200).json({ status: 'received' });
+});
 // Routers
 app.use("/", defaultRouter);
 app.use("/api", apiRouter);
@@ -79,6 +85,7 @@ app.use("/api", apiRouter);
 app.get("/game", (req, res) => {
   res.send("Game server running.");
 });
+
 
 // Start Server
 app.listen(port, () => console.log(`Server running on http://localhost:${port}`));
