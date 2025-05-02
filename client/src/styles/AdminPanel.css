@@ -1,0 +1,86 @@
+.admin-panel-container {
+    min-height: 100vh;
+    background-color: #f8f9fa;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 1.5rem;
+  }
+  
+  .admin-panel-title {
+    font-size: 1.875rem;
+    font-weight: bold;
+    color: #1a202c;
+    margin-bottom: 1.5rem;
+  }
+  
+  .admin-panel-content {
+    width: 100%;
+    max-width: 56rem;
+    background-color: white;
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+    border-radius: 0.5rem;
+    padding: 1.5rem;
+  }
+  
+  .admin-table {
+    width: 100%;
+    border-collapse: collapse;
+    border: 1px solid #d1d5db;
+  }
+  
+  .admin-table th {
+    padding: 0.75rem;
+    background-color: #e5e7eb;
+    border: 1px solid #d1d5db;
+  }
+  
+  .admin-table td {
+    padding: 0.75rem;
+    border: 1px solid #d1d5db;
+    text-align: center;
+  }
+  
+  .admin-table tr {
+    border-bottom: 1px solid #d1d5db;
+  }
+  
+  .action-buttons {
+    display: flex;
+    justify-content: center;
+    gap: 0.75rem;
+  }
+  
+  .approve-btn {
+    padding: 0.5rem 1rem;
+    background-color: #16a34a;
+    color: white;
+    border-radius: 0.5rem;
+  }
+  
+  .approve-btn:hover {
+    background-color: #15803d;
+    transform: scale(1.05);
+  }
+  
+  .reject-btn {
+    padding: 0.5rem 1rem;
+    background-color: #dc2626;
+    color: white;
+    border-radius: 0.5rem;
+  }
+  
+  .reject-btn:hover {
+    background-color: #b91c1c;
+    transform: scale(1.05);
+  }
+  
+  .loading-text {
+    text-align: center;
+    color: #4b5563;
+  }
+  
+  .no-requests-text {
+    text-align: center;
+    color: #4b5563;
+  }

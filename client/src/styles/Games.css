@@ -1,0 +1,93 @@
+.games-container {
+    min-height: 100vh;
+    padding: 1.5rem;
+    background-color: #f9f9f9;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    font-family: 'Comic Sans MS', 'OpenDyslexic', sans-serif;
+    letter-spacing: 0.05em;
+    line-height: 1.6;
+    color: #333333;
+  }
+  
+  .games-header {
+    margin-bottom: 2rem;
+    text-align: center;
+  }
+  
+  .games-title {
+    font-size: 2.25rem;
+    font-weight: bold;
+    margin-bottom: 0.5rem;
+    color: #2b6cb0;
+  }
+  
+  .games-subtitle {
+    font-size: 1.25rem;
+  }
+  
+  .games-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1.5rem;
+    width: 100%;
+    max-width: 80rem;
+  }
+  
+  .game-card {
+    color: white;
+    border-radius: 0.75rem;
+    padding: 1.5rem;
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+    height: 10rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+  }
+  
+  .game-card:hover {
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+    transform: scale(1.05);
+  }
+  
+  .game-icon {
+    font-size: 2rem;
+    margin-bottom: 0.5rem;
+  }
+  
+  .game-name {
+    font-size: 1.25rem;
+    font-weight: 600;
+    text-align: center;
+  }
+  
+  /* Color classes for game cards */
+  .bg-indigo-500 { background-color: #6366f1; }
+  .bg-green-500 { background-color: #10b981; }
+  .bg-purple-500 { background-color: #8b5cf6; }
+  .bg-red-500 { background-color: #ef4444; }
+  .bg-blue-500 { background-color: #3b82f6; }
+  .bg-yellow-500 { background-color: #f59e0b; }
+  .bg-pink-500 { background-color: #ec4899; }
+  .bg-orange-500 { background-color: #f97316; }
+  
+  @media (max-width: 1024px) {
+    .games-grid {
+      grid-template-columns: repeat(3, 1fr);
+    }
+  }
+  
+  @media (max-width: 768px) {
+    .games-grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+  
+  @media (max-width: 480px) {
+    .games-grid {
+      grid-template-columns: 1fr;
+    }
+  }
