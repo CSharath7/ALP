@@ -27,7 +27,7 @@ import WordWizard from "./pages/WordWizard";
 import WordDetective from "./pages/WordDetective";
 import SoundMatch from "./pages/SoundMatch";
 import MemoryMatrix from "./pages/MemoryMatrix";
-
+import SuperAdminDashboard from "./pages/SuperAdminDashBoard";
 
 import LiveFeed from "./pages/LiveFeed";  // adjust path if needed
 
@@ -68,6 +68,7 @@ function Layout() {
   
           }
         />
+        <Route path="/admin-dashboard" element={<SuperAdminDashboard />} />
         <Route
           path="/ChildRegister"
           element={

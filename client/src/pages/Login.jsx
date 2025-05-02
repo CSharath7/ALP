@@ -359,8 +359,14 @@ function LoginPage() {
 
   useEffect(() => {
     const token = localStorage.getItem("token");
+    const role = localStorage.getItem("role");
+
     if (token) {
-      navigate("/dashboard");
+      if (role === "superadmin") {
+        navigate("/admin-dashboard");
+      } else if (role === "therapist") {
+        navigate("/dashboard");
+      }
     }
   }, [navigate]);
 
@@ -377,7 +383,13 @@ function LoginPage() {
       localStorage.setItem("token", response.data.token);
       localStorage.setItem("adminname", response.data.adminname);
       localStorage.setItem("role", response.data.role);
-      navigate("/dashboard");
+
+      // Redirect based on role
+      if (response.data.role === "superadmin") {
+        navigate("/admin-dashboard");
+      } else if (response.data.role === "therapist") {
+        navigate("/dashboard");
+      }
     } catch (err) {
       setError("Oops! That email and password combination didn't work. Please try again.");
     } finally {

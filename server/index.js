@@ -51,6 +51,7 @@ const jwt = require("jsonwebtoken");
 const { PendingTherapist, Therapist } = require("./model/therapist");
 const apiRouter = require("./routes/api");
 const defaultRouter = require("./routes/default");
+const superAdminRoutes = require("./routes/superadmin");
 
 const app = express();
 const port = 5000;
@@ -73,13 +74,14 @@ mongoose.connect("mongodb+srv://G373:DeleteDyslexia@cluster0.rtm72oj.mongodb.net
 app.post('/landmark_emotion', (req, res) => {
   const data = req.body;
   console.log("🎭 Received emotion data:", data);
-
+  
   // You can process, log, store, or emit this data here
   res.status(200).json({ status: 'received' });
 });
 // Routers
 app.use("/", defaultRouter);
 app.use("/api", apiRouter);
+app.use("/superadmin", superAdminRoutes);
 
 // Game Route
 app.get("/game", (req, res) => {

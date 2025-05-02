@@ -5,6 +5,7 @@ const nodemailer = require("nodemailer");
 const bcrypt = require("bcryptjs");
 const { PendingTherapist, Therapist } = require("../model/therapist");
 const Child = require("../model/child")
+const Admin = require("../model/admin")
 const Id = require("../model/Childid")
 const JWT_SECRET = process.env.JWT_SECRET; // Replace with a secure secret key
 const cors = require("cors");
@@ -17,28 +18,52 @@ router.post("/login", async (req, res) => {
   try {
     const { email, password } = req.body;
 
-    const user = await Therapist.findOne({ email });
-    if (!user) {
-      console.log(user)
-      return res.status(400).json({ error: "Invalid credentials" });
+    // 1. Try SuperAdmin
+    const admin = await Admin.findOne({ email });
+    if (admin) {
+      const isMatch = await bcrypt.compare(password, admin.password);
+      if (!isMatch) {
+        return res.status(400).json({ error: "Invalid credentials" });
+      }
+
+      const token = jwt.sign({ id: admin._id }, JWT_SECRET, { expiresIn: "1h" });
+
+      return res.json({
+        token,
+        role: "superadmin",
+        adminname: admin.name,
+        email: admin.email
+      });
     }
 
-    // Compare password
-    const isMatch = await bcrypt.compare(password, user.password);
-    console.log("isMatch: " + isMatch)
-    if (!isMatch) {
-      return res.status(400).json({ error: "Invalid credentials" });
+    // 2. Try Therapist
+    const therapist = await Therapist.findOne({ email });
+    if (therapist) {
+      const isMatch = await bcrypt.compare(password, therapist.password);
+      if (!isMatch) {
+        return res.status(400).json({ error: "Invalid credentials" });
+      }
+
+      const token = jwt.sign({ id: therapist._id }, JWT_SECRET, { expiresIn: "1h" });
+
+      return res.json({
+        token,
+        role: "therapist",
+        adminname: therapist.name,
+        adminage: therapist.age,
+        email: therapist.email
+      });
     }
 
-    // Generate JWT Token
-    const token = jwt.sign({ id: user._id }, JWT_SECRET, { expiresIn: "1h" });
-    console.log("token: " + token)
+    // 3. Neither found
+    return res.status(400).json({ error: "Invalid credentials" });
 
-    res.json({ token,role:"therapist",adminname:user.name,adminage:user.age});
   } catch (error) {
-    res.status(500).json({ error: error.message });
+    console.error("Login Error:", error);
+    res.status(500).json({ error: "Server error during login" });
   }
 });
+
 router.post("/reset-password/:token", async (req, res) => {
   const token = req.params.token;
   const { password } = req.body;
