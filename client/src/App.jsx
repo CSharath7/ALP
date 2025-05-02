@@ -28,6 +28,9 @@ import WordDetective from "./pages/WordDetective";
 import SoundMatch from "./pages/SoundMatch";
 import MemoryMatrix from "./pages/MemoryMatrix";
 
+
+import LiveFeed from "./pages/LiveFeed";  // adjust path if needed
+
 // ProtectedRoute component
 function ProtectedRoute({ children }) {
   const token = localStorage.getItem("token");
@@ -46,6 +49,7 @@ function Layout() {
     <>
       {showNavbar && <Navbar />}
       <Routes>
+      
         {/* Public Routes */}
         <Route path="/" element={<HomePage />} />
         <Route path="/login" element={<LoginPage />} />
@@ -77,9 +81,20 @@ function Layout() {
           element={
             <ProtectedRoute>
               <EmotionStream />
+
             </ProtectedRoute>
           }
         />
+        {/* <Route path="/livefeed" element={<LiveFeed />} /> */}
+        <Route
+  path="/livefeed"
+  element={
+    <ProtectedRoute>
+      <LiveFeed />
+    </ProtectedRoute>
+  }
+/>
+
         <Route
           path="/math"
           element={

@@ -104,4 +104,27 @@ router.delete("/admin/reject/:id", async (req, res) => {
     res.status(500).json({ error: "Server error" });
   }
 });
+
+// Dummy prediction route
+router.post("/predict", async (req, res) => {
+  const landmarks = req.body.landmarks;
+
+  if (!landmarks || landmarks.length === 0) {
+    return res.status(400).json({ emotion: "No face detected" });
+  }
+
+  try {
+    // Send landmarks to Python backend (running on, say, port 8000)
+    const response = await axios.post('http://localhost:8000/predict', { landmarks });
+
+    // Forward Python backend response to frontend
+    return res.json({ emotion: response.data.emotion });
+  } catch (error) {
+    console.error("Error calling Python backend:", error.message);
+    return res.status(500).json({ emotion: "Error predicting emotion" });
+  }
+});
+
+
+
 module.exports = router;
