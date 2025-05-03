@@ -390,7 +390,7 @@ function LoginPage() {
       if (response.data.role === "superadmin") {
         navigate("/admin-dashboard");
       } else if (response.data.role === "therapist") {
-        navigate("/dashboard");
+        navigate("/view");
       }
     } catch (err) {
       setError("Oops! That email and password combination didn't work. Please try again.");
