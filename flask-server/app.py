@@ -1,121 +1,126 @@
-# # this code is for model
+from flask import Flask, request, jsonify
+from flask_cors import CORS
+import torch
+import torch.nn as nn
+import numpy as np
+import os
 
-# from flask import Flask, request, jsonify
-# from flask_cors import CORS
-# import torch
-# import torch.nn.functional as F
-# import numpy as np
-# import logging
-# from model import TransformerModel  # Ensure this is the real model path
+app = Flask(__name__)
+CORS(app)
 
-# # Config
-# MODEL_PATH = 'transformer_model.pt'
-# NUM_LANDMARKS = 478
-# INPUT_DIM = 3
-# EMOTIONS = ['anger', 'contempt', 'disgust', 'fear', 'happy', 'neutral', 'sad', 'surprise']
+# Define the EmotionTransformer model
+class EmotionTransformer(nn.Module):
+    def __init__(self, input_dim, hidden_dim, n_layers, n_heads, dropout, n_classes):
+        super().__init__()
+        self.input_proj = nn.Linear(input_dim, hidden_dim)
+        encoder_layer = nn.TransformerEncoderLayer(
+            d_model=hidden_dim,
+            nhead=n_heads,
+            dim_feedforward=hidden_dim * 4,
+            dropout=dropout,
+            batch_first=True
+        )
+        self.transformer = nn.TransformerEncoder(encoder_layer, num_layers=n_layers)
+        self.fc = nn.Linear(hidden_dim, n_classes)
+        self.dropout = nn.Dropout(dropout)
 
-# # Logging
-# logging.basicConfig(level=logging.INFO)
-# logger = logging.getLogger(__name__)
+    def forward(self, x):
+        x = self.input_proj(x)
+        x = x.unsqueeze(1)
+        x = self.transformer(x)
+        x = x.squeeze(1)
+        x = self.dropout(x)
+        x = self.fc(x)
+        return x
 
-# # Flask setup
-# app = Flask(__name__)
-# CORS(app, origins="http://localhost:5173")  # Allow only the frontend to access
+# Load model weights and preprocessing data
+def load_model():
+    model = EmotionTransformer(
+        input_dim=468 * 3,
+        hidden_dim=128,
+        n_layers=1,
+        n_heads=8,
+        dropout=0.3,
+        n_classes=6
+    )
+    model.load_state_dict(torch.load('backend/emotion_model.pth'))
+    model.eval()
+    return model
 
-# # Device
-# device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+# Load mean, std, and label encoder
+mean = np.load('backend/mean.npy')
+std = np.load('backend/std.npy')
+label_encoder = np.load('backend/label_encoder.npy', allow_pickle=True)
 
-# # Load model
-# try:
-#     model = TransformerModel().to(device)
-#     model.load_state_dict(torch.load(MODEL_PATH, map_location=device))
-#     model.eval()
-#     logger.info("Transformer model loaded successfully.")
-# except Exception as e:
-#     logger.critical(f"Model loading failed: {e}")
-#     raise e
+model = load_model()
 
-# @app.route('/predict', methods=['POST'])
-# def predict():
-#     try:
-#         data = request.get_json()
-#         if not data or 'landmarks' not in data:
-#             return jsonify({'error': 'Missing landmarks'}), 400
+# Prediction endpoint
+@app.route('/predict', methods=['POST'])
+def predict():
+    try:
+        data = request.get_json()
+        print(f"Received data: {data}")
 
-#         landmarks = data['landmarks']
-#         if not isinstance(landmarks, list) or len(landmarks) != NUM_LANDMARKS:
-#             return jsonify({'error': f'Expected {NUM_LANDMARKS} landmarks'}), 400
+        # Validate the data contains 'landmarks' key with 1 array
+        if not data or 'landmarks' not in data or not isinstance(data['landmarks'], dict):
+            error_msg = f"Invalid data format. Expected 'landmarks' key with a single object, got: {data.get('landmarks')}"
+            print(error_msg)
+            return jsonify({'error': error_msg}), 400
 
-#         # Preprocess input
-#         try:
-#             points = np.array([[pt['x'], pt['y'], pt['z']] for pt in landmarks], dtype=np.float32)
-#             points -= points[0]  # Normalize based on first point
-#             points = np.expand_dims(points, axis=0)
-#             points_tensor = torch.tensor(points, dtype=torch.float32).to(device)
-#         except Exception as e:
-#             logger.error(f"Invalid input format: {e}")
-#             return jsonify({'error': 'Invalid landmark format'}), 400
+        landmark = data['landmarks']
+        if not isinstance(landmark, dict) or 'index' not in landmark or 'points' not in landmark:
+            error_msg = f"Invalid landmark format. Expected dict with 'index' and 'points' keys, got: {landmark}"
+            print(error_msg)
+            return jsonify({'error': error_msg}), 400
 
-#         # Run inference
-#         with torch.no_grad():
-#             outputs = model(points_tensor)
-#             probs = F.softmax(outputs, dim=1)
-#             pred_idx = torch.argmax(probs, dim=1).item()
-#             confidence = probs[0][pred_idx].item()
+        points = landmark['points']
+        if not isinstance(points, list) or len(points) < 468:
+            error_msg = f"Landmark has {len(points)} points, expected at least 468"
+            print(error_msg)
+            return jsonify({'error': error_msg}), 400
 
-#         return jsonify({
-#             'emotion': EMOTIONS[pred_idx],
-#             'confidence': round(confidence, 4),
-#             'all_emotions': {
-#                 EMOTIONS[i]: round(float(score), 4) for i, score in enumerate(probs[0].cpu().numpy())
-#             }
-#         })
+        # Take first 468 points and extract x, y, z
+        features = []
+        for point in points[:468]:
+            if not isinstance(point, dict) or not all(key in point for key in ['x', 'y', 'z']):
+                error_msg = f"Invalid point format: {point}"
+                print(error_msg)
+                return jsonify({'error': error_msg}), 400
+            features.extend([point['x'], point['y'], point['z']])
 
-#     except Exception as e:
-#         logger.exception("Unexpected server error")
-#         return jsonify({'error': 'Internal server error'}), 500
+        # Convert to numpy array and validate length
+        features = np.array(features)
+        print(f"Feature vector length: {len(features)}")
+        if len(features) != 468 * 3:
+            error_msg = f"Feature vector has {len(features)} elements, expected {468 * 3}"
+            print(error_msg)
+            return jsonify({'error': error_msg}), 400
 
-# @app.route('/health', methods=['GET'])
-# def health():
-#     return jsonify({'status': 'healthy', 'model_loaded': True})
+        # Normalize features
+        features = (features - mean) / std
 
-# if __name__ == '__main__':
-#     logger.info("Starting Flask server on port 8000")
-#     app.run(host='0.0.0.0', port=8000)
+        # Convert to tensor
+        features_tensor = torch.FloatTensor(features).unsqueeze(0)
 
+        # Make prediction
+        with torch.no_grad():
+            outputs = model(features_tensor)
+            _, predicted = torch.max(outputs.data, 1)
 
-import requests
-import random
-import time
+        # Decode the predicted class
+        predicted_class = label_encoder[predicted.item()]
+        print(f"Predicted Emotion: {predicted_class}")
 
-# Emotions list
-EMOTIONS = ['anger', 'contempt', 'disgust', 'fear', 'happy', 'neutral', 'sad', 'surprise']
+        # Return the prediction as JSON
+        return jsonify({
+            'status': 'success',
+            'emotion': predicted_class
+        })
 
-# Target endpoint
-ENDPOINT = "http://localhost:5000/landmark_emotion"
+    except Exception as e:
+        error_msg = f"Error in prediction: {str(e)}"
+        print(error_msg)
+        return jsonify({'error': error_msg}), 500
 
-def generate_random_emotion():
-    emotion = random.choice(EMOTIONS)
-    confidence = round(random.uniform(0.5, 1.0), 4)
-    all_emotions = {e: round(random.uniform(0, 1), 4) for e in EMOTIONS}
-    
-    # Normalize probabilities to sum to 1
-    total = sum(all_emotions.values())
-    all_emotions = {k: round(v / total, 4) for k, v in all_emotions.items()}
-    
-    return {
-        'emotion': emotion,
-        'confidence': confidence,
-        'all_emotions': all_emotions
-    }
-
-if __name__ == "__main__":
-    while True:
-        try:
-            payload = generate_random_emotion()
-            print("Sending:", payload)
-            response = requests.post(ENDPOINT, json=payload)
-            print("Response:", response.status_code, response.text)
-        except Exception as e:
-            print("Error:", e)
-        time.sleep(1)
+if __name__ == '__main__':
+    app.run(debug=True, host='0.0.0.0', port=8000)
