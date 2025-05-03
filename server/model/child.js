@@ -21,8 +21,8 @@ const childSchema = new mongoose.Schema(
       type: Number,
     },
     therapist:{
-      type:String
-    }
+      type: String,
+    },
   },
   { timestamps: true }
 );

@@ -121,10 +121,10 @@ router.post("/child-login", async (req, res) => {
 });
 router.post("/child-register", async (req, res) => {
   try {
-    const { name, age, gender, email, therapistName } = req.body;
+    const { name, age, gender, email, therapistid } = req.body;
 
     // Step 1: Find the therapist by name
-    const therapist = await Therapist.findOne({ name: therapistName });
+    const therapist = await Therapist.findOne({ _id: therapistid });
     if (!therapist) {
       return res.status(404).json({ error: "Therapist not found" });
     }

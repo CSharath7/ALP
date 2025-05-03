@@ -28,7 +28,7 @@ import WordDetective from "./pages/WordDetective";
 import SoundMatch from "./pages/SoundMatch";
 import MemoryMatrix from "./pages/MemoryMatrix";
 import SuperAdminDashboard from "./pages/SuperAdminDashBoard";
-
+import View from "./pages/View"
 import LiveFeed from "./pages/LiveFeed";  // adjust path if needed
 
 // ProtectedRoute component
@@ -109,6 +109,14 @@ function Layout() {
           element={
             <ProtectedRoute>
               <Memory />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/view"
+          element={
+            <ProtectedRoute>
+              <View/>
             </ProtectedRoute>
           }
         />

@@ -26,10 +26,10 @@ function ChildRegister() {
     setErrorMessage("");
     setSuccessMessage(""); 
     try {
-      const therapistName = localStorage.getItem("adminname");
+      const therapistid = localStorage.getItem("id");
       const completeRegistrationData = {
         ...registerData,
-        therapistName: therapistName || "Unknown Therapist"
+        therapistid: therapistid || "Unknown Therapist"
       };
       const response = await axios.post("http://localhost:5000/child-register", completeRegistrationData);
       setSuccessMessage(`Registration successful! Please check your email for UID`);

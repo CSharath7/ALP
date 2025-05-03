@@ -4,6 +4,7 @@ const bcrypt = require("bcryptjs");
 const { PendingTherapist, Therapist } = require("../model/therapist");
 const JWT_SECRET = "mohit@123"; 
 const cors = require("cors");
+const Child = require("../model/child")
 
  // Import bcrypt
 const jwt = require("jsonwebtoken"); // Import jsonwebtoken
@@ -125,6 +126,23 @@ router.post("/predict", async (req, res) => {
   }
 });
 
+
+router.post('/getchild/:id', async (req, res) => {
+  try {
+    const uniqueid = req.params.id;
+    const children = await Child.find({ therapist: uniqueid });
+    
+    res.json({
+      success: true,
+      children: children
+    });
+  } catch (err) {
+    res.status(500).json({ 
+      success: false, 
+      message: err.message 
+    });
+  }
+});
 
 
 module.exports = router;
