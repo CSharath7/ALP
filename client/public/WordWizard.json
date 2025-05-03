@@ -1,0 +1,43 @@
+[
+    {
+      "name": "level1",
+      "words": [
+        "cat", "dog", "sun", "hat", "pen", "red", "man", "box", "bat", "jam",
+        "pot", "top", "bug", "fan", "lip", "net", "cap", "bed", "run", "cup",
+        "web", "toy", "van", "zip", "pig"
+      ]
+    },
+    {
+      "name": "level2",
+      "words": [
+        "ship", "fish", "chat", "thin", "bath", "duck", "rock", "hand", "lamp", "flag",
+        "clap", "snap", "sock", "kite", "bell", "milk", "nest", "gift", "jump", "frog",
+        "drum", "barn", "ring", "flip", "fast"
+      ]
+    },
+    {
+      "name": "level3",
+      "words": [
+        "glad", "trap", "crab", "spin", "sled", "flag", "trip", "frog", "whip", "grab",
+        "slug", "trim", "brick", "clap", "drip", "slide", "brag", "snap", "grid", "plot",
+        "grip", "slam", "crib", "step", "slam"
+      ]
+    },
+    {
+      "name": "level4",
+      "words": [
+        "apple", "plant", "stone", "green", "chair", "truck", "grape", "cloud", "sweet", "clean",
+        "smile", "train", "bring", "swing", "shine", "bread", "drink", "flame", "brush", "drill",
+        "sleep", "piano", "fruit", "crack", "track"
+      ]
+    },
+    {
+      "name": "level5",
+      "words": [
+        "happy", "candy", "table", "zebra", "panda", "water", "sunny", "tiger", "house", "robot",
+        "apple", "bunny", "quiet", "light", "wheat", "banana", "shape", "bread", "cloud", "smile",
+        "cabin", "music", "money", "lemon", "puppy"
+      ]
+    }
+  ]
+  
