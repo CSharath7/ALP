@@ -8,8 +8,10 @@ const therapistSchema = new mongoose.Schema({
   experience: { type: String, required: true },
   specialization: { type: String, required: true },
   contact: { type: String, required: true },
-  password:{type: String, required: false}
+  password: { type: String, required: false },
+  children: [{ type: mongoose.Schema.Types.ObjectId, ref: "child" }] // <-- add this line
 });
+
 
 const PendingTherapist = mongoose.model("PendingTherapist", therapistSchema);
 const Therapist = mongoose.model("Therapist", therapistSchema);

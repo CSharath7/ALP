@@ -123,8 +123,15 @@ router.post("/child-login", async (req, res) => {
 });
 router.post("/child-register", async (req, res) => {
   try {
-    const { name, age, gender, email, therapist } = req.body;
+    const { name, age, gender, email, therapistName } = req.body;
 
+    // Step 1: Find the therapist by name
+    const therapist = await Therapist.findOne({ name: therapistName });
+    if (!therapist) {
+      return res.status(404).json({ error: "Therapist not found" });
+    }
+
+    // Step 2: Generate UID
     const uidDoc = await Id.findOneAndUpdate(
       { key: "ALP" },
       { $inc: { value: 1 } },
@@ -132,17 +139,23 @@ router.post("/child-register", async (req, res) => {
     );
     const currentValue = uidDoc.value;
 
+    // Step 3: Create new child with therapist ID
     const newChild = new Child({
       name,
       age,
       gender,
       email,
       uid: currentValue,
-      therapist,
+      therapist: therapist._id  // <-- store ObjectId of therapist
     });
 
     await newChild.save();
 
+    // Step 4: Add child ID to therapist's children list
+    therapist.children.push(newChild._id);
+    await therapist.save();
+
+    // Step 5: Send email
     await childmail(req.body, currentValue);
 
     res.status(201).json({ studentId: currentValue });

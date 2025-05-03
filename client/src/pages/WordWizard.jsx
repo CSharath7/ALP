@@ -154,6 +154,13 @@ const WordWizard = () => {
         text: "Try again!",
         color: "red"
       });
+      setWordChecked(true);
+
+      // Automatically load the next word after a delay
+      setTimeout(() => {
+        setFeedback({ text: "", color: "" });
+        newWord();
+      }, 1500);
     }
   };
 

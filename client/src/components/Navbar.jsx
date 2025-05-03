@@ -4,14 +4,14 @@ import { Link, useNavigate } from "react-router-dom";
 function Navbar() {
   const navigate = useNavigate();
   const token = localStorage.getItem("token");
-  const role = localStorage.getItem("role"); // 👈 Get role from localStorage
+  const role = localStorage.getItem("role");
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const dropdownRef = useRef(null);
 
   const handleLogout = () => {
     localStorage.removeItem("token");
-    localStorage.removeItem("role"); // Optional: Clear role as well
-    navigate("/login");
+    localStorage.removeItem("role");
+    navigate("/");
   };
 
   useEffect(() => {
@@ -42,7 +42,7 @@ function Navbar() {
           {dropdownOpen && (
             <div className="absolute right-0 mt-2 w-48 bg-white text-black rounded-md shadow-lg z-10">
               <Link
-                to="/dashboard"
+                to={role === "superadmin" ? "/admin-dashboard" : "/dashboard"}
                 className="block px-4 py-2 hover:bg-gray-200"
               >
                 Dashboard
@@ -71,9 +71,32 @@ function Navbar() {
                 </Link>
               )}
 
-              <Link to="/profile" className="block px-4 py-2 hover:bg-gray-200">
-                Profile
-              </Link>
+              {role === "superadmin" && (
+                <>
+                  <Link
+                    to="/profile"
+                    className="block px-4 py-2 hover:bg-gray-200"
+                  >
+                    Profile
+                  </Link>
+                  <Link
+                    to="/admin"
+                    className="block px-4 py-2 hover:bg-gray-200"
+                  >
+                    Approve Requests
+                  </Link>
+                </>
+              )}
+
+              {role !== "superadmin" && role !== "therapist" && (
+                <Link
+                  to="/profile"
+                  className="block px-4 py-2 hover:bg-gray-200"
+                >
+                  Profile
+                </Link>
+              )}
+
               <button
                 onClick={handleLogout}
                 className="w-full text-left px-4 py-2 text-red-600 hover:bg-gray-200"
