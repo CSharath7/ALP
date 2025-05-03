@@ -9,8 +9,16 @@ function Navbar() {
   const dropdownRef = useRef(null);
 
   const handleLogout = () => {
+    if(role=="child"){
+      localStorage.removeItem("uid");
+    }
     localStorage.removeItem("token");
     localStorage.removeItem("role");
+    localStorage.removeItem("name");
+    localStorage.removeItem("email");
+    localStorage.removeItem("id");
+  
+
     navigate("/");
   };
 

@@ -13,6 +13,7 @@ function Dashboard() {
     const fetchProtectedData = async () => {
       try {
         const token = localStorage.getItem("token");
+        const name=localStorage.getItem("name");
         const res = await axios.get(
           "http://localhost:5000/api/auth/protected",
           {
@@ -21,7 +22,7 @@ function Dashboard() {
         );
         
         setUserData({
-          name: res.data.user?.name || "Friend",
+          name: localStorage.getItem("name") || "Friend",
           progress: Math.floor(Math.random() * 100)
         });
         
@@ -31,7 +32,7 @@ function Dashboard() {
           { game: "Memory Puzzle", score: "90%", date: "2 days ago" }
         ]);
         
-        setMessage(`Welcome back, ${res.data.user?.name || "Friend"}!`);
+        setMessage(`Welcome back, ${localStorage.getItem("name") || "Friend"}!`);
         setIsLoading(false);
       } catch (error) {
         setMessage(`Oops! Something went wrong. Please try again.`);

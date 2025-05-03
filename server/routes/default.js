@@ -31,7 +31,7 @@ router.post("/login", async (req, res) => {
       return res.json({
         token,
         role: "superadmin",
-        adminname: admin.name,
+        name: admin.name,
         email: admin.email
       });
     }
@@ -45,13 +45,13 @@ router.post("/login", async (req, res) => {
       }
 
       const token = jwt.sign({ id: therapist._id }, JWT_SECRET, { expiresIn: "1h" });
-
+      console.log(therapist);
       return res.json({
         token,
         role: "therapist",
-        adminname: therapist.name,
-        adminage: therapist.age,
-        email: therapist.email
+        name: therapist.name,
+        email: therapist.email,
+        id:therapist._id,
       });
     }
 
@@ -110,8 +110,6 @@ router.post("/child-login", async (req, res) => {
         token,
         child: {
           name: user.name,
-          age: user.age,
-          gender: user.gender,
           email: user.email,
           uid: user.uid,
         },

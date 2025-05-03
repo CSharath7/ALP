@@ -20,7 +20,7 @@ function Profile() {
 
   // User data - in a real app this would come from your backend
   const [user, setUser] = useState({
-    name: "Alex",
+    name: localStorage.getItem("name"),
     avatar: "👦", // Could be an image URL in a real app
     level: "Explorer",
     points: 450,

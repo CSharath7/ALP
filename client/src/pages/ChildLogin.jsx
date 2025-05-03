@@ -27,6 +27,9 @@ function ChildLogin() {
       const response = await axios.post("http://localhost:5000/child-login", loginData);
       localStorage.setItem("token", response.data.token);
       localStorage.setItem("role", response.data.role);
+      localStorage.setItem("name", response.data.child.name);
+      localStorage.setItem("email", response.data.child.email);
+      localStorage.setItem("uid", response.data.child.uid);
       setSuccessMessage("Welcome back! Redirecting to your dashboard...");
       setTimeout(() => {
         navigate("/dashboard");

@@ -381,8 +381,10 @@ function LoginPage() {
         password,
       });
       localStorage.setItem("token", response.data.token);
-      localStorage.setItem("adminname", response.data.adminname);
+      localStorage.setItem("name", response.data.name);
       localStorage.setItem("role", response.data.role);
+      localStorage.setItem("email", response.data.email);
+      localStorage.setItem("id", response.data.id);
 
       // Redirect based on role
       if (response.data.role === "superadmin") {
