@@ -89,6 +89,25 @@ router.post("/reset-password/:token", async (req, res) => {
   }
 });
 
+router.post("/update-wordwizard-level", async (req, res) => {
+  const { childId, level } = req.body;
+  console.log("childId (UID): " + childId);
+  console.log("level: " + level);
+  try {
+    const child = await Child.findOneAndUpdate(
+      { uid: childId }, // Search by UID instead of _id
+      { wordWizardLevel: level },
+      { new: true }
+    );
+    if (!child) {
+      return res.status(404).json({ success: false, message: "Child not found" });
+    }
+    res.status(200).json({ success: true, child });
+  } catch (error) {
+    res.status(500).json({ success: false, message: "Update failed", error });
+  }
+});
+
 
 
 router.post("/child-login", async (req, res) => {
@@ -112,6 +131,7 @@ router.post("/child-login", async (req, res) => {
           name: user.name,
           email: user.email,
           uid: user.uid,
+          id: user._id,
         },
         role:"child"
       },);

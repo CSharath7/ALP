@@ -182,3 +182,9 @@
     font-size: 1rem;
     color: #666;
 }
+
+.quit-button {
+    background-color: #ff4d4d;
+    color: white;
+    border: none;
+}  

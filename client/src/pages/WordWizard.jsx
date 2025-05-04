@@ -1,6 +1,6 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import * as faceapi from 'face-api.js';
+import FacialExpression from '../components/FacialExpression'; // Import your new component
 import '../styles/WordWizard.css';
 
 const WordWizard = () => {
@@ -10,7 +10,6 @@ const WordWizard = () => {
     { name: "Blends", words: ["frog", "step", "crab", "spin", "twin", "glad"], hintType: "color-coded" }
   ];
 
-  const videoRef = useRef(null);
   const [expression, setExpression] = useState("neutral");
   const [currentLevel, setCurrentLevel] = useState(0);
   const [currentWord, setCurrentWord] = useState("");
@@ -23,50 +22,6 @@ const WordWizard = () => {
   const [gameWon, setGameWon] = useState(false);
   const [wordChecked, setWordChecked] = useState(false);
   const navigate = useNavigate();
-
-  useEffect(() => {
-    const loadModels = async () => {
-      await faceapi.nets.tinyFaceDetector.loadFromUri("/models");
-      await faceapi.nets.faceExpressionNet.loadFromUri("/models");
-    };
-
-    const setupCamera = async () => {
-      try {
-        const stream = await navigator.mediaDevices.getUserMedia({ video: true });
-        if (videoRef.current) {
-          videoRef.current.srcObject = stream;
-          videoRef.current.onloadeddata = startExpressionDetection;
-        }
-      } catch (error) {
-        console.error("Error accessing webcam:", error);
-      }
-    };
-
-    loadModels().then(setupCamera);
-
-    return () => {
-      if (videoRef.current?.srcObject) {
-        videoRef.current.srcObject.getTracks().forEach(track => track.stop());
-      }
-    };
-  }, []);
-
-  const startExpressionDetection = async () => {
-    if (!videoRef.current) return;
-
-    setInterval(async () => {
-      const detections = await faceapi
-        .detectSingleFace(videoRef.current, new faceapi.TinyFaceDetectorOptions())
-        .withFaceExpressions();
-      if (detections) {
-        const expressions = detections.expressions;
-        const maxExpression = Object.keys(expressions).reduce((a, b) =>
-          expressions[a] > expressions[b] ? a : b
-        );
-        setExpression(maxExpression);
-      }
-    }, 1000);
-  };
 
   useEffect(() => {
     if (!gameWon) newWord();
@@ -150,13 +105,8 @@ const WordWizard = () => {
     } else {
       setScore(prev => Math.max(0, prev));
       setStreak(0);
-      setFeedback({
-        text: "Try again!",
-        color: "red"
-      });
+      setFeedback({ text: "Try again!", color: "red" });
       setWordChecked(true);
-
-      // Automatically load the next word after a delay
       setTimeout(() => {
         setFeedback({ text: "", color: "" });
         newWord();
@@ -213,9 +163,28 @@ const WordWizard = () => {
     }
   };
 
+  const quitGame = async () => {
+    const childId = localStorage.getItem("uid");
+    if (!childId) {
+      navigate('/games');
+      return;
+    }
+    try {
+      await fetch("/update-wordwizard-level", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ childId, level: currentLevel })
+      });
+      navigate('/games');
+    } catch (error) {
+      console.error("Error quitting game:", error);
+      navigate('/games');
+    }
+  };
+
   return (
     <div className="word-wizard-container">
-      <video ref={videoRef} autoPlay playsInline className="hidden-video"></video>
+      <FacialExpression onEmotionDetected={(emo) => setExpression(emo)} />
       <div className="emotion-indicator">Detected Emotion: {expression}</div>
 
       <div className="header">
@@ -226,9 +195,7 @@ const WordWizard = () => {
       {gameWon ? (
         <div className="game-area">
           <h2 className="game-won-title">You're a Word Wizard! 🎉</h2>
-          <p className="final-score">
-            Final Score: <strong>{score}</strong>
-          </p>
+          <p className="final-score">Final Score: <strong>{score}</strong></p>
           <p className="redirect-message">Redirecting to games in 3 seconds...</p>
         </div>
       ) : (
@@ -263,6 +230,7 @@ const WordWizard = () => {
             <button className="action-button" onClick={checkWord}>Check Word</button>
             <button className="action-button" onClick={resetWord}>Reset Word</button>
             <button className="action-button" onClick={getHint}>Get Hint</button>
+            <button className="action-button quit-button" onClick={quitGame}>Quit Game</button>
           </div>
         </div>
       )}
