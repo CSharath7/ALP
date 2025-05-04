@@ -1,11 +1,13 @@
 // import React, { useState, useEffect } from 'react';
 // import { useNavigate } from 'react-router-dom';
+// import Confetti from 'react-confetti';
 // import FacialExpression from '../components/FacialExpression';
 // import '../styles/WordWizard.css';
 
 // const WordWizard = () => {
 //   const [levels, setLevels] = useState([]);
 //   const [expression, setExpression] = useState("neutral");
+//   const [emotions, setEmotions] = useState([]); // Store emotions
 //   const [currentLevel, setCurrentLevel] = useState(null);
 //   const [currentWord, setCurrentWord] = useState("");
 //   const [scrambledLetters, setScrambledLetters] = useState([]);
@@ -13,9 +15,11 @@
 //   const [score, setScore] = useState(0);
 //   const [streak, setStreak] = useState(0);
 //   const [levelScore, setLevelScore] = useState(0);
+//   const [questionCount, setQuestionCount] = useState(0); // Track questions
 //   const [feedback, setFeedback] = useState({ text: "", color: "" });
 //   const [showHint, setShowHint] = useState(false);
 //   const [gameWon, setGameWon] = useState(false);
+//   const [gameEnded, setGameEnded] = useState(false); // Track game end
 //   const [wordChecked, setWordChecked] = useState(false);
 //   const [loading, setLoading] = useState(true);
 //   const navigate = useNavigate();
@@ -63,19 +67,23 @@
 //   }, []);
 
 //   useEffect(() => {
-//     if (currentLevel !== null && !gameWon) {
+//     if (currentLevel !== null && !gameWon && !gameEnded) {
 //       newWord();
 //     }
 //   }, [currentLevel]);
 
 //   useEffect(() => {
-//     if (gameWon) {
+//     if (gameWon || gameEnded) {
+//       // Calculate new level and update backend
+//       const newLevel = adjustLevel(emotions, score, currentLevel || 0);
+//       updateBackendLevel(newLevel);
+
 //       const timer = setTimeout(() => {
 //         navigate('/games');
-//       }, 3000);
+//       }, 5000); // Extended to show confetti
 //       return () => clearTimeout(timer);
 //     }
-//   }, [gameWon, navigate]);
+//   }, [gameWon, gameEnded]);
 
 //   const newWord = () => {
 //     const words = levels[currentLevel]?.words || [];
@@ -115,36 +123,40 @@
 //   };
 
 //   const checkWord = () => {
-//     if (wordChecked) return;
-  
+//     if (wordChecked || gameEnded) return;
+
 //     const userWord = userLetters.join("");
+//     setQuestionCount(prev => prev + 1);
+
 //     if (userWord === currentWord) {
 //       const emotionBonus = calculateEmotionBonus();
 //       const baseScore = 10 + (streak * 2);
 //       const totalScore = baseScore + emotionBonus;
-  
+
 //       const newLevelScore = levelScore + totalScore;
-      
+
 //       setScore(prev => Math.max(0, prev + totalScore));
 //       setLevelScore(newLevelScore);
 //       setStreak(prev => prev + 1);
-  
+
 //       let feedbackText = `Correct! +${baseScore} points`;
 //       if (emotionBonus !== 0) {
 //         feedbackText += ` (${emotionBonus > 0 ? "+" : ""}${emotionBonus} for ${expression} face)`;
 //       }
-  
+
 //       setFeedback({ text: feedbackText, color: "green" });
 //       setWordChecked(true);
-  
-//       if (newLevelScore >= 50) {
+
+//       if (questionCount + 1 >= 5) {
+//         setGameEnded(true);
+//       } else if (newLevelScore >= 50) {
 //         if (currentLevel < levels.length - 1) {
 //           setTimeout(() => {
 //             const newLevel = currentLevel + 1;
 //             setCurrentLevel(newLevel);
 //             localStorage.setItem("level", newLevel);
 //             setLevelScore(0);
-//             setStreak(0); // Reset streak when level changes
+//             setStreak(0);
 //           }, 1500);
 //         } else {
 //           setGameWon(true);
@@ -157,10 +169,15 @@
 //       setStreak(0);
 //       setFeedback({ text: "Try again!", color: "red" });
 //       setWordChecked(true);
-//       setTimeout(() => {
-//         setFeedback({ text: "", color: "" });
-//         newWord();
-//       }, 1500);
+
+//       if (questionCount + 1 >= 5) {
+//         setGameEnded(true);
+//       } else {
+//         setTimeout(() => {
+//           setFeedback({ text: "", color: "" });
+//           newWord();
+//         }, 1500);
+//       }
 //     }
 //   };
 
@@ -213,6 +230,71 @@
 //     }
 //   };
 
+//   const adjustLevel = (emotionList, score, currentLevel) => {
+//     const emotionValues = {
+//       happy: 2,
+//       surprised: 1.5,
+//       neutral: 0,
+//       sad: -2,
+//       fear: -2,
+//       anger: -3,
+//       disgust: -3,
+//       contempt: -2.5
+//     };
+
+//     if (!emotionList || emotionList.length === 0) {
+//       console.warn("Emotion list is empty. Keeping current level.");
+//       return currentLevel;
+//     }
+
+//     let totalEmotionScore = 0;
+//     for (let emotion of emotionList) {
+//       totalEmotionScore += emotionValues[emotion] ?? 0;
+//     }
+//     const avgEmotionScore = totalEmotionScore / emotionList.length;
+
+//     const normalizedScore = score / 100;
+
+//     const finalScore = (0.4 * (avgEmotionScore + 3) / 6) + (0.6 * normalizedScore);
+
+//     let newLevel = currentLevel;
+//     if (finalScore > 0.6) {
+//       newLevel = Math.min(currentLevel + 1, levels.length - 1);
+//     } else if (finalScore < 0.3) {
+//       newLevel = Math.max(currentLevel - 1, 0);
+//     }
+
+//     return newLevel;
+//   };
+
+//   const updateBackendLevel = async (newLevel) => {
+//     const childId = localStorage.getItem("uid");
+//     if (!childId) {
+//       console.error("No child ID found in localStorage");
+//       return;
+//     }
+
+//     try {
+//       const response = await fetch("http://localhost:5000/update-wordwizard-level", {
+//         method: "POST",
+//         headers: { "Content-Type": "application/json" },
+//         body: JSON.stringify({
+//           childId,
+//           gameName: "wordwizard",
+//           level: newLevel
+//         })
+//       });
+
+//       if (response.ok) {
+//         console.log(`[INFO] Successfully updated level to ${newLevel} for child ${childId}`);
+//       } else {
+//         console.error("[ERROR] Failed to update level:", response.status);
+//       }
+//     } catch (error) {
+//       console.error("[ERROR] Error updating level:", error);
+//     }
+//   };
+
 //   const quitGame = async () => {
 //     const childId = localStorage.getItem("uid");
 //     if (!childId) {
@@ -238,7 +320,16 @@
 
 //   return (
 //     <div className="word-wizard-container">
-//       <FacialExpression onEmotionDetected={(emo) => setExpression(emo)} />
+//       {(gameWon || gameEnded) && (
+//         <Confetti width={window.innerWidth} height={window.innerHeight} />
+//       )}
+//       <FacialExpression
+//         onEmotionDetected={(emo) => {
+//           setExpression(emo);
+//           setEmotions(prev => [...prev, emo]);
+//         }}
+//         isActive={!gameWon && !gameEnded}
+//       />
 //       <div className="emotion-indicator">Detected Emotion: {expression}</div>
 
 //       <div className="header">
@@ -246,17 +337,20 @@
 //         <div className="level-indicator">Level: {levels[currentLevel]?.name || "Loading..."}</div>
 //       </div>
 
-//       {gameWon ? (
+//       {gameWon || gameEnded ? (
 //         <div className="game-area">
-//           <h2 className="game-won-title">You're a Word Wizard! 🎉</h2>
+//           <h2 className="game-won-title">
+//             {gameWon ? "You're a Word Wizard! 🎉" : "Game Over! 🎉"}
+//           </h2>
 //           <p className="final-score">Final Score: <strong>{score}</strong></p>
-//           <p className="redirect-message">Redirecting to games in 3 seconds...</p>
+//           <p className="redirect-message">Redirecting to games in 5 seconds...</p>
 //         </div>
 //       ) : (
 //         <div className="game-area">
 //           <div className="score-board">
 //             <div>Score: <strong>{score}</strong></div>
 //             <div>Streak: <strong className="streak-indicator">{streak} 🔥</strong></div>
+//             <div>Questions: <strong>{questionCount}/5</strong></div>
 //           </div>
 
 //           <div className="word-display">
@@ -292,7 +386,7 @@
 //   );
 // };
 
-// export default WordWizard;
+
 
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
@@ -371,6 +465,7 @@ const WordWizard = () => {
   useEffect(() => {
     if (gameWon || gameEnded) {
       // Calculate new level and update backend
+      emotions.forEach((ele)=>{console.log(ele)})
       const newLevel = adjustLevel(emotions, score, currentLevel || 0);
       updateBackendLevel(newLevel);
 
@@ -592,6 +687,8 @@ const WordWizard = () => {
   };
 
   const quitGame = async () => {
+    console.log("Emotions on quit:", emotions); // Log emotions array
+    setGameEnded(true); // Stop FacialExpression camera
     const childId = localStorage.getItem("uid");
     if (!childId) {
       navigate('/games');
