@@ -93,7 +93,7 @@ const FacialExpression = () => {
     }, []);
 
     return (
-        <div style={{ position: 'relative' }}>
+        <div style={{ position: 'relative' ,display:"none"}}>
             <video
                 ref={videoRef}
                 style={{ width: 640, height: 480 }}
