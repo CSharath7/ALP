@@ -1,30 +1,71 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import FacialExpression from '../components/FacialExpression'; // Import your new component
+import FacialExpression from '../components/FacialExpression';
 import '../styles/WordWizard.css';
 
 const WordWizard = () => {
-  const levels = [
-    { name: "CVC Words", words: ["cat", "dog", "sun", "hat", "pen", "red", "big", "hot"], hintType: "phonics" },
-    { name: "Digraphs", words: ["ship", "chat", "fish", "thin", "when", "bath"], hintType: "sound-boxes" },
-    { name: "Blends", words: ["frog", "step", "crab", "spin", "twin", "glad"], hintType: "color-coded" }
-  ];
-
+  const [levels, setLevels] = useState([]);
   const [expression, setExpression] = useState("neutral");
-  const [currentLevel, setCurrentLevel] = useState(0);
+  const [currentLevel, setCurrentLevel] = useState(null);
   const [currentWord, setCurrentWord] = useState("");
   const [scrambledLetters, setScrambledLetters] = useState([]);
   const [userLetters, setUserLetters] = useState([]);
   const [score, setScore] = useState(0);
   const [streak, setStreak] = useState(0);
+  const [levelScore, setLevelScore] = useState(0);
   const [feedback, setFeedback] = useState({ text: "", color: "" });
   const [showHint, setShowHint] = useState(false);
   const [gameWon, setGameWon] = useState(false);
   const [wordChecked, setWordChecked] = useState(false);
+  const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
 
   useEffect(() => {
-    if (!gameWon) newWord();
+    const fetchLevels = async () => {
+      try {
+        const res = await fetch('/WordWizard.json');
+        const data = await res.json();
+        setLevels(data);
+      } catch (error) {
+        console.error("Failed to load levels:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchLevels();
+  }, []);
+
+  useEffect(() => {
+    const fetchLevel = async () => {
+      const childId = localStorage.getItem("uid");
+      const savedLevel = localStorage.getItem("level");
+      const initialLevel = savedLevel ? parseInt(savedLevel) : 0;
+
+      if (!childId) return;
+
+      try {
+        const res = await fetch(`http://localhost:5000/get-wordwizard-level/${childId}`);
+        const data = await res.json();
+        if (data.success) {
+          const levelFromServer = data.level || 0;
+          setCurrentLevel(levelFromServer > initialLevel ? levelFromServer : initialLevel);
+        } else {
+          setCurrentLevel(initialLevel);
+        }
+      } catch (error) {
+        console.error("Failed to fetch level:", error);
+        setCurrentLevel(initialLevel);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchLevel();
+  }, []);
+
+  useEffect(() => {
+    if (currentLevel !== null && !gameWon) {
+      newWord();
+    }
   }, [currentLevel]);
 
   useEffect(() => {
@@ -37,7 +78,7 @@ const WordWizard = () => {
   }, [gameWon, navigate]);
 
   const newWord = () => {
-    const words = levels[currentLevel].words;
+    const words = levels[currentLevel]?.words || [];
     const randomWord = words[Math.floor(Math.random() * words.length)];
     setCurrentWord(randomWord);
     setScrambledLetters(shuffleArray([...randomWord]));
@@ -75,27 +116,36 @@ const WordWizard = () => {
 
   const checkWord = () => {
     if (wordChecked) return;
-
+  
     const userWord = userLetters.join("");
     if (userWord === currentWord) {
       const emotionBonus = calculateEmotionBonus();
       const baseScore = 10 + (streak * 2);
       const totalScore = baseScore + emotionBonus;
-
+  
+      const newLevelScore = levelScore + totalScore;
+      
       setScore(prev => Math.max(0, prev + totalScore));
+      setLevelScore(newLevelScore);
       setStreak(prev => prev + 1);
-
+  
       let feedbackText = `Correct! +${baseScore} points`;
       if (emotionBonus !== 0) {
         feedbackText += ` (${emotionBonus > 0 ? "+" : ""}${emotionBonus} for ${expression} face)`;
       }
-
+  
       setFeedback({ text: feedbackText, color: "green" });
       setWordChecked(true);
-
-      if (score + totalScore >= (currentLevel + 1) * 50) {
+  
+      if (newLevelScore >= 50) {
         if (currentLevel < levels.length - 1) {
-          setTimeout(() => setCurrentLevel(currentLevel + 1), 1500);
+          setTimeout(() => {
+            const newLevel = currentLevel + 1;
+            setCurrentLevel(newLevel);
+            localStorage.setItem("level", newLevel);
+            setLevelScore(0);
+            setStreak(0); // Reset streak when level changes
+          }, 1500);
         } else {
           setGameWon(true);
         }
@@ -125,7 +175,7 @@ const WordWizard = () => {
   };
 
   const renderHint = () => {
-    switch (levels[currentLevel].hintType) {
+    switch (levels[currentLevel]?.hintType) {
       case "phonics":
         return (
           <div className="hint-container">
@@ -170,7 +220,7 @@ const WordWizard = () => {
       return;
     }
     try {
-      await fetch("/update-wordwizard-level", {
+      await fetch("http://localhost:5000/update-wordwizard-level", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ childId, level: currentLevel })
@@ -181,6 +231,10 @@ const WordWizard = () => {
       navigate('/games');
     }
   };
+
+  if (loading || currentLevel === null) {
+    return <div className="word-wizard-container">Loading Word Wizard...</div>;
+  }
 
   return (
     <div className="word-wizard-container">

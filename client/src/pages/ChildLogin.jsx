@@ -31,6 +31,7 @@ function ChildLogin() {
       localStorage.setItem("email", response.data.child.email);
       localStorage.setItem("uid", response.data.child.uid);
       localStorage.setItem("id", response.data.child.id);
+      localStorage.setItem("level", response.data.child.level);
       setSuccessMessage("Welcome back! Redirecting to your dashboard...");
       setTimeout(() => {
         navigate("/dashboard");

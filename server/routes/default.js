@@ -107,6 +107,20 @@ router.post("/update-wordwizard-level", async (req, res) => {
     res.status(500).json({ success: false, message: "Update failed", error });
   }
 });
+router.get("/get-wordwizard-level/:childId", async (req, res) => {
+  try {
+    const { childId } = req.params;
+    const child = await Child.findById(childId);
+    console.log("childId (UID): " + childId);
+    if (!child) {
+      return res.status(404).json({ success: false, message: "Child not found" });
+    }
+    res.status(200).json({ success: true, level: child.wordWizardLevel || 0 });
+  } catch (error) {
+    res.status(500).json({ success: false, message: "Failed to get level", error });
+  }
+});
+
 
 
 
@@ -132,6 +146,7 @@ router.post("/child-login", async (req, res) => {
           email: user.email,
           uid: user.uid,
           id: user._id,
+          level: user.wordWizardLevel || 0,
         },
         role:"child"
       },);

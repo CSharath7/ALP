@@ -17,6 +17,8 @@ function Navbar() {
     localStorage.removeItem("name");
     localStorage.removeItem("email");
     localStorage.removeItem("id");
+    localStorage.removeItem("isLoggedIn")
+    localStorage.removeItem("level")
   
 
     navigate("/");
