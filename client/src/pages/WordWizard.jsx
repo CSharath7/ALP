@@ -185,7 +185,7 @@ const WordWizard = () => {
   return (
     <div className="word-wizard-container">
       <FacialExpression onEmotionDetected={(emo) => setExpression(emo)} />
-      {/* <div className="emotion-indicator">Detected Emotion: {expression}</div> */}
+      <div className="emotion-indicator">Detected Emotion: {expression}</div>
 
       <div className="header">
         <h1 className="title">Word Wizard 🧙‍♂️</h1>
