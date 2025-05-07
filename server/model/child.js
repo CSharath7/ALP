@@ -9,10 +9,12 @@ const childSchema = new mongoose.Schema(
     uid: { type: Number },
     therapist: { type: String },
     wordWizardLevel: { type: Number, default: 0 },
+
     selectedGames: [
       {
         name: String,
-        level: { type: Number, min: 1, max: 4 }
+        assignedLevel: { type: Number, min: 1, max: 4 },
+        currentLevel: { type: Number, min: 1, max: 4, default: 1 }
       }
     ]
   },

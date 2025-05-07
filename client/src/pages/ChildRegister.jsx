@@ -60,6 +60,7 @@ function ChildRegister() {
       const response = await axios.post("http://localhost:5000/child-register", completeRegistrationData);
       setSuccessMessage("Registration successful! Check email for UID.");
       setRegisterData({ name: "", age: "", gender: "", email: "" });
+      navigate("/view")
     } catch (error) {
       setErrorMessage(error.response?.data?.message || "Registration failed.");
     } finally {

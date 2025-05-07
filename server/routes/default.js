@@ -74,13 +74,23 @@ router.post("/child-login", async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 });
-
-// ✅ Child Register
 router.post("/child-register", async (req, res) => {
   try {
     const { name, age, gender, email, therapistid, selectedGames } = req.body;
 
-    const uid = Math.floor(100000 + Math.random() * 900000); // Simple UID
+    // Validate input
+    if (!name || !age || !gender || !email || !therapistid || !selectedGames || !Array.isArray(selectedGames)) {
+      return res.status(400).json({ success: false, message: "Missing required fields." });
+    }
+
+    // Generate UID
+    const uid = Math.floor(100000 + Math.random() * 900000); // simple 6-digit number
+
+    const gamesWithCurrentLevels = selectedGames.map(game => ({
+      name: game.name,
+      assignedLevel: game.level,
+      currentLevel: 1
+    }));
 
     const newChild = new Child({
       name,
@@ -89,16 +99,15 @@ router.post("/child-register", async (req, res) => {
       email,
       uid,
       therapist: therapistid,
-      selectedGames
+      selectedGames: gamesWithCurrentLevels
     });
-
     await newChild.save();
-    res.status(201).json({ message: "Child registered", uid });
+    res.status(201).json({ success: true, message: "Child registered successfully", uid });
   } catch (err) {
-    res.status(500).json({ message: "Registration failed", error: err.message });
+    console.error("Child registration failed:", err.message);
+    res.status(500).json({ success: false, message: "Server error during registration" });
   }
 });
-
 // ✅ Update WordWizard Level
 router.post("/update-wordwizard-level", async (req, res) => {
   const { childId, level } = req.body;
@@ -122,6 +131,34 @@ router.get("/child/:uid", async (req, res) => {
     res.status(500).json({ message: "Failed to fetch games" });
   }
 });
+// Get assigned games and levels for a child
+router.get('/getchildreport/:uid', async (req, res) => {
+  const uid = parseInt(req.params.uid, 10); // convert to integer
+
+  try {
+    const child = await Child.findOne({ uid: uid });
+
+    if (!child) {
+      return res.status(404).json({ success: false, message: 'Child not found' });
+    }
+
+    if (!child.selectedGames || child.selectedGames.length === 0) {
+      return res.json({ success: false, message: 'No games assigned to this child' });
+    }
+    console.log("Child selected games:", child.selectedGames);
+    res.json({
+      success: true,
+      games: child.selectedGames
+    });
+  } catch (error) {
+    console.error('Error fetching child report:', error);
+    res.status(500).json({ success: false, message: 'Server error' });
+  }
+});
+
+
+
+
 // ✅ Get WordWizard Level
 router.get("/get-wordwizard-level/:childId", async (req, res) => {
   try {
