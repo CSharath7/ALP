@@ -1,4 +1,5 @@
 const mongoose = require("mongoose");
+
 const childSchema = new mongoose.Schema(
   {
     name: { type: String, required: true },
@@ -7,7 +8,13 @@ const childSchema = new mongoose.Schema(
     email: { type: String, required: true },
     uid: { type: Number },
     therapist: { type: String },
-    wordWizardLevel: { type: Number, default: 0 } // 👈 NEW ATTRIBUTE
+    wordWizardLevel: { type: Number, default: 0 },
+    selectedGames: [
+      {
+        name: String,
+        level: { type: Number, min: 1, max: 4 }
+      }
+    ]
   },
   { timestamps: true }
 );

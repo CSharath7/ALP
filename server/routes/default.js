@@ -1,61 +1,35 @@
-require("dotenv").config()
+require("dotenv").config();
 const express = require("express");
 const router = express.Router();
-const nodemailer = require("nodemailer");
 const bcrypt = require("bcryptjs");
+const jwt = require("jsonwebtoken");
 const { PendingTherapist, Therapist } = require("../model/therapist");
-const Child = require("../model/child")
-const Admin = require("../model/admin")
-const Id = require("../model/Childid")
-const JWT_SECRET = process.env.JWT_SECRET; // Replace with a secure secret key
-const cors = require("cors");
-const mongoose = require("mongoose");
- // Import bcrypt
-const jwt = require("jsonwebtoken"); 
-const {childmail} = require("./mail")
+const Child = require("../model/child");
+const Admin = require("../model/admin");
+const Id = require("../model/Childid");
+const { childmail } = require("./mail");
 
+const JWT_SECRET = process.env.JWT_SECRET;
+
+// ✅ SuperAdmin & Therapist Login
 router.post("/login", async (req, res) => {
   try {
     const { email, password } = req.body;
 
-    // 1. Try SuperAdmin
+    // SuperAdmin Login
     const admin = await Admin.findOne({ email });
-    if (admin) {
-      const isMatch = await bcrypt.compare(password, admin.password);
-      if (!isMatch) {
-        return res.status(400).json({ error: "Invalid credentials" });
-      }
-
+    if (admin && await bcrypt.compare(password, admin.password)) {
       const token = jwt.sign({ id: admin._id }, JWT_SECRET, { expiresIn: "1h" });
-
-      return res.json({
-        token,
-        role: "superadmin",
-        name: admin.name,
-        email: admin.email
-      });
+      return res.json({ token, role: "superadmin", name: admin.name, email: admin.email });
     }
 
-    // 2. Try Therapist
+    // Therapist Login
     const therapist = await Therapist.findOne({ email });
-    if (therapist) {
-      const isMatch = await bcrypt.compare(password, therapist.password);
-      if (!isMatch) {
-        return res.status(400).json({ error: "Invalid credentials" });
-      }
-
+    if (therapist && await bcrypt.compare(password, therapist.password)) {
       const token = jwt.sign({ id: therapist._id }, JWT_SECRET, { expiresIn: "1h" });
-      console.log(therapist);
-      return res.json({
-        token,
-        role: "therapist",
-        name: therapist.name,
-        email: therapist.email,
-        id:therapist._id,
-      });
+      return res.json({ token, role: "therapist", name: therapist.name, email: therapist.email, id: therapist._id });
     }
 
-    // 3. Neither found
     return res.status(400).json({ error: "Invalid credentials" });
 
   } catch (error) {
@@ -64,207 +38,99 @@ router.post("/login", async (req, res) => {
   }
 });
 
+// ✅ Password Reset
 router.post("/reset-password/:token", async (req, res) => {
-  const token = req.params.token;
-  const { password } = req.body;
-
   try {
-    // Verify JWT token
-    const decoded = jwt.verify(token, JWT_SECRET);
-    console.log("Decoded token:", decoded); // Debugging
-
-    // Hash new password
-    const hashedPassword = await bcrypt.hash(password, 10);
-
-    // Update user password in the database
+    const decoded = jwt.verify(req.params.token, JWT_SECRET);
+    const hashedPassword = await bcrypt.hash(req.body.password, 10);
     await Therapist.findByIdAndUpdate(decoded.id, { password: hashedPassword });
-
-     res.json({
-       message: "Password reset successfully. Please log in again.",
-       logout: true,
-     });
+    res.json({ message: "Password reset successfully. Please log in again.", logout: true });
   } catch (error) {
-    console.log("JWT Error:", error.message); // Debugging
     res.status(400).json({ error: "Invalid or expired token." });
   }
 });
 
-router.post("/update-wordwizard-level", async (req, res) => {
-  const { childId, level } = req.body;
-  console.log("childId (UID): " + childId);
-  console.log("level: " + level);
-  try {
-    const child = await Child.findOneAndUpdate(
-      { uid: childId }, // Search by UID instead of _id
-      { wordWizardLevel: level },
-      { new: true }
-    );
-    if (!child) {
-      return res.status(404).json({ success: false, message: "Child not found" });
-    }
-    res.status(200).json({ success: true, child });
-  } catch (error) {
-    res.status(500).json({ success: false, message: "Update failed", error });
-  }
-});
-router.get("/get-wordwizard-level/:childId", async (req, res) => {
-  try {
-    const { childId } = req.params;
-    const child = await Child.findById(childId);
-    console.log("childId (UID): " + childId);
-    if (!child) {
-      return res.status(404).json({ success: false, message: "Child not found" });
-    }
-    res.status(200).json({ success: true, level: child.wordWizardLevel || 0 });
-  } catch (error) {
-    res.status(500).json({ success: false, message: "Failed to get level", error });
-  }
-});
-
-
-
-
+// ✅ Child Login
 router.post("/child-login", async (req, res) => {
   try {
-    const {studentId} = req.body;
+    const { studentId } = req.body;
+    const user = await Child.findOne({ uid: studentId });
+    if (!user) return res.status(400).json({ error: "Invalid Student ID" });
 
-    // Check if user exists
-    const user = await Child.findOne({uid:studentId});
-    if (!user) {
-      console.log(user);
-      return res.status(400).json({ error: "Invalid Student ID" });
-    }
-
-    // Generate JWT Token
     const token = jwt.sign({ id: user._id }, JWT_SECRET, { expiresIn: "1h" });
-    console.log("token: " + token);
 
-      res.json({
-        token,
-        child: {
-          name: user.name,
-          email: user.email,
-          uid: user.uid,
-          id: user._id,
-          level: user.wordWizardLevel || 0,
-        },
-        role:"child"
-      },);
+    res.json({
+      token,
+      child: {
+        name: user.name,
+        email: user.email,
+        uid: user.uid,
+        id: user._id,
+        level: user.wordWizardLevel || 0,
+      },
+      role: "child"
+    });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
 });
+
+// ✅ Child Register
 router.post("/child-register", async (req, res) => {
   try {
-    const { name, age, gender, email, therapistid } = req.body;
+    const { name, age, gender, email, therapistid, selectedGames } = req.body;
 
-    // Step 1: Find the therapist by name
-    const therapist = await Therapist.findOne({ _id: therapistid });
-    if (!therapist) {
-      return res.status(404).json({ error: "Therapist not found" });
-    }
+    const uid = Math.floor(100000 + Math.random() * 900000); // Simple UID
 
-    // Step 2: Generate UID
-    const uidDoc = await Id.findOneAndUpdate(
-      { key: "ALP" },
-      { $inc: { value: 1 } },
-      { new: false }
-    );
-    const currentValue = uidDoc.value;
-
-    // Step 3: Create new child with therapist ID
     const newChild = new Child({
       name,
       age,
       gender,
       email,
-      uid: currentValue,
-      therapist: therapist._id  // <-- store ObjectId of therapist
+      uid,
+      therapist: therapistid,
+      selectedGames
     });
 
     await newChild.save();
-
-    // Step 4: Add child ID to therapist's children list
-    therapist.children.push(newChild._id);
-    await therapist.save();
-
-    // Step 5: Send email
-    await childmail(req.body, currentValue);
-
-    res.status(201).json({ studentId: currentValue });
-  } catch (error) {
-    console.error("Error during child registration:", error);
-    res.status(500).json({ error: error.message });
+    res.status(201).json({ message: "Child registered", uid });
+  } catch (err) {
+    res.status(500).json({ message: "Registration failed", error: err.message });
   }
 });
 
-
-module.exports = router;
-
-    
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+// ✅ Update WordWizard Level
+router.post("/update-wordwizard-level", async (req, res) => {
+  const { childId, level } = req.body;
+  try {
+    const child = await Child.findOneAndUpdate({ uid: childId }, { wordWizardLevel: level }, { new: true });
+    if (!child) return res.status(404).json({ success: false, message: "Child not found" });
+    res.status(200).json({ success: true, child });
+  } catch (error) {
+    res.status(500).json({ success: false, message: "Update failed", error });
+  }
+});
+router.get("/child/:uid", async (req, res) => {
+  try {
+    console.log("Fetching child data for UID:", req.params.uid);
+    const child = await Child.findOne({ uid: req.params.uid });
+    if (!child) {
+      return res.status(404).json({ message: "Child not found" });
+    }
+    res.json({ selectedGames: child.selectedGames });
+  } catch (err) {
+    res.status(500).json({ message: "Failed to fetch games" });
+  }
+});
+// ✅ Get WordWizard Level
+router.get("/get-wordwizard-level/:childId", async (req, res) => {
+  try {
+    const child = await Child.findById(req.params.childId);
+    if (!child) return res.status(404).json({ success: false, message: "Child not found" });
+    res.status(200).json({ success: true, level: child.wordWizardLevel || 0 });
+  } catch (error) {
+    res.status(500).json({ success: false, message: "Failed to get level", error });
+  }
+});
 
 module.exports = router;
