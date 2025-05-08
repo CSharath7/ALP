@@ -110,13 +110,40 @@ router.post("/child-register", async (req, res) => {
 });
 // ✅ Update WordWizard Level
 router.post("/update-wordwizard-level", async (req, res) => {
-  const { childId, level } = req.body;
+  const { childId, gameName, level, maxEmotion, minEmotion, score } = req.body;
+
   try {
-    const child = await Child.findOneAndUpdate({ uid: childId }, { wordWizardLevel: level }, { new: true });
-    if (!child) return res.status(404).json({ success: false, message: "Child not found" });
+    // Validate required fields
+    if (!childId || !gameName || level === undefined || !maxEmotion || !minEmotion || score === undefined) {
+      return res.status(400).json({ success: false, message: "Missing required fields" });
+    }
+
+    // Find the child and update wordWizardLevel and append to session array
+    const child = await Child.findOneAndUpdate(
+      { uid: childId },
+      {
+        wordWizardLevel: level,
+        $push: {
+          session: {
+            name: gameName,
+            level,
+            maxEmotion,
+            minEmotion,
+            score,
+          },
+        },
+      },
+      { new: true }
+    );
+
+    if (!child) {
+      return res.status(404).json({ success: false, message: "Child not found" });
+    }
+
     res.status(200).json({ success: true, child });
   } catch (error) {
-    res.status(500).json({ success: false, message: "Update failed", error });
+    console.error("Error updating WordWizard level:", error);
+    res.status(500).json({ success: false, message: "Update failed", error: error.message });
   }
 });
 router.get("/child/:uid", async (req, res) => {
