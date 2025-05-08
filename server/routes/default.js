@@ -109,7 +109,7 @@ router.post("/child-register", async (req, res) => {
   }
 });
 // ✅ Update WordWizard Level
-router.post("/update-wordwizard-level", async (req, res) => {
+router.post("/updatelevel", async (req, res) => {
   const { childId, gameName, level, maxEmotion, minEmotion, score } = req.body;
 
   try {
@@ -125,7 +125,7 @@ router.post("/update-wordwizard-level", async (req, res) => {
         wordWizardLevel: level,
         $push: {
           session: {
-            name: gameName,
+            gameName,
             level,
             maxEmotion,
             minEmotion,
@@ -187,7 +187,7 @@ router.get('/getchildreport/:uid', async (req, res) => {
 
 
 // ✅ Get WordWizard Level
-router.get("/get-wordwizard-level/:childId", async (req, res) => {
+router.get("/getlevel/:childId", async (req, res) => {
   try {
     const child = await Child.findById(req.params.childId);
     if (!child) return res.status(404).json({ success: false, message: "Child not found" });

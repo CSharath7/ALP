@@ -48,7 +48,7 @@ const WordWizard = () => {
       if (!childId) return;
 
       try {
-        const res = await fetch(`http://localhost:5000/get-wordwizard-level/${childId}`);
+        const res = await fetch(`http://localhost:5000/getlevel/${childId}`);
         const data = await res.json();
         if (data.success) {
           const levelFromServer = data.level || 0;
@@ -314,7 +314,7 @@ const WordWizard = () => {
     const { maxEmotion, minEmotion } = calculateDominantEmotions(emotions);
 
     try {
-      const response = await fetch("http://localhost:5000/update-wordwizard-level", {
+      const response = await fetch("http://localhost:5000/updatelevel", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -350,7 +350,7 @@ const WordWizard = () => {
     const { maxEmotion, minEmotion } = calculateDominantEmotions(emotions);
 
     try {
-      await fetch("http://localhost:5000/update-wordwizard-level", {
+      await fetch("http://localhost:5000/updatelevel", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
