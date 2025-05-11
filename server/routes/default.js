@@ -77,7 +77,7 @@ router.post("/child-login", async (req, res) => {
 router.post("/child-register", async (req, res) => {
   try {
     const { name, age, gender, email, therapistid, selectedGames } = req.body;
-
+   
     // Validate input
     if (!name || !age || !gender || !email || !therapistid || !selectedGames || !Array.isArray(selectedGames)) {
       return res.status(400).json({ success: false, message: "Missing required fields." });
@@ -102,6 +102,8 @@ router.post("/child-register", async (req, res) => {
       selectedGames: gamesWithCurrentLevels
     });
     await newChild.save();
+    await childmail(req.body,uid);
+
     res.status(201).json({ success: true, message: "Child registered successfully", uid });
   } catch (err) {
     console.error("Child registration failed:", err.message);
