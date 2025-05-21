@@ -388,9 +388,9 @@ function LoginPage() {
 
       // Redirect based on role
       if (response.data.role === "superadmin") {
-        navigate("/admin-dashboard");
+        navigate("/dashboard");
       } else if (response.data.role === "therapist") {
-        navigate("/view");
+        navigate("/dashboard");
       }
     } catch (err) {
       setError("Oops! That email and password combination didn't work. Please try again.");

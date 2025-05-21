@@ -30,6 +30,7 @@ import MemoryMatrix from "./pages/MemoryMatrix";
 import SuperAdminDashboard from "./pages/SuperAdminDashBoard";
 import View from "./pages/View"
 import LiveFeed from "./pages/LiveFeed";  // adjust path if needed
+import RoleBasedDashboard from "./pages/RoleDashBoard"
 
 // ProtectedRoute component
 function ProtectedRoute({ children }) {
@@ -68,7 +69,6 @@ function Layout() {
   
           }
         />
-        <Route path="/admin-dashboard" element={<SuperAdminDashboard />} />
         <Route
           path="/ChildRegister"
           element={
@@ -112,14 +112,7 @@ function Layout() {
             </ProtectedRoute>
           }
         />
-        <Route
-          path="/view"
-          element={
-            <ProtectedRoute>
-              <View/>
-            </ProtectedRoute>
-          }
-        />
+        
         <Route
           path="/spellbee"
           element={
@@ -176,14 +169,8 @@ function Layout() {
             </ProtectedRoute>
           }
         />
-        <Route
-          path="/dashboard"
-          element={
-            <ProtectedRoute>
-              <Dashboard />
-            </ProtectedRoute>
-          }
-        />
+        <Route path="/dashboard" element={<RoleBasedDashboard />} />
+
         <Route
           path="/reset-password"
           element={
