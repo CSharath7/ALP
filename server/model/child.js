@@ -9,7 +9,6 @@ const childSchema = new mongoose.Schema(
     email: { type: String, required: true },
     uid: { type: Number },
     therapist: { type: String },
-    wordWizardLevel: { type: Number, default: 0 },
     selectedGames: [
       {
         name: String,
