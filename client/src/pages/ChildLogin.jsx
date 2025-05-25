@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import "../styles/ChildLogin.css";
@@ -13,6 +13,14 @@ function ChildLogin() {
   const [errorMessage, setErrorMessage] = useState("");
   const navigate = useNavigate();
 
+  // Redirect if token already exists
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    if (token) {
+      navigate("/dashboard");
+    }
+  }, [navigate]);
+
   const handleChange = (e) => {
     setLoginData({ ...loginData, [e.target.name]: e.target.value });
   };
@@ -22,7 +30,7 @@ function ChildLogin() {
     setIsSubmitting(true);
     setErrorMessage("");
     setSuccessMessage("");
-    
+
     try {
       const response = await axios.post("http://localhost:5000/child-login", loginData);
       localStorage.setItem("token", response.data.token);
@@ -32,6 +40,7 @@ function ChildLogin() {
       localStorage.setItem("uid", response.data.child.uid);
       localStorage.setItem("id", response.data.child.id);
       localStorage.setItem("level", response.data.child.level);
+
       setSuccessMessage("Welcome back! Redirecting to your dashboard...");
       setTimeout(() => {
         navigate("/dashboard");
@@ -102,15 +111,6 @@ function ChildLogin() {
 
         <div className="login-footer">
           <div className="footer-links">
-            <p>
-              Don't have an account?{' '}
-              <button 
-                onClick={() => navigate("/register")}
-                className="footer-link font-bold underline focus:outline-none"
-              >
-                Register here
-              </button>
-            </p>
             <button 
               onClick={() => navigate("/help")}
               className="footer-link hover:underline focus:outline-none"

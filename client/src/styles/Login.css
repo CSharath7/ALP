@@ -117,10 +117,12 @@
   }
   
   .footer-links {
-    display: flex;
-    flex-direction: column;
-    gap: 0.5rem;
-  }
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  align-items: center; /* Make all links/buttons centered */
+}
+
   
   .footer-link {
     color: #1e40af;
@@ -142,3 +144,9 @@
       transform: rotate(360deg);
     }
   }
+  .signup-line {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 0.25rem;
+}

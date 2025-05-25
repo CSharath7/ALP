@@ -17,7 +17,7 @@ const Games = () => {
         "Memory Puzzle": { path: "/Memory", color: "bg-red-500", icon: "🧩" },
         "Memory Matrix": { path: "/MemoryMatrix", color: "bg-blue-500", icon: "🧠" },
         "Spell Bee": { path: "/SpellBee", color: "bg-yellow-500", icon: "🐝" },
-        "Word Wizard": { path: "/WordWizard", color: "bg-pink-500", icon: "🧙" },
+        "Word Wizard": { path: "/wordwizard", color: "bg-pink-500", icon: "🧙" },
         "Word Detective": { path: "/WordDetective", color: "bg-orange-500", icon: "🔍" }
       };
 
