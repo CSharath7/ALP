@@ -78,6 +78,7 @@ app.post('/landmark_emotion', (req, res) => {
   // You can process, log, store, or emit this data here
   res.status(200).json({ status: 'received' });
 });
+
 // Routers
 app.use("/", defaultRouter);
 app.use("/api", apiRouter);
