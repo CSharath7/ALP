@@ -12,8 +12,7 @@ function ChildRegister() {
   });
 
   const availableGames = [
-    "Shape Pattern", "Story Time", "Math Quest", "Memory Puzzle",
-    "Memory Matrix", "Spell Bee", "Word Wizard", "Word Detective"
+    "Shape Pattern",  "Math Quest", "Memory Puzzle", "Word Wizard", 
   ];
 
   const [selectedGames, setSelectedGames] = useState(

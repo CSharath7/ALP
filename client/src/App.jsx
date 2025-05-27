@@ -12,24 +12,15 @@ import ChildRegister from "./pages/ChildRegister";
 import LoginPage from "./pages/Login";
 import SignupPage from "./pages/Signup";
 import AdminPanel from "./pages/Admin";
-import Dashboard from "./pages/Dashboard";
 import Profile from "./pages/Profile";
 import Games from "./pages/Games";
 import Navbar from "./components/Navbar";
 import ResetPassword from "./pages/ResetPassword";
 import Math from "./pages/Math";
-import Story from "./pages/Story";
 import Pattern from "./pages/Pattern";
 import Memory from "./pages/Memory";
-import EmotionStream from "./pages/EmotionStream";
-import SpellBee from "./pages/SpellBee";
+import LiveFeed from "./pages/LiveFeed"
 import WordWizard from "./pages/WordWizard";
-import WordDetective from "./pages/WordDetective";
-import SoundMatch from "./pages/SoundMatch";
-import MemoryMatrix from "./pages/MemoryMatrix";
-import SuperAdminDashboard from "./pages/SuperAdminDashBoard";
-import View from "./pages/View"
-import LiveFeed from "./pages/LiveFeed";  // adjust path if needed
 import RoleBasedDashboard from "./pages/RoleDashBoard"
 
 // ProtectedRoute component
@@ -77,15 +68,7 @@ function Layout() {
             </ProtectedRoute>
           }
         />
-        <Route
-          path="/camera"
-          element={
-            <ProtectedRoute>
-              <EmotionStream />
-
-            </ProtectedRoute>
-          }
-        />
+        
         {/* <Route path="/livefeed" element={<LiveFeed />} /> */}
         <Route
   path="/livefeed"
@@ -114,14 +97,6 @@ function Layout() {
         />
         
         <Route
-          path="/spellbee"
-          element={
-            <ProtectedRoute>
-              <SpellBee />
-            </ProtectedRoute>
-          }
-        />
-        <Route
           path="/wordwizard"
           element={
             <ProtectedRoute>
@@ -129,38 +104,7 @@ function Layout() {
             </ProtectedRoute>
           }
         />
-        <Route
-          path="/worddetective"
-          element={
-            <ProtectedRoute>
-              <WordDetective />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/memorymatrix"
-          element={
-            <ProtectedRoute>
-              <MemoryMatrix />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/soundmatch"
-          element={
-            <ProtectedRoute>
-              <SoundMatch />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/story"
-          element={
-            <ProtectedRoute>
-              <Story />
-            </ProtectedRoute>
-          }
-        />
+        
         <Route
           path="/pattern"
           element={
