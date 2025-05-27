@@ -10,7 +10,18 @@
     line-height: 1.6;
     color: #333333;
   }
-  
+  .therapy-message {
+  font-size: 1.25rem;
+  font-weight: bold;
+  text-align: center;
+  color: #2d3748;
+  margin-top: 2rem;
+  background-color: #fff3cd;
+  border: 1px solid #ffeeba;
+  border-radius: 0.5rem;
+  padding: 1rem 2rem;
+}
+
   .games-header {
     margin-bottom: 2rem;
     text-align: center;

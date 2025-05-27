@@ -1,10 +1,38 @@
 import React, { useState, useEffect, useRef } from "react";
 import * as faceapi from "face-api.js";
+import "../styles/QuizGame.css";
 
 // Helper function to get initial level from localStorage
 const getInitialLevel = () => {
-  const savedLevel = localStorage.getItem('mathQuizLevel');
-  return savedLevel ? parseInt(savedLevel) : 0;
+  const saved = localStorage.getItem("game_Math_Quest");
+  if (saved) {
+    try {
+      const parsed = JSON.parse(saved);
+      return parsed.currentLevel ?? 0;
+    } catch {
+      return 0;
+    }
+  }
+  return 0;
+};
+
+// Preserve assignedLevel while updating currentLevel in localStorage
+const updateLocalStorageLevel = (newLevel) => {
+  const saved = localStorage.getItem("game_Math_Quest");
+  let data = { currentLevel: newLevel };
+
+  if (saved) {
+    try {
+      const parsed = JSON.parse(saved);
+      if (parsed.assignedLevel !== undefined) {
+        data.assignedLevel = parsed.assignedLevel;
+      }
+    } catch {
+      // ignore parsing errors, just save currentLevel
+    }
+  }
+
+  localStorage.setItem("game_Math_Quest", JSON.stringify(data));
 };
 
 const adjustLevel = (questionData, currentLevel) => {
@@ -16,7 +44,7 @@ const adjustLevel = (questionData, currentLevel) => {
     fear: -2,
     angry: -3,
     disgust: -3,
-    contempt: -2.5
+    contempt: -2.5,
   };
 
   if (!questionData || questionData.length === 0) return currentLevel;
@@ -58,38 +86,38 @@ const QuizGame = () => {
 
   useEffect(() => {
     const loadQuestionsAndModels = async () => {
-      // Load face detection models
       await faceapi.nets.tinyFaceDetector.loadFromUri("/models");
       await faceapi.nets.faceExpressionNet.loadFromUri("/models");
 
-      // Load questions
       const response = await fetch("/MathQuest.json");
       const data = await response.json();
 
-      // Ensure currentLevel is within valid range (0-4)
       const safeCurrentLevel = Math.max(0, Math.min(currentLevel, 4));
       const allLevels = [
-        data.math.level1, 
-        data.math.level2, 
-        data.math.level3, 
-        data.math.level4, 
-        data.math.level5
+        data.math.level1,
+        data.math.level2,
+        data.math.level3,
+        data.math.level4,
+        data.math.level5,
       ];
-      
+
       const questions = allLevels[safeCurrentLevel];
-      
+
       if (!questions) {
         console.error(`No questions found for level ${safeCurrentLevel + 1}`);
         return;
       }
-      
-      // Select 5 random questions
+
       const shuffled = [...questions].sort(() => 0.5 - Math.random());
       const picked = shuffled.slice(0, 5);
       setSessionQuestions(picked);
-      setQuestionData([]); // Reset question data for new session
+      setQuestionData([]);
+      setLevelIndex(0);
+      setSelectedAnswer(null);
+      setScore(0);
+      setMessage("");
+      setGameCompleted(false);
 
-      // Set up webcam
       try {
         const stream = await navigator.mediaDevices.getUserMedia({ video: true });
         if (videoRef.current) {
@@ -107,7 +135,6 @@ const QuizGame = () => {
     loadQuestionsAndModels();
 
     return () => {
-      // Clean up interval and webcam on unmount
       if (intervalRef.current) clearInterval(intervalRef.current);
       if (videoRef.current?.srcObject) {
         videoRef.current.srcObject.getTracks().forEach((track) => track.stop());
@@ -116,6 +143,7 @@ const QuizGame = () => {
   }, [currentLevel]);
 
   const runExpressionDetection = () => {
+    if (intervalRef.current) clearInterval(intervalRef.current);
     intervalRef.current = setInterval(async () => {
       if (!videoRef.current || videoRef.current.readyState < 2) return;
 
@@ -148,8 +176,7 @@ const QuizGame = () => {
     if (isCorrect) {
       points = 10 + emotionBonus;
       setMessage(
-        `✅ Correct! +${points} points${
-          emotionBonus !== 0 ? ` (${emotionBonus > 0 ? "+" : ""}${emotionBonus} for ${expression})` : ""
+        `✅ Correct! +${points} points${emotionBonus !== 0 ? ` (${emotionBonus > 0 ? "+" : ""}${emotionBonus} for ${expression})` : ""
         }`
       );
       setScore(score + points);
@@ -158,8 +185,7 @@ const QuizGame = () => {
       setScore(Math.max(0, score - 2));
     }
 
-    // Record question data for level adjustment
-    setQuestionData(prev => [
+    setQuestionData((prev) => [
       ...prev,
       {
         question: currentQ.question,
@@ -167,11 +193,10 @@ const QuizGame = () => {
         score: isCorrect ? points : -2,
         emotion: expression,
         answer: selectedAnswer,
-        correctAnswer: currentQ.answer
-      }
+        correctAnswer: currentQ.answer,
+      },
     ]);
 
-    // Move to next question or end session
     setTimeout(() => {
       if (levelIndex < sessionQuestions.length - 1) {
         setLevelIndex(levelIndex + 1);
@@ -184,52 +209,104 @@ const QuizGame = () => {
     }, 1000);
   };
 
+  const updateLevelInBackend = async (level) => {
+    try {
+      const res = await fetch("http://localhost:5000/update-child-level", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: "Bearer your-valid-token",
+        },
+        body: JSON.stringify({ gameName: "Math Quest", currentLevel: level, id: localStorage.getItem("id") }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.message || "Failed to update level");
+      console.log("Backend update success:", data);
+      return true;
+    } catch (err) {
+      console.error("Failed to update backend level:", err);
+      return false;
+    }
+  };
+
   if (sessionQuestions.length === 0) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <p className="text-xl">Loading questions...</p>
+      <div className="loading-container">
+        <p>Loading questions...</p>
       </div>
     );
   }
 
   if (gameCompleted) {
     const newLevel = adjustLevel(questionData, currentLevel);
-    
+
     return (
-      <div className="min-h-screen bg-gray-100 flex flex-col items-center justify-start p-10">
-        <h1 className="text-3xl font-bold mb-4">🎉 Session Completed!</h1>
-        <p className="text-xl mb-2">Final Score: {score}</p>
-        <p className="text-xl mb-4">New Level: {newLevel + 1}</p>
-        
-        <div className="w-full max-w-2xl mb-8">
-          <h2 className="text-xl font-semibold mb-2">Question Details:</h2>
-          <div className="bg-white rounded-lg shadow overflow-hidden">
+      <div className="quiz-container">
+        <div className="completion-container">
+          <h1 className="completion-title">🎉 Session Completed!</h1>
+          <p className="completion-score">Final Score: {score}</p>
+          <p className="completion-level">New Level: {newLevel + 1}</p>
+
+          <div className="question-details">
+            <h2 className="quiz-subtitle">Question Details:</h2>
             {questionData.map((q, index) => (
-              <div key={index} className="p-4 border-b">
-                <p className="font-medium">Q{index + 1}: {q.question}</p>
-                <p>Your answer: {q.answer} {q.correct ? "✅" : "❌"}</p>
+              <div key={index} className="question-detail">
+                <p className="font-medium">
+                  Q{index + 1}: {q.question}
+                </p>
+                <p>
+                  Your answer: {q.answer} {q.correct ? "✅" : "❌"}
+                </p>
                 <p>Correct answer: {q.correctAnswer}</p>
-                <p>Emotion: {q.emotion} | Score: {q.score}</p>
+                <p>
+                  Emotion: {q.emotion} | Score: {q.score}
+                </p>
               </div>
             ))}
           </div>
-        </div>
 
-        <button
-          className="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition-colors"
-          onClick={() => {
-            // Save new level to localStorage before starting new session
-            localStorage.setItem('mathQuizLevel', newLevel.toString());
-            setCurrentLevel(newLevel);
-            setGameCompleted(false);
-            setLevelIndex(0);
-            setScore(0);
-            setSelectedAnswer(null);
-            setMessage("");
-          }}
-        >
-          Start New Session
-        </button>
+          <div className="action-buttons">
+            <button
+              className="action-button action-button-primary"
+              onClick={async () => {
+                const success = await updateLevelInBackend(newLevel);
+                if (success) {
+                  setCurrentLevel(newLevel);
+                  updateLocalStorageLevel(newLevel);
+                  setLevelIndex(0);
+                  setSelectedAnswer(null);
+                  setScore(0);
+                  setMessage("");
+                  setGameCompleted(false);
+                } else {
+                  alert("Failed to update level on server.");
+                }
+              }}
+            >
+              Start New Session
+            </button>
+
+            <button
+              className="action-button action-button-secondary"
+              onClick={async () => {
+                const success = await updateLevelInBackend(newLevel);
+                if (success) {
+                  setCurrentLevel(newLevel);
+                  updateLocalStorageLevel(newLevel);
+                  setLevelIndex(0);
+                  setSelectedAnswer(null);
+                  setScore(0);
+                  setMessage("");
+                  setGameCompleted(false);
+                } else {
+                  alert("Failed to update level on server.");
+                }
+              }}
+            >
+              Return to Games
+            </button>
+          </div>
+        </div>
       </div>
     );
   }
@@ -237,54 +314,51 @@ const QuizGame = () => {
   const currentQuestion = sessionQuestions[levelIndex];
 
   return (
-    <div className="min-h-screen bg-gray-100 p-6">
-      <video ref={videoRef} autoPlay muted playsInline style={{ display: "none" }} />
+    <div className="quiz-container">
+      <div className="quiz-header">
+        <h1 className="quiz-title">Math Quest</h1>
+        <p className="quiz-subtitle">Level {currentLevel + 1}</p>
+      </div>
 
-      <div className="max-w-xl mx-auto mt-12 bg-white p-6 rounded-lg shadow text-center">
-        <div className="flex justify-between items-center mb-4">
-          <h1 className="text-2xl font-bold">Math Quiz Game</h1>
-          <span className="bg-purple-500 text-white px-3 py-1 rounded-full">
-            Level: {currentLevel + 1}
-          </span>
-        </div>
+      <div className="question-container">
+        <video
+          ref={videoRef}
+          autoPlay
+          muted
+          width="320"
+          height="240"
+          style={{ display: "none" }}
+        />
+        <p className="emotion-display">Detected emotion: {expression}</p>
+        <p className="question-text">{currentQuestion.question}</p>
         
-        <p className="mb-2 text-gray-600">
-          Score: {score} | Emotion: {expression}
-        </p>
-
-        <p className="text-lg mb-4 font-medium">{currentQuestion.question}</p>
-        <div className="flex flex-wrap justify-center gap-4 mb-4">
-          {currentQuestion.options.map((option, index) => (
+        <div className="options-grid">
+          {currentQuestion.options.map((opt, idx) => (
             <button
-              key={index}
-              onClick={() => setSelectedAnswer(option)}
-              className={`px-4 py-2 rounded-lg border-2 transition-colors ${
-                selectedAnswer === option 
-                  ? "bg-green-400 text-white border-green-500" 
-                  : "border-gray-300 hover:bg-gray-100"
-              }`}
+              key={idx}
+              className={`option-button ${selectedAnswer === opt ? "selected" : ""}`}
+              onClick={() => setSelectedAnswer(opt)}
             >
-              {option}
+              {opt}
             </button>
           ))}
         </div>
-
+        
         <button
           onClick={checkAnswer}
           disabled={!selectedAnswer}
-          className={`px-4 py-2 rounded-lg text-white transition-colors ${
-            selectedAnswer 
-              ? "bg-blue-500 hover:bg-blue-600" 
-              : "bg-gray-300 cursor-not-allowed"
-          }`}
+          className="submit-button"
         >
-          Submit
+          Submit Answer
         </button>
-
-        {message && <p className="mt-4 text-md">{message}</p>}
-        <p className="mt-2 text-sm text-gray-500">
-          Question {levelIndex + 1} / {sessionQuestions.length}
-        </p>
+        
+        {message && (
+          <p className={`feedback-message ${message.includes("✅") ? "feedback-correct" : "feedback-incorrect"}`}>
+            {message}
+          </p>
+        )}
+        
+        <p className="score-display">Score: {score}</p>
       </div>
     </div>
   );

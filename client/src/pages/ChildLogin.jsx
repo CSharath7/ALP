@@ -26,32 +26,49 @@ function ChildLogin() {
   };
 
   const handleSubmit = async (e) => {
-    e.preventDefault();
-    setIsSubmitting(true);
-    setErrorMessage("");
-    setSuccessMessage("");
+  e.preventDefault();
+  setIsSubmitting(true);
+  setErrorMessage("");
+  setSuccessMessage("");
 
-    try {
-      const response = await axios.post("http://localhost:5000/child-login", loginData);
-      localStorage.setItem("token", response.data.token);
-      localStorage.setItem("role", response.data.role);
-      localStorage.setItem("name", response.data.child.name);
-      localStorage.setItem("email", response.data.child.email);
-      localStorage.setItem("uid", response.data.child.uid);
-      localStorage.setItem("id", response.data.child.id);
-      localStorage.setItem("level", response.data.child.level);
+  try {
+    const response = await axios.post("http://localhost:5000/child-login", loginData);
+    const { token, role, child } = response.data;
 
-      setSuccessMessage("Welcome back! Redirecting to your dashboard...");
-      setTimeout(() => {
-        navigate("/dashboard");
-      }, 2000);
-    } catch (e) {
-      setErrorMessage("Login failed. Please check your Student ID and try again.");
-      console.error(e);
-    } finally {
-      setIsSubmitting(false);
+    // Store basic child info
+    localStorage.setItem("token", token);
+    localStorage.setItem("role", role);
+    localStorage.setItem("name", child.name);
+    localStorage.setItem("email", child.email);
+    localStorage.setItem("uid", child.uid);
+    localStorage.setItem("id", child.id);
+
+    // Store each selected game individually
+    if (child.selectedGames && Array.isArray(child.selectedGames)) {
+      child.selectedGames.forEach((game) => {
+        const key = `game_${game.name.replace(/\s+/g, "_")}`; // e.g., game_Math_Quest
+        console.log(`Storing game data under key: ${key}`);
+        const value = JSON.stringify({
+          assignedLevel: game.assignedLevel,
+          currentLevel: game.currentLevel
+        });
+        console.log(`Storing value: ${value}`);
+        localStorage.setItem(key, value);
+      });
     }
-  };
+
+    setSuccessMessage("Welcome back! Redirecting to your dashboard...");
+    setTimeout(() => {
+      navigate("/dashboard");
+    }, 2000);
+  } catch (e) {
+    setErrorMessage("Login failed. Please check your Student ID and try again.");
+    console.error(e);
+  } finally {
+    setIsSubmitting(false);
+  }
+};
+
 
   return (
     <div className="child-login-container">

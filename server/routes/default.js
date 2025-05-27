@@ -76,7 +76,8 @@ router.post("/child-login", async (req, res) => {
         name: user.name,
         email: user.email,
         uid: user.uid,
-        id: user._id
+        id: user._id,
+        selectedGames:user.selectedGames
       },
       role: "child"
     });
@@ -101,7 +102,7 @@ router.post("/child-register", async (req, res) => {
     const gamesWithLevels = selectedGames.map(game => ({
       name: game.name,
       assignedLevel: game.level,
-      currentLevel: 1
+      currentLevel: 0
     }));
 
     const newChild = new Child({
@@ -127,31 +128,38 @@ router.post("/child-register", async (req, res) => {
 /* --------------------------------------------
    ✅ Update Game Level + Session Log
 -------------------------------------------- */
-router.post("/updatelevel", async (req, res) => {
-  const { childId, gameName, level, maxEmotion, minEmotion, score } = req.body;
+
+router.post("/update-child-level", async (req, res) => {
+  const { gameName, currentLevel, id } = req.body;
+  console.log("Received request to update level:", gameName, currentLevel, id);
 
   try {
-    if (!childId || !gameName || level === undefined || !maxEmotion || !minEmotion || score === undefined) {
-      return res.status(400).json({ success: false, message: "Missing required fields" });
+    const child = await Child.findOneAndUpdate(
+      {
+        _id: id,
+        "selectedGames.name": gameName
+      },
+      {
+        $set: {
+          "selectedGames.$.currentLevel": currentLevel
+        }
+      },
+      { new: true }
+    );
+
+    if (!child) {
+      return res.status(404).json({ message: "Child or game not found." });
     }
 
-    const child = await Child.findOne({ uid: childId });
-    if (!child) return res.status(404).json({ success: false, message: "Child not found" });
-
-    const game = child.selectedGames.find(game => game.name === gameName);
-    if (!game) return res.status(404).json({ success: false, message: "Game not assigned to child" });
-
-    game.currentLevel = level;
-
-    child.session.push({ gameName, level, maxEmotion, minEmotion, score });
-    await child.save();
-
-    res.status(200).json({ success: true, message: "Level updated successfully", game });
+    res.status(200).json({ message: "Current level updated successfully.", child });
   } catch (error) {
-    console.error("Error updating level:", error);
-    res.status(500).json({ success: false, message: "Update failed", error: error.message });
+    console.error("Error updating current level:", error);
+    res.status(500).json({ message: "Internal server error." });
   }
 });
+
+
+
 
 /* --------------------------------------------
    ✅ Get Game Levels for a Specific Game
@@ -192,11 +200,61 @@ router.get("/child/:uid", async (req, res) => {
     const child = await Child.findOne({ uid: req.params.uid });
     if (!child) return res.status(404).json({ message: "Child not found" });
 
-    res.json({ selectedGames: child.selectedGames });
+    // Filter out games where assignedLevel equals currentLevel
+    const gamesToShow = child.selectedGames.filter(
+      game => game.assignedLevel > game.currentLevel
+    );
+
+    res.json({ selectedGames: gamesToShow });
   } catch (err) {
     res.status(500).json({ message: "Failed to fetch games" });
   }
 });
+
+router.post("/update-child-level", async (req, res) => {
+  const { gameName, currentLevel } = req.body;
+
+  if (typeof gameName !== "string" || typeof currentLevel !== "number") {
+    return res.status(400).json({ message: "Invalid request body" });
+  }
+
+  try {
+    // Assuming you have a way to identify the child without authentication
+    // You might want to pass child's ID in the request body or query parameters
+    // For example:
+    const childId = req.body.childId;
+    if (!childId) {
+      return res.status(400).json({ message: "Missing childId" });
+    }
+
+    const child = await Child.findById(childId);
+    if (!child) return res.status(404).json({ message: "Child not found" });
+
+    // Find the game in selectedGames array
+    const game = child.selectedGames.find((g) => g.name === gameName);
+    if (!game) {
+      return res.status(404).json({ message: `Game ${gameName} not assigned to child` });
+    }
+
+    // Update currentLevel, ensure it is between 1 and 5
+    if (currentLevel < 1 || currentLevel > 5) {
+      return res.status(400).json({ message: "currentLevel must be between 1 and 5" });
+    }
+
+    game.currentLevel = currentLevel;
+
+    await child.save();
+
+    return res.json({
+      message: "Child's currentLevel updated successfully",
+      selectedGame: game,
+    });
+  } catch (err) {
+    console.error(err);
+    return res.status(500).json({ message: "Server error" });
+  }
+});
+
 
 /* --------------------------------------------
    ✅ Get Child's Game Report
