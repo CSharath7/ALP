@@ -12,8 +12,8 @@ const childSchema = new mongoose.Schema(
     selectedGames: [
       {
         name: String,
-        assignedLevel: { type: Number, min: 1, max: 5 },
-        currentLevel: { type: Number, min: 1, max: 5, default: 1 }
+        assignedLevel: { type: Number, min: 0, max: 4 },
+        currentLevel: { type: Number, min: 0, max: 4, default: 0 }
       }
     ],
     session:[

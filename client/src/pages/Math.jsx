@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useRef } from "react";
+import { useNavigate } from "react-router-dom";
 import * as faceapi from "face-api.js";
 import "../styles/QuizGame.css";
 
-// Helper function to get initial level from localStorage
 const getInitialLevel = () => {
   const saved = localStorage.getItem("game_Math_Quest");
   if (saved) {
@@ -80,7 +80,7 @@ const QuizGame = () => {
   const [sessionQuestions, setSessionQuestions] = useState([]);
   const [currentLevel, setCurrentLevel] = useState(getInitialLevel());
   const [questionData, setQuestionData] = useState([]);
-
+const navigate = useNavigate(); 
   const videoRef = useRef(null);
   const intervalRef = useRef(null);
 
@@ -298,6 +298,7 @@ const QuizGame = () => {
                   setScore(0);
                   setMessage("");
                   setGameCompleted(false);
+                  navigate("/games")
                 } else {
                   alert("Failed to update level on server.");
                 }
