@@ -99,23 +99,6 @@ function ChildDashboard() {
                     </tbody>
                 </table>
             </div>
-
-            <div className="card">
-                <h2 className="card-title red-title">Recommended For You</h2>
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                    {[
-                        { name: "Math Quest", icon: "➕➖", color: "bg-purple-500" },
-                        { name: "Word Detective", icon: "🔍", color: "bg-orange-500" },
-                        { name: "Memory Puzzle", icon: "🧩", color: "bg-red-500" },
-                        { name: "Spell Bee", icon: "🐝", color: "bg-yellow-500" }
-                    ].map((game, i) => (
-                        <Link key={i} to={`/${game.name.replace(/\s+/g, '')}`} className={`${game.color} game-card`}>
-                            <span className="game-icon">{game.icon}</span>
-                            <span className="game-name">{game.name}</span>
-                        </Link>
-                    ))}
-                </div>
-            </div>
         </div>
     );
 }
