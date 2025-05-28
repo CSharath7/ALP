@@ -9,7 +9,7 @@ function Navbar() {
   const dropdownRef = useRef(null);
 
   const handleLogout = () => {
-    if(role=="child"){
+    if (role == "child") {
       localStorage.removeItem("uid");
     }
     localStorage.removeItem("token");
@@ -17,9 +17,12 @@ function Navbar() {
     localStorage.removeItem("name");
     localStorage.removeItem("email");
     localStorage.removeItem("id");
-    localStorage.removeItem("isLoggedIn")
-    localStorage.removeItem("level")
-  
+    localStorage.removeItem("isLoggedIn");
+    localStorage.removeItem("level");
+    localStorage.removeItem("game_Math_Quest");
+    localStorage.removeItem("game_Memory_Puzzle");
+    localStorage.removeItem("game_Shape_Pattern");
+    localStorage.removeItem("game_Word_Wizard");
 
     navigate("/");
   };
