@@ -1,8 +1,31 @@
-/* TherapistDetails.css */
+/* TherapistDetails.css - Professional Dark Theme */
+:root {
+  --bg-primary: #0d1117;
+  --bg-secondary: #161b22;
+  --bg-card: #21262d;
+  --bg-accent: #292e36;
+  --text-primary: #e6edf3;
+  --text-secondary: #848d97;
+  --accent-primary: #7ee787; /* Professional green */
+  --accent-secondary: #a371f7; /* Sophisticated purple */
+  --border-color: #30363d;
+  --hover-color: #30363d;
+  --table-header: #1f2428;
+  --success-color: #3fb950; /* Muted green */
+  --warning-color: #d29922; /* Muted gold */
+  --highlight: rgba(110, 118, 129, 0.4);
+}
+
+body {
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+}
+
 .therapist-details-container {
     max-width: 1400px;
     margin: 2rem auto;
     padding: 0 1rem;
+    background-color: var(--bg-primary);
 }
 
 .details-layout {
@@ -22,10 +45,11 @@
 }
 
 .sidebar-content {
-    background: white;
-    border-radius: 10px;
+    background: var(--bg-card);
+    border-radius: 8px;
     padding: 1.5rem;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
+    border: 1px solid var(--border-color);
+    box-shadow: 0 1px 0 rgba(27, 31, 35, 0.1);
 }
 
 .therapist-avatar {
@@ -37,8 +61,8 @@
     width: 100px;
     height: 100px;
     margin: 0 auto 1rem;
-    background-color: #4a6fa5;
-    color: white;
+    background-color: var(--accent-secondary);
+    color: var(--text-primary);
     border-radius: 50%;
     display: flex;
     align-items: center;
@@ -55,26 +79,27 @@
     display: flex;
     justify-content: space-between;
     padding: 0.75rem 0;
-    border-bottom: 1px solid #f0f0f0;
+    border-bottom: 1px solid var(--border-color);
 }
 
 .meta-label {
     font-weight: 500;
-    color: #666;
+    color: var(--text-secondary);
 }
 
 .meta-value {
     font-weight: 600;
-    color: #333;
+    color: var(--text-primary);
 }
 
 .stats-card {
-    background: #f8f9fa;
-    border-radius: 8px;
+    background: var(--bg-accent);
+    border-radius: 6px;
     padding: 1rem;
     margin-top: 1.5rem;
     display: flex;
     justify-content: space-around;
+    border: 1px solid var(--border-color);
 }
 
 .stat-item {
@@ -85,32 +110,39 @@
     display: block;
     font-size: 1.5rem;
     font-weight: 700;
-    color: #4a6fa5;
+    color: var(--accent-primary);
 }
 
 .stat-label {
     font-size: 0.85rem;
-    color: #666;
+    color: var(--text-secondary);
 }
 
-/* TherapistDetails.css */
-/* ... (keep all existing therapist-sidebar styles exactly the same) ... */
-
-/* Updated Children Content Styles */
+/* Children Content Styles */
 .children-content {
     flex-grow: 1;
-    background: white;
-    border-radius: 10px;
+    background: var(--bg-card);
+    border-radius: 8px;
     padding: 1.5rem;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
     max-height: calc(100vh - 120px);
     overflow-y: auto;
+    border: 1px solid var(--border-color);
 }
 
 .content-header {
     margin-bottom: 1.5rem;
     padding-bottom: 1rem;
-    border-bottom: 1px solid #f0f0f0;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.content-header h2 {
+    color: var(--text-primary);
+    font-weight: 600;
+}
+
+.subtitle {
+    color: var(--text-secondary);
+    font-size: 0.9rem;
 }
 
 .children-list {
@@ -120,24 +152,25 @@
 }
 
 .child-card {
-    border: 1px solid #e0e0e0;
+    border: 1px solid var(--border-color);
     border-radius: 8px;
     overflow: hidden;
+    background: var(--bg-secondary);
 }
 
 .child-header {
     display: flex;
     align-items: center;
     padding: 1rem;
-    background: #f8f9fa;
-    border-bottom: 1px solid #e0e0e0;
+    background: var(--bg-accent);
+    border-bottom: 1px solid var(--border-color);
 }
 
 .child-avatar {
     width: 40px;
     height: 40px;
-    background-color: #4a6fa5;
-    color: white;
+    background-color: var(--accent-secondary);
+    color: var(--text-primary);
     border-radius: 50%;
     display: flex;
     align-items: center;
@@ -150,6 +183,7 @@
 .child-info h3 {
     margin: 0 0 0.25rem 0;
     font-size: 1.1rem;
+    color: var(--text-primary);
 }
 
 .child-meta {
@@ -157,13 +191,14 @@
     flex-wrap: wrap;
     gap: 0.75rem;
     font-size: 0.85rem;
-    color: #666;
+    color: var(--text-secondary);
 }
 
 /* Tabs Navigation */
 .child-tabs {
     display: flex;
-    border-bottom: 1px solid #e0e0e0;
+    border-bottom: 1px solid var(--border-color);
+    background: var(--bg-accent);
 }
 
 .tab-btn {
@@ -172,13 +207,20 @@
     border: none;
     cursor: pointer;
     font-size: 0.9rem;
-    color: #666;
+    color: var(--text-secondary);
     position: relative;
+    transition: all 0.1s ease;
+}
+
+.tab-btn:hover {
+    color: var(--text-primary);
+    background: var(--hover-color);
 }
 
 .tab-btn.active {
-    color: #4a6fa5;
+    color: var(--accent-primary);
     font-weight: 600;
+    background: var(--bg-secondary);
 }
 
 .tab-btn.active::after {
@@ -188,12 +230,13 @@
     left: 0;
     right: 0;
     height: 2px;
-    background-color: #4a6fa5;
+    background-color: var(--accent-primary);
 }
 
 /* Tab Content */
 .tab-content {
     padding: 1rem;
+    background: var(--bg-secondary);
 }
 
 .child-table {
@@ -203,16 +246,18 @@
 }
 
 .child-table th {
-    background-color: #f5f7fa;
-    color: #4a5568;
+    background-color: var(--table-header);
+    color: var(--text-primary);
     text-align: left;
     padding: 0.75rem;
     font-weight: 600;
+    border-bottom: 2px solid var(--border-color);
 }
 
 .child-table td {
     padding: 0.75rem;
-    border-bottom: 1px solid #edf2f7;
+    border-bottom: 1px solid var(--border-color);
+    color: var(--text-primary);
 }
 
 .child-table tr:last-child td {
@@ -220,37 +265,77 @@
 }
 
 .child-table tr:hover {
-    background-color: #f8fafc;
+    background-color: var(--highlight);
 }
 
 /* Status Badges */
 .status-badge {
     display: inline-block;
     padding: 0.25rem 0.5rem;
-    border-radius: 12px;
+    border-radius: 2em;
     font-size: 0.8rem;
     font-weight: 500;
 }
 
 .status-badge.completed {
-    background-color: #f0fff4;
-    color: #38a169;
+    background-color: rgba(46, 160, 67, 0.1);
+    color: var(--success-color);
+    border: 1px solid rgba(46, 160, 67, 0.2);
 }
 
 .status-badge.in-progress {
-    background-color: #fffaf0;
-    color: #dd6b20;
+    background-color: rgba(187, 128, 9, 0.1);
+    color: var(--warning-color);
+    border: 1px solid rgba(187, 128, 9, 0.2);
 }
 
 .no-data {
     text-align: center;
     padding: 1.5rem;
-    color: #888;
+    color: var(--text-secondary);
     font-size: 0.9rem;
+}
+
+.empty-state {
+    text-align: center;
+    padding: 2rem;
+    color: var(--text-secondary);
+    background: var(--bg-accent);
+    border-radius: 6px;
+    border: 1px dashed var(--border-color);
+}
+
+/* Scrollbar Styling */
+::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: var(--bg-secondary);
+}
+
+::-webkit-scrollbar-thumb {
+    background: var(--text-secondary);
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: var(--accent-secondary);
 }
 
 /* Responsive Adjustments */
 @media (max-width: 768px) {
+    .details-layout {
+        flex-direction: column;
+    }
+    
+    .therapist-sidebar {
+        width: 100%;
+        position: static;
+        height: auto;
+    }
+    
     .child-header {
         flex-direction: column;
         align-items: flex-start;
