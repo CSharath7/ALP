@@ -22,6 +22,7 @@ import Memory from "./pages/Memory";
 import LiveFeed from "./pages/LiveFeed"
 import WordWizard from "./pages/WordWizard";
 import RoleBasedDashboard from "./pages/RoleDashBoard"
+import TherapistDetails from './pages/TherapistDetails';
 
 // ProtectedRoute component
 function ProtectedRoute({ children }) {
@@ -51,13 +52,10 @@ function Layout() {
         {/* Protected Routes */}
         <Route
           path="/admin"
-
           element={<AdminPanel />
             // <ProtectedRoute>
             //   <AdminPanel />
             // </ProtectedRoute>
-
-  
           }
         />
         <Route
@@ -69,15 +67,14 @@ function Layout() {
           }
         />
         
-        {/* <Route path="/livefeed" element={<LiveFeed />} /> */}
         <Route
-  path="/livefeed"
-  element={
-    <ProtectedRoute>
-      <LiveFeed />
-    </ProtectedRoute>
-  }
-/>
+          path="/livefeed"
+          element={
+            <ProtectedRoute>
+              <LiveFeed />
+            </ProtectedRoute>
+          }
+        />
 
         <Route
           path="/math"
@@ -136,6 +133,14 @@ function Layout() {
           element={
             <ProtectedRoute>
               <Games />
+            </ProtectedRoute>
+          }
+        />
+        <Route 
+          path="/therapist/:id" 
+          element={
+            <ProtectedRoute>
+              <TherapistDetails />
             </ProtectedRoute>
           }
         />

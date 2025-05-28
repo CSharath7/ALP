@@ -3,6 +3,7 @@ const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const Admin = require("../model/admin");
 const { PendingTherapist, Therapist } = require("../model/therapist");
+const Child = require("../model/child")
 const router = express.Router();
 const JWT_SECRET = process.env.JWT_SECRET;
 
@@ -68,7 +69,19 @@ router.get("/therapists", async (req, res) => {
 }
 
 });
+router.get("/children/:id", async (req, res) => {
+  console.log("Fetching all therapists...");
+  try {
+    const therapist=await Therapist.findById(req.params.id);
+    const children = await Child.find({therapist:req.params.id}); // Fetch all therapists
+    console.log("Therapists fetched:", children); // Log the fetched data
+    res.json({children,therapist});
+  } catch (error) {
+    console.error("Error fetching therapists:", error); // Log any errors
+    res.status(500).json({ message: "Error fetching therapists" });
+  }
+});
 
-module.exports = router;
+
 
 module.exports = router;

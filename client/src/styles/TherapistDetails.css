@@ -1,0 +1,281 @@
+/* TherapistDetails.css */
+.therapist-details-container {
+    max-width: 1400px;
+    margin: 2rem auto;
+    padding: 0 1rem;
+}
+
+.details-layout {
+    display: flex;
+    gap: 2rem;
+    margin-top: 1.5rem;
+}
+
+/* Therapist Sidebar Styles */
+.therapist-sidebar {
+    width: 320px;
+    flex-shrink: 0;
+    position: sticky;
+    top: 1rem;
+    height: calc(100vh - 2rem);
+    overflow-y: auto;
+}
+
+.sidebar-content {
+    background: white;
+    border-radius: 10px;
+    padding: 1.5rem;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
+}
+
+.therapist-avatar {
+    text-align: center;
+    margin-bottom: 1.5rem;
+}
+
+.avatar-placeholder {
+    width: 100px;
+    height: 100px;
+    margin: 0 auto 1rem;
+    background-color: #4a6fa5;
+    color: white;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 2.5rem;
+    font-weight: bold;
+}
+
+.therapist-meta {
+    margin: 1.5rem 0;
+}
+
+.meta-item {
+    display: flex;
+    justify-content: space-between;
+    padding: 0.75rem 0;
+    border-bottom: 1px solid #f0f0f0;
+}
+
+.meta-label {
+    font-weight: 500;
+    color: #666;
+}
+
+.meta-value {
+    font-weight: 600;
+    color: #333;
+}
+
+.stats-card {
+    background: #f8f9fa;
+    border-radius: 8px;
+    padding: 1rem;
+    margin-top: 1.5rem;
+    display: flex;
+    justify-content: space-around;
+}
+
+.stat-item {
+    text-align: center;
+}
+
+.stat-number {
+    display: block;
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #4a6fa5;
+}
+
+.stat-label {
+    font-size: 0.85rem;
+    color: #666;
+}
+
+/* TherapistDetails.css */
+/* ... (keep all existing therapist-sidebar styles exactly the same) ... */
+
+/* Updated Children Content Styles */
+.children-content {
+    flex-grow: 1;
+    background: white;
+    border-radius: 10px;
+    padding: 1.5rem;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
+    max-height: calc(100vh - 120px);
+    overflow-y: auto;
+}
+
+.content-header {
+    margin-bottom: 1.5rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid #f0f0f0;
+}
+
+.children-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.child-card {
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.child-header {
+    display: flex;
+    align-items: center;
+    padding: 1rem;
+    background: #f8f9fa;
+    border-bottom: 1px solid #e0e0e0;
+}
+
+.child-avatar {
+    width: 40px;
+    height: 40px;
+    background-color: #4a6fa5;
+    color: white;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    margin-right: 1rem;
+    flex-shrink: 0;
+}
+
+.child-info h3 {
+    margin: 0 0 0.25rem 0;
+    font-size: 1.1rem;
+}
+
+.child-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    font-size: 0.85rem;
+    color: #666;
+}
+
+/* Tabs Navigation */
+.child-tabs {
+    display: flex;
+    border-bottom: 1px solid #e0e0e0;
+}
+
+.tab-btn {
+    padding: 0.75rem 1.5rem;
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 0.9rem;
+    color: #666;
+    position: relative;
+}
+
+.tab-btn.active {
+    color: #4a6fa5;
+    font-weight: 600;
+}
+
+.tab-btn.active::after {
+    content: '';
+    position: absolute;
+    bottom: -1px;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background-color: #4a6fa5;
+}
+
+/* Tab Content */
+.tab-content {
+    padding: 1rem;
+}
+
+.child-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.9rem;
+}
+
+.child-table th {
+    background-color: #f5f7fa;
+    color: #4a5568;
+    text-align: left;
+    padding: 0.75rem;
+    font-weight: 600;
+}
+
+.child-table td {
+    padding: 0.75rem;
+    border-bottom: 1px solid #edf2f7;
+}
+
+.child-table tr:last-child td {
+    border-bottom: none;
+}
+
+.child-table tr:hover {
+    background-color: #f8fafc;
+}
+
+/* Status Badges */
+.status-badge {
+    display: inline-block;
+    padding: 0.25rem 0.5rem;
+    border-radius: 12px;
+    font-size: 0.8rem;
+    font-weight: 500;
+}
+
+.status-badge.completed {
+    background-color: #f0fff4;
+    color: #38a169;
+}
+
+.status-badge.in-progress {
+    background-color: #fffaf0;
+    color: #dd6b20;
+}
+
+.no-data {
+    text-align: center;
+    padding: 1.5rem;
+    color: #888;
+    font-size: 0.9rem;
+}
+
+/* Responsive Adjustments */
+@media (max-width: 768px) {
+    .child-header {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    
+    .child-avatar {
+        margin-bottom: 0.5rem;
+    }
+    
+    .child-meta {
+        flex-direction: column;
+        gap: 0.3rem;
+    }
+    
+    .tab-btn {
+        padding: 0.5rem 1rem;
+        font-size: 0.85rem;
+    }
+    
+    .child-table {
+        font-size: 0.85rem;
+    }
+    
+    .child-table th, 
+    .child-table td {
+        padding: 0.5rem;
+    }
+}
