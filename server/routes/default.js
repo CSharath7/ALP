@@ -126,8 +126,40 @@ router.post("/child-register", async (req, res) => {
 });
 
 /* --------------------------------------------
-   ✅ Update Game Level + Session Log
+  ✅ Update Game Level + Session Log
 -------------------------------------------- */
+// POST /save-session-stats
+router.post('/save-session-stats', async (req, res) => {
+  try {
+    const {gameName, level,dominantEmotion, leastEmotion, score,id } = req.body;
+    console.log("Received request to save session stats:", gameName, level,dominantEmotion,leastEmotion, score, id);
+    if ( !gameName || level === undefined || score === undefined) {
+      return res.status(400).json({ error: "Missing required fields" });
+    }
+
+    const child = await Child.findById(id);
+
+    if (!child) {
+      return res.status(404).json({ error: "Child not found" });
+    }
+
+    // Add new session data
+    child.session.push({ gameName, level, maxEmotion:dominantEmotion,minEmotion:leastEmotion, score });
+
+    // Optionally update currentLevel of the game
+    const game = child.selectedGames.find(g => g.name === gameName);
+    if (game) {
+      game.currentLevel = level;
+    }
+
+    await child.save();
+    res.status(200).json({ message: "Session stats saved successfully" });
+  } catch (err) {
+    console.error("Error saving session stats:", err);
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
+
 
 router.post("/update-child-level", async (req, res) => {
   const { gameName, currentLevel, id } = req.body;
