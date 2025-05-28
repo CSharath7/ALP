@@ -4,6 +4,7 @@ import { Link, useNavigate } from "react-router-dom";
 import "../styles/Dashboard.css";
 import "../styles/superAdmin.css";
 import "../styles/View.css";
+import "../styles/Therapist.css";
 
 function RoleBasedDashboard() {
     const role = localStorage.getItem("role");
@@ -157,6 +158,121 @@ function SuperAdminDashboard() {
     );
 }
 
+// // ------------------ THERAPIST DASHBOARD ------------------
+// function TherapistDashboard() {
+//     const [children, setChildren] = useState([]);
+//     const [loading, setLoading] = useState(true);
+//     const [error, setError] = useState(null);
+//     const [selectedReport, setSelectedReport] = useState(null);
+
+//     const therapistName = localStorage.getItem('name');
+//     const id = localStorage.getItem('id');
+
+//     useEffect(() => {
+//         const fetchChildren = async () => {
+//             try {
+//                 const res = await axios.post(`http://localhost:5000/api/getchild/${id}`);
+//                 if (res.data.success) {
+//                     setChildren(res.data.children);
+//                 } else throw new Error(res.data.message);
+//             } catch (err) {
+//                 setError(err.message);
+//             } finally {
+//                 setLoading(false);
+//             }
+//         };
+
+//         fetchChildren();
+//     }, [id]);
+
+//     const handleViewReport = async (uid) => {
+//         try {
+//             const res = await axios.get(`http://localhost:5000/getchildreport/${uid}`);
+//             if (res.data.success) {
+//                 setSelectedReport({ uid, games: res.data.games });
+//             } else {
+//                 setSelectedReport({ uid, error: "No games found for this child." });
+//             }
+//         } catch {
+//             setSelectedReport({ uid, error: "Error fetching report." });
+//         }
+//     };
+
+//     if (loading) return <div className="loading">Loading children data...</div>;
+//     if (error) return <div className="error">Error: {error}</div>;
+//     if (children.length === 0) return <div className="no-data">No children found for therapist: {therapistName}</div>;
+
+//     return (
+//         <div className="therapist-table-container">
+//             <h2>Children Assigned to Therapist: {therapistName}</h2>
+            
+//             <table className="therapist-children-table">
+//                 <thead>
+//                     <tr>
+//                         <th>Name</th>
+//                         <th>Age</th>
+//                         <th>Gender</th>
+//                         <th>Actions</th>
+//                     </tr>
+//                 </thead>
+//                 <tbody>
+//                     {children.map((child) => (
+//                         <React.Fragment key={child.uid}>
+//                             <tr>
+//                                 <td>{child.name}</td>
+//                                 <td>{child.age}</td>
+//                                 <td>{child.gender}</td>
+//                                 <td>
+//                                     <button 
+//                                         className="view-report-btn"
+//                                         onClick={() => handleViewReport(child.uid)}
+//                                     >
+//                                         {selectedReport?.uid === child.uid ? 
+//                                             "Hide Report" : "View Report"}
+//                                     </button>
+//                                 </td>
+//                             </tr>
+                            
+//                             {selectedReport && selectedReport.uid === child.uid && (
+//                                 <tr className="report-row">
+//                                     <td colSpan="4">
+//                                         <div className="report-section">
+//                                             {selectedReport.error ? (
+//                                                 <p>{selectedReport.error}</p>
+//                                             ) : (
+//                                                 <div>
+//                                                     <h4>Assigned Games & Levels</h4>
+//                                                     <table className="games-table">
+//                                                         <thead>
+//                                                             <tr>
+//                                                                 <th>Game Name</th>
+//                                                                 <th>Assigned Level</th>
+//                                                                 <th>Current Level</th>
+//                                                             </tr>
+//                                                         </thead>
+//                                                         <tbody>
+//                                                             {selectedReport.games.map((game, index) => (
+//                                                                 <tr key={index}>
+//                                                                     <td>{game.name}</td>
+//                                                                     <td>{game.assignedLevel}</td>
+//                                                                     <td>{game.currentLevel}</td>
+//                                                                 </tr>
+//                                                             ))}
+//                                                         </tbody>
+//                                                     </table>
+//                                                 </div>
+//                                             )}
+//                                         </div>
+//                                     </td>
+//                                 </tr>
+//                             )}
+//                         </React.Fragment>
+//                     ))}
+//                 </tbody>
+//             </table>
+//         </div>
+//     );
+// }
 // ------------------ THERAPIST DASHBOARD ------------------
 function TherapistDashboard() {
     const [children, setChildren] = useState([]);
@@ -180,20 +296,26 @@ function TherapistDashboard() {
                 setLoading(false);
             }
         };
-
         fetchChildren();
     }, [id]);
 
-    const handleViewReport = async (uid) => {
+    const toggleReport = async (uid) => {
+        // If report is already open for this child, close it
+        if (selectedReport?.uid === uid) {
+            setSelectedReport(null);
+            return;
+        }
+
+        // Otherwise, fetch and show the report
         try {
             const res = await axios.get(`http://localhost:5000/getchildreport/${uid}`);
-            if (res.data.success) {
-                setSelectedReport({ uid, games: res.data.games });
-            } else {
-                setSelectedReport({ uid, error: "No games found for this child." });
-            }
+            setSelectedReport({
+                uid,
+                games: res.data.success ? res.data.games : [],
+                error: res.data.success ? null : "No games found for this child."
+            });
         } catch {
-            setSelectedReport({ uid, error: "Error fetching report." });
+            setSelectedReport({ uid, error: "Error fetching report.", games: [] });
         }
     };
 
@@ -202,41 +324,77 @@ function TherapistDashboard() {
     if (children.length === 0) return <div className="no-data">No children found for therapist: {therapistName}</div>;
 
     return (
-        <div className="children-container">
+        <div className="therapist-table-container">
             <h2>Children Assigned to Therapist: {therapistName}</h2>
-            <div className="children-list">
-                {children.map((child) => (
-                    <div key={child.uid} className="child-card">
-                        <h3>{child.name}</h3>
-                        <div className="child-details">
-                            <p><strong>Age:</strong> {child.age}</p>
-                            <p><strong>Gender:</strong> {child.gender}</p>
-                            <button onClick={() => handleViewReport(child.uid)}>View Report</button>
-                        </div>
-
-                        {selectedReport && selectedReport.uid === child.uid && (
-                            <div className="report-section">
-                                {selectedReport.error ? (
-                                    <p>{selectedReport.error}</p>
-                                ) : (
-                                    <div>
-                                        <h4>Assigned Games & Levels</h4>
-                                        <ul>
-                                            {selectedReport.games.map((game, index) => (
-                                                <li key={index}>
-                                                    <strong>{game.name}</strong> — Assigned Level: <strong>{game.assignedLevel}</strong>, Current Level: <strong>{game.currentLevel}</strong>
-                                                </li>
-                                            ))}
-                                        </ul>
-                                    </div>
-                                )}
-                            </div>
-                        )}
-                    </div>
-                ))}
-            </div>
+            
+            <table className="therapist-children-table">
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Age</th>
+                        <th>Gender</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {children.map((child) => (
+                        <React.Fragment key={child.uid}>
+                            <tr>
+                                <td>{child.name}</td>
+                                <td>{child.age}</td>
+                                <td>{child.gender}</td>
+                                <td>
+                                    <button 
+                                        className={`view-report-btn ${selectedReport?.uid === child.uid ? 'active' : ''}`}
+                                        onClick={() => toggleReport(child.uid)}
+                                    >
+                                        {selectedReport?.uid === child.uid ? "Hide Report" : "View Report"}
+                                    </button>
+                                </td>
+                            </tr>
+                            
+                            {selectedReport?.uid === child.uid && (
+                                <tr className="report-row">
+                                    <td colSpan="4">
+                                        <div className="report-section">
+                                            {selectedReport.error ? (
+                                                <p className="error-message">{selectedReport.error}</p>
+                                            ) : (
+                                                <div>
+                                                    <h4>Assigned Games & Levels</h4>
+                                                    {selectedReport.games.length > 0 ? (
+                                                        <table className="games-table">
+                                                            <thead>
+                                                                <tr>
+                                                                    <th>Game Name</th>
+                                                                    <th>Assigned Level</th>
+                                                                    <th>Current Level</th>
+                                                                </tr>
+                                                            </thead>
+                                                            <tbody>
+                                                                {selectedReport.games.map((game, index) => (
+                                                                    <tr key={index}>
+                                                                        <td>{game.name}</td>
+                                                                        <td>{game.assignedLevel}</td>
+                                                                        <td>{game.currentLevel}</td>
+                                                                    </tr>
+                                                                ))}
+                                                            </tbody>
+                                                        </table>
+                                                    ) : (
+                                                        <p>No games assigned yet</p>
+                                                    )}
+                                                </div>
+                                            )}
+                                        </div>
+                                    </td>
+                                </tr>
+                            )}
+                        </React.Fragment>
+                    ))}
+                </tbody>
+            </table>
         </div>
     );
 }
-
 export default RoleBasedDashboard;

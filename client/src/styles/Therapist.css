@@ -1,0 +1,134 @@
+/* Therapist Dashboard Table Styles */
+.therapist-table-container {
+    max-width: 1200px;
+    margin: 2rem auto;
+    padding: 1.5rem;
+}
+
+.therapist-children-table {
+    width: 100%;
+    border-collapse: collapse;
+    background-color: white;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    margin-top: 1.5rem;
+}
+
+.therapist-children-table th {
+    background-color: #4361ee;
+    color: white;
+    padding: 12px;
+    text-align: left;
+    font-weight: 500;
+}
+
+.therapist-children-table td {
+    padding: 12px;
+    border-bottom: 1px solid #e9ecef;
+    color: #495057;
+}
+
+.therapist-children-table tr:hover {
+    background-color: #f8f9fa;
+}
+
+.view-report-btn {
+    background-color: #4361ee;
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.view-report-btn:hover {
+    background-color: #3a56d4;
+}
+
+.report-row {
+    background-color: #f8f9fa;
+}
+
+.report-section {
+    padding: 1rem;
+    background-color: white;
+    border-radius: 4px;
+    margin: 0.5rem 0;
+    box-shadow: inset 0 0 0 1px #e9ecef;
+}
+
+.games-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 1rem;
+}
+
+.games-table th {
+    background-color: #e9ecef;
+    padding: 8px 12px;
+    text-align: left;
+    font-weight: 500;
+    color: #495057;
+}
+
+.games-table td {
+    padding: 8px 12px;
+    border-bottom: 1px solid #e9ecef;
+}
+
+/* Responsive styles */
+@media (max-width: 768px) {
+    .therapist-table-container {
+        padding: 1rem;
+    }
+    
+    .therapist-children-table {
+        font-size: 0.9rem;
+    }
+    
+    .therapist-children-table th,
+    .therapist-children-table td {
+        padding: 8px;
+    }
+    
+    .view-report-btn {
+        padding: 6px 12px;
+        font-size: 0.8rem;
+    }
+}
+.view-report-btn.active {
+    background-color: #f72585; /* Different color when active */
+}
+
+.error-message {
+    color: #f72585;
+    padding: 8px;
+    background-color: #ffeef2;
+    border-radius: 4px;
+}
+/* Add this to your existing CSS file (View.css or where you have table styles) */
+.therapist-children-table {
+    table-layout: fixed; /* This is crucial for equal column widths */
+    width: 100%;
+}
+
+.therapist-children-table th,
+.therapist-children-table td {
+    width: 25%; /* Since you have 4 columns (100%/4 = 25%) */
+    text-align: left;
+    padding: 12px;
+    word-wrap: break-word; /* Ensures content wraps if needed */
+}
+
+/* If you have specific columns that should be different widths, you can override */
+.therapist-children-table th:first-child,
+.therapist-children-table td:first-child {
+    width: 30%; /* Example if you want name column slightly wider */
+}
+
+.therapist-children-table th:last-child,
+.therapist-children-table td:last-child {
+    width: 20%; /* Example if you want actions column slightly narrower */
+}
