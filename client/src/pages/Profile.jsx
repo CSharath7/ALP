@@ -1,17 +1,9 @@
 import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import "../styles/profile.css";
 
 function Profile() {
   const navigate = useNavigate();
-
-  // Dyslexia-friendly styles
-  const dyslexicStyles = {
-    fontFamily: "'Comic Sans MS', 'OpenDyslexic', sans-serif",
-    letterSpacing: "0.05em",
-    lineHeight: "1.6",
-    color: "#333",
-    textDecoration: "none",
-  };
 
   // User data state
   const [user, setUser] = useState({
@@ -102,72 +94,97 @@ function Profile() {
   const handleSave = () => {
     setUser({ ...user, name: tempName });
     setIsEditing(false);
-    // Optionally, send updated name to backend
   };
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        Loading...
+      <div className="w-full min-h-screen flex items-center justify-center bg-gray-100">
+        <div className="text-2xl">Loading...</div>
       </div>
     );
   }
 
   if (error) {
     return (
-      <div className="min-h-screen flex items-center justify-center text-red-600">
-        {error}
+      <div className="w-full min-h-screen flex items-center justify-center bg-gray-100 text-red-600">
+        <div className="text-2xl">{error}</div>
       </div>
     );
   }
 
+  const isTherapist = user.role === "therapist";
+
   return (
-    <div
-      className="min-h-screen bg-gradient-to-b from-blue-50 to-purple-50 p-6"
-      style={dyslexicStyles}
-    >
-      <div className="max-w-4xl mx-auto">
+    <div className={`w-full min-h-screen p-6 ${
+      isTherapist ? "bg-gray-900" : "bg-white"
+    }`}>
+      <div className="max-w-6xl mx-auto">
         {/* Header */}
         <header className="flex justify-between items-center mb-8">
-          <h1 className="text-3xl font-bold text-blue-800">Your Profile</h1>
+          <h1 className="text-3xl font-bold" style={{ color: '#2563eb' }}>
+            Your Profile
+          </h1>
           <Link
             to="/dashboard"
-            className="bg-blue-100 text-blue-800 px-4 py-2 rounded-lg hover:bg-blue-200 transition-colors"
+            className={`px-4 py-2 rounded-lg transition-colors ${
+              isTherapist
+                ? "bg-gray-700 text-white hover:bg-gray-600"
+                : "bg-gray-200 text-gray-800 hover:bg-gray-300"
+            }`}
           >
             Back to Dashboard
           </Link>
         </header>
 
         {/* Profile Card */}
-        <div className="bg-white rounded-xl shadow-lg p-6 mb-8 border-l-8 border-blue-500">
+        <div className={`rounded-xl p-6 mb-8 ${
+          isTherapist ? "bg-gray-800" : "bg-white"
+        } shadow-md`}>
           <div className="flex flex-col md:flex-row items-center gap-6">
             {/* Avatar Section */}
-            <div className="text-8xl bg-blue-100 p-6 rounded-full">
+            <div className={`text-8xl p-6 rounded-full ${
+              isTherapist ? "bg-gray-700" : "bg-gray-200"
+            }`}>
               {user.avatar}
             </div>
 
             {/* Profile Info */}
-            <div className="flex-1">
+            <div className="flex-1 w-full">
               {isEditing ? (
                 <div className="mb-4">
-                  <label className="block text-lg mb-2">Your Name:</label>
+                  <label className={`block text-lg mb-2 ${
+                    isTherapist ? "text-gray-300" : "text-gray-700"
+                  }`}>
+                    Your Name:
+                  </label>
                   <input
                     type="text"
                     value={tempName}
                     onChange={(e) => setTempName(e.target.value)}
-                    className="border-2 border-blue-300 rounded-lg p-2 w-full text-lg"
-                    style={dyslexicStyles}
+                    className={`rounded-lg p-2 w-full text-lg ${
+                      isTherapist
+                        ? "bg-gray-700 text-white border-gray-600"
+                        : "bg-white text-gray-800 border-gray-300"
+                    } border-2`}
                   />
                   <div className="flex gap-2 mt-2">
                     <button
                       onClick={handleSave}
-                      className="bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600 transition-colors"
+                      className={`px-4 py-2 rounded-lg ${
+                        isTherapist
+                          ? "bg-green-700 hover:bg-green-600 text-white"
+                          : "bg-green-600 hover:bg-green-500 text-white"
+                      }`}
                     >
                       Save
                     </button>
                     <button
                       onClick={() => setIsEditing(false)}
-                      className="bg-gray-300 px-4 py-2 rounded-lg hover:bg-gray-400 transition-colors"
+                      className={`px-4 py-2 rounded-lg ${
+                        isTherapist
+                          ? "bg-gray-600 hover:bg-gray-500 text-white"
+                          : "bg-gray-400 hover:bg-gray-500 text-white"
+                      }`}
                     >
                       Cancel
                     </button>
@@ -175,7 +192,7 @@ function Profile() {
                 </div>
               ) : (
                 <div className="mb-4">
-                  <h2 className="text-2xl font-bold text-blue-800">
+                  <h2 className="text-2xl font-bold" style={{ color: '#2563eb' }}>
                     {user.name}
                   </h2>
                   <button
@@ -183,57 +200,109 @@ function Profile() {
                       setTempName(user.name);
                       setIsEditing(true);
                     }}
-                    className="text-blue-600 hover:text-blue-800 mt-2 flex items-center gap-1"
+                    className={`mt-2 flex items-center gap-1 ${
+                      isTherapist ? "text-blue-400" : "text-blue-600"
+                    }`}
                   >
                     <span>✏️</span> Edit Name
                   </button>
                 </div>
               )}
 
-              {user.role === "child" ? (
-                <div className="grid grid-cols-2 gap-4 mb-4">
-                  <div className="bg-blue-50 p-3 rounded-lg">
-                    <p className="text-sm text-blue-600">Email</p>
-                    <p className="text-xl font-bold">{user.email}</p>
+              {!isTherapist ? (
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                  <div className={`p-3 rounded-lg ${
+                    isTherapist ? "bg-gray-700" : "bg-gray-100"
+                  }`}>
+                    <p className={`text-sm ${
+                      isTherapist ? "text-gray-400" : "text-gray-600"
+                    }`}>Age</p>
+                    <p className={`text-lg font-semibold ${
+                      isTherapist ? "text-white" : "text-gray-800"
+                    }`}>{user.age}</p>
                   </div>
-                  <div className="bg-purple-50 p-3 rounded-lg">
-                    <p className="text-sm text-purple-600">Age</p>
-                    <p className="text-xl font-bold">{user.age}</p>
+                  <div className={`p-3 rounded-lg ${
+                    isTherapist ? "bg-gray-700" : "bg-gray-100"
+                  }`}>
+                    <p className={`text-sm ${
+                      isTherapist ? "text-gray-400" : "text-gray-600"
+                    }`}>UID</p>
+                    <p className={`text-lg font-semibold ${
+                      isTherapist ? "text-white" : "text-gray-800"
+                    }`}>{user.uid || "N/A"}</p>
                   </div>
-                  <div className="bg-blue-50 p-3 rounded-lg">
-                    <p className="text-sm text-blue-600">UID</p>
-                    <p className="text-xl font-bold">{user.uid || "N/A"}</p>
+                  <div className={`p-3 rounded-lg ${
+                    isTherapist ? "bg-gray-700" : "bg-gray-100"
+                  }`}>
+                    <p className={`text-sm ${
+                      isTherapist ? "text-gray-400" : "text-gray-600"
+                    }`}>Total Game Sessions</p>
+                    <p className={`text-lg font-semibold ${
+                      isTherapist ? "text-white" : "text-gray-800"
+                    }`}>{user.numberOfGamesPlayed}</p>
                   </div>
-                  <div className="bg-purple-50 p-3 rounded-lg">
-                    <p className="text-sm text-purple-600">
-                      Total Game Sessions
-                    </p>
-                    <p className="text-xl font-bold">
-                      {user.numberOfGamesPlayed}
-                    </p>
+                  <div className={`p-3 rounded-lg ${
+                    isTherapist ? "bg-gray-700" : "bg-gray-100"
+                  }`}>
+                    <p className={`text-sm ${
+                      isTherapist ? "text-gray-400" : "text-gray-600"
+                    }`}>Email</p>
+                    <p className={`text-lg font-semibold ${
+                      isTherapist ? "text-white" : "text-gray-800"
+                    }`}>{user.email}</p>
                   </div>
                 </div>
               ) : (
-                <div className="grid grid-cols-2 gap-4 mb-4">
-                  <div className="bg-blue-50 p-3 rounded-lg">
-                    <p className="text-sm text-blue-600">Email</p>
-                    <p className="text-xl font-bold">{user.email}</p>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                  <div className={`p-3 rounded-lg ${
+                    isTherapist ? "bg-gray-700" : "bg-gray-100"
+                  }`}>
+                    <p className={`text-sm ${
+                      isTherapist ? "text-gray-400" : "text-gray-600"
+                    }`}>Age</p>
+                    <p className={`text-lg font-semibold ${
+                      isTherapist ? "text-white" : "text-gray-800"
+                    }`}>{user.age}</p>
                   </div>
-                  <div className="bg-purple-50 p-3 rounded-lg">
-                    <p className="text-sm text-purple-600">Age</p>
-                    <p className="text-xl font-bold">{user.age}</p>
+                  <div className={`p-3 rounded-lg ${
+                    isTherapist ? "bg-gray-700" : "bg-gray-100"
+                  }`}>
+                    <p className={`text-sm ${
+                      isTherapist ? "text-gray-400" : "text-gray-600"
+                    }`}>Experience</p>
+                    <p className={`text-lg font-semibold ${
+                      isTherapist ? "text-white" : "text-gray-800"
+                    }`}>{user.experience}</p>
                   </div>
-                  <div className="bg-blue-50 p-3 rounded-lg">
-                    <p className="text-sm text-blue-600">Experience</p>
-                    <p className="text-xl font-bold">{user.experience}</p>
+                  <div className={`p-3 rounded-lg ${
+                    isTherapist ? "bg-gray-700" : "bg-gray-100"
+                  }`}>
+                    <p className={`text-sm ${
+                      isTherapist ? "text-gray-400" : "text-gray-600"
+                    }`}>Specialization</p>
+                    <p className={`text-lg font-semibold ${
+                      isTherapist ? "text-white" : "text-gray-800"
+                    }`}>{user.specialization}</p>
                   </div>
-                  <div className="bg-purple-50 p-3 rounded-lg">
-                    <p className="text-sm text-purple-600">Specialization</p>
-                    <p className="text-xl font-bold">{user.specialization}</p>
+                  <div className={`p-3 rounded-lg ${
+                    isTherapist ? "bg-gray-700" : "bg-gray-100"
+                  }`}>
+                    <p className={`text-sm ${
+                      isTherapist ? "text-gray-400" : "text-gray-600"
+                    }`}>Contact</p>
+                    <p className={`text-lg font-semibold ${
+                      isTherapist ? "text-white" : "text-gray-800"
+                    }`}>{user.contact}</p>
                   </div>
-                  <div className="bg-blue-50 p-3 rounded-lg">
-                    <p className="text-sm text-blue-600">Contact</p>
-                    <p className="text-xl font-bold">{user.contact}</p>
+                  <div className={`p-3 rounded-lg col-span-1 md:col-span-2 ${
+                    isTherapist ? "bg-gray-700" : "bg-gray-100"
+                  }`}>
+                    <p className={`text-sm ${
+                      isTherapist ? "text-gray-400" : "text-gray-600"
+                    }`}>Email</p>
+                    <p className={`text-lg font-semibold ${
+                      isTherapist ? "text-white" : "text-gray-800"
+                    }`}>{user.email}</p>
                   </div>
                 </div>
               )}
@@ -242,9 +311,11 @@ function Profile() {
         </div>
 
         {/* Child-Specific: Selected Games Section */}
-        {user.role === "child" && (
-          <div className="bg-white rounded-xl shadow-lg p-6 mb-8 border-l-8 border-yellow-500">
-            <h2 className="text-2xl font-bold text-yellow-800 mb-4">
+        {!isTherapist && (
+          <div className={`rounded-xl p-6 mb-8 ${
+            isTherapist ? "bg-gray-800" : "bg-white"
+          } shadow-md`}>
+            <h2 className="text-2xl font-bold mb-4" style={{ color: '#2563eb' }}>
               Selected Games
             </h2>
             {user.selectedGames.length > 0 ? (
@@ -252,7 +323,11 @@ function Profile() {
                 {user.selectedGames.map((game, index) => (
                   <div
                     key={index}
-                    className="bg-yellow-100 text-yellow-800 px-4 py-2 rounded-full flex items-center gap-2"
+                    className={`px-4 py-2 rounded-full flex items-center gap-2 ${
+                      isTherapist
+                        ? "bg-gray-700 text-white border border-gray-600"
+                        : "bg-yellow-100 text-yellow-800"
+                    }`}
                   >
                     <span>🎮</span>
                     <div>
@@ -268,15 +343,21 @@ function Profile() {
                 ))}
               </div>
             ) : (
-              <p>No games selected yet.</p>
+              <p className={isTherapist ? "text-gray-400" : "text-gray-600"}>
+                No games selected yet.
+              </p>
             )}
           </div>
         )}
 
         {/* Therapist-Specific: Associated Children Section */}
-        {user.role === "therapist" && (
-          <div className="bg-white rounded-xl shadow-lg p-6 mb-8 border-l-8 border-yellow-500">
-            <h2 className="text-2xl font-bold text-yellow-800 mb-4">
+        {isTherapist && (
+          <div className={`rounded-xl p-6 mb-8 ${
+            isTherapist ? "bg-gray-800" : "bg-white"
+          } shadow-md`}>
+            <h2 className={`text-2xl font-bold mb-4 ${
+              isTherapist ? "text-white" : "text-gray-800"
+            }`}>
               Associated Children
             </h2>
             {user.children.length > 0 ? (
@@ -284,7 +365,11 @@ function Profile() {
                 {user.children.map((child, index) => (
                   <div
                     key={index}
-                    className="bg-yellow-100 text-yellow-800 px-4 py-2 rounded-full flex items-center gap-2"
+                    className={`px-4 py-2 rounded-full flex items-center gap-2 ${
+                      isTherapist
+                        ? "bg-gray-700 text-white border border-gray-600"
+                        : "bg-green-100 text-green-800"
+                    }`}
                   >
                     <span>👧</span>
                     <p>{child.name}</p>
@@ -292,16 +377,24 @@ function Profile() {
                 ))}
               </div>
             ) : (
-              <p>No children assigned yet.</p>
+              <p className={isTherapist ? "text-gray-400" : "text-gray-600"}>
+                No children assigned yet.
+              </p>
             )}
           </div>
         )}
 
         {/* Logout Button */}
-        <div className="bg-white rounded-xl shadow-lg p-6 border-l-8 border-red-500">
+        <div className={`rounded-xl p-6 ${
+          isTherapist ? "bg-gray-800" : "bg-white"
+        } shadow-md`}>
           <button
             onClick={handleLogout}
-            className="bg-red-100 text-red-800 px-4 py-2 rounded-lg hover:bg-red-200 transition-colors"
+            className={`px-4 py-2 rounded-lg font-semibold ${
+              isTherapist
+                ? "bg-red-700 hover:bg-red-600 text-white"
+                : "bg-red-600 hover:bg-red-500 text-white"
+            }`}
           >
             Log Out
           </button>

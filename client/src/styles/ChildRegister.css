@@ -1,116 +1,196 @@
+/* ChildRegister.css */
 .child-register-container {
-  min-height: 100vh;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background-color: #eff6ff;
-  padding: 1rem;
-  font-family: 'Comic Sans MS', 'OpenDyslexic', sans-serif;
-  letter-spacing: 0.05em;
-  line-height: 1.6;
-  color: #333;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    background-color: var(--bg-primary);
+    padding: 2rem;
 }
 
 .register-card {
-  width: 100%;
-  max-width: 32rem;
-  background-color: white;
-  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
-  border-radius: 1rem;
-  overflow: hidden;
-  padding: 1.5rem;
+    background-color: var(--bg-card);
+    border-radius: 8px;
+    width: 100%;
+    max-width: 600px;
+    padding: 2rem;
+    border: 1px solid var(--border-color);
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
 
 .register-header {
-  background: linear-gradient(to right, #3b82f6, #9333ea);
-  padding: 1.5rem;
-  border-radius: 0.75rem 0.75rem 0 0;
-  margin: -1.5rem -1.5rem 1rem -1.5rem;
+    margin-bottom: 2rem;
+    text-align: center;
 }
 
 .register-title {
-  font-size: 1.875rem;
-  font-weight: bold;
-  color: white;
-  text-align: center;
+    color: var(--text-primary);
+    font-size: 1.75rem;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
 }
 
 .register-form {
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
 }
 
-.register-form input[type="text"],
-.register-form input[type="number"],
-.register-form input[type="email"],
+.register-form input,
 .register-form select {
-  padding: 0.75rem;
-  border: 2px solid #bfdbfe;
-  border-radius: 0.5rem;
-  font-family: inherit;
-  letter-spacing: 0.05em;
-  width: 100%;
+    background-color: var(--bg-secondary);
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    padding: 0.75rem 1rem;
+    color: var(--text-primary);
+    font-size: 0.95rem;
+    transition: all 0.2s ease;
 }
 
 .register-form input:focus,
 .register-form select:focus {
-  border-color: #3b82f6;
-  outline: none;
-  box-shadow: 0 0 0 2px #bfdbfe;
+    outline: none;
+    border-color: var(--accent-primary);
+    box-shadow: 0 0 0 2px rgba(126, 231, 135, 0.2);
 }
 
 .register-form label {
-  font-weight: bold;
-  color: #1e40af;
-  margin-top: 1rem;
+    color: var(--text-primary);
+    font-weight: 500;
+    margin-bottom: -0.5rem;
+}
+
+.register-form > div {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 0.5rem 0;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.register-form input[type="checkbox"] {
+    width: 18px;
+    height: 18px;
+    accent-color: var(--accent-primary);
+    cursor: pointer;
 }
 
 .register-form button {
-  padding: 1rem 1.5rem;
-  border-radius: 0.75rem;
-  color: white;
-  font-weight: bold;
-  font-size: 1.125rem;
-  background-color: #2563eb;
-  margin-top: 1.5rem;
-  border: none;
-  cursor: pointer;
-  transition: background-color 0.2s ease;
+    background-color: var(--accent-primary);
+    color: var(--bg-primary);
+    border: none;
+    border-radius: 6px;
+    padding: 0.75rem;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    margin-top: 1rem;
 }
 
 .register-form button:hover {
-  background-color: #1d4ed8;
+    background-color: var(--accent-primary);
+    opacity: 0.9;
 }
 
 .register-form button:disabled {
-  background-color: #9ca3af;
-  cursor: not-allowed;
+    background-color: var(--text-secondary);
+    cursor: not-allowed;
+    opacity: 0.7;
 }
 
 .register-form p {
-  margin-top: 1rem;
-  font-size: 0.95rem;
-  padding: 0.75rem;
-  border-radius: 0.5rem;
+    text-align: center;
+    padding: 0.75rem;
+    border-radius: 6px;
+    margin-top: 1rem;
+    font-size: 0.9rem;
 }
 
-.register-form p:nth-of-type(1) {
-  background-color: #d1fae5;
-  border-left: 4px solid #10b981;
+.register-form p:first-of-type {
+    background-color: rgba(63, 185, 80, 0.1);
+    color: var(--success-color);
+    border: 1px solid rgba(63, 185, 80, 0.2);
 }
 
-.register-form p:nth-of-type(2) {
-  background-color: #fee2e2;
-  border-left: 4px solid #ef4444;
+.register-form p:last-of-type {
+    background-color: rgba(210, 153, 34, 0.1);
+    color: var(--warning-color);
+    border: 1px solid rgba(210, 153, 34, 0.2);
 }
 
-.register-form div > input[type="checkbox"] {
-  margin-right: 0.5rem;
+/* Custom select dropdown styling */
+.register-form select {
+    appearance: none;
+    background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23848d97' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+    background-repeat: no-repeat;
+    background-position: right 0.75rem center;
+    background-size: 1rem;
+    padding-right: 2.5rem;
+    cursor: pointer;
 }
 
-.register-form div select {
-  margin-left: 0.5rem;
-  padding: 0.5rem;
-  font-size: 1rem;
+/* Game selection styling */
+.game-selection {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    margin-top: 0.5rem;
+}
+
+.game-item {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.game-name {
+    color: var(--text-primary);
+    flex-grow: 1;
+}
+
+.level-select {
+    margin-left: auto;
+    width: 100px;
+}
+
+/* Responsive adjustments */
+@media (max-width: 640px) {
+    .register-card {
+        padding: 1.5rem;
+    }
+    
+    .register-form > div {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.5rem;
+    }
+    
+    .level-select {
+        width: 100%;
+        margin-left: 0;
+    }
+}
+/* Update the .level-select class in your ChildRegister.css */
+.level-select {
+    margin-left: auto;
+    min-width: 120px; /* Increased from 100px */
+    width: auto; /* Changed from fixed width to auto */
+    padding-right: 2rem; /* Ensure space for dropdown arrow */
+}
+
+/* For the game items container */
+.game-item {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.5rem 0;
+    flex-wrap: wrap; /* Allow wrapping on small screens */
+}
+
+/* For the game name text */
+.game-name {
+    color: var(--text-primary);
+    min-width: 120px; /* Ensure consistent width for game names */
+    flex-shrink: 0;
 }

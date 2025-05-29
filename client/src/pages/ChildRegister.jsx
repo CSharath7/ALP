@@ -67,7 +67,9 @@ function ChildRegister() {
     }
   };
 
-  return (
+  // ... (keep all your existing imports and state declarations)
+
+return (
     <div className="child-register-container">
       <div className="register-card">
         <div className="register-header">
@@ -75,39 +77,70 @@ function ChildRegister() {
         </div>
 
         <form onSubmit={handleSubmit} className="register-form">
-          <input name="name" placeholder="Full Name" value={registerData.name} onChange={handleChange} required />
-          <input name="age" type="number" placeholder="Age" value={registerData.age} onChange={handleChange} required />
-          <select name="gender" value={registerData.gender} onChange={handleChange} required>
+          <input 
+            name="name" 
+            placeholder="Full Name" 
+            value={registerData.name} 
+            onChange={handleChange} 
+            required 
+          />
+          <input 
+            name="age" 
+            type="number" 
+            placeholder="Age" 
+            value={registerData.age} 
+            onChange={handleChange} 
+            required 
+          />
+          <select 
+            name="gender" 
+            value={registerData.gender} 
+            onChange={handleChange} 
+            required
+          >
             <option value="">Select Gender</option>
-            <option>Male</option><option>Female</option><option>Other</option><option>Prefer not to say</option>
+            <option>Male</option>
+            <option>Female</option>
+            <option>Other</option>
+            <option>Prefer not to say</option>
           </select>
-          <input name="email" type="email" placeholder="Email" value={registerData.email} onChange={handleChange} required />
+          <input 
+            name="email" 
+            type="email" 
+            placeholder="Email" 
+            value={registerData.email} 
+            onChange={handleChange} 
+            required 
+          />
 
           <label>Select Games & Level</label>
-          {availableGames.map((game) => (
-            <div key={game}>
+          <div className="game-selection">
+            {availableGames.map((game) => (
+              <div key={game} className="game-item">
               <input
-                type="checkbox"
-                checked={selectedGames[game].selected}
-                onChange={(e) =>
-                  handleGameChange(game, e.target.checked, selectedGames[game].level)
-                }
-              />
-              {game}
-              {selectedGames[game].selected && (
-                <select
-                  value={selectedGames[game].level}
-                  onChange={(e) =>
-                    handleGameChange(game, true, parseInt(e.target.value))
-                  }
-                >
-                  {[1, 2, 3, 4].map((lvl) => (
-                    <option key={lvl} value={lvl}>Level {lvl}</option>
+              type="checkbox"
+              checked={selectedGames[game].selected}
+              onChange={(e) =>
+              handleGameChange(game, e.target.checked, selectedGames[game].level)
+            }
+          />
+          <span className="game-name">{game}</span>
+            {selectedGames[game].selected && (
+              <select
+              className="level-select"
+              value={selectedGames[game].level}
+              onChange={(e) =>
+              handleGameChange(game, true, parseInt(e.target.value))
+              }
+              >
+                {[1, 2, 3, 4].map((lvl) => (
+                <option key={lvl} value={lvl}>Level {lvl}</option>
                   ))}
                 </select>
-              )}
-            </div>
-          ))}
+                )}
+              </div>
+            ))}
+          </div>
 
           <button type="submit" disabled={isSubmitting}>
             {isSubmitting ? "Registering..." : "Create Account"}

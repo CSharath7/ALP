@@ -1,0 +1,293 @@
+/* Profile.css */
+.profile-container {
+    min-height: 100vh;
+    padding: 2rem;
+    font-family: 'Arial', sans-serif;
+    letter-spacing: 0.05em;
+    line-height: 1.6;
+}
+
+/* Light Theme (Default) */
+.profile-container.light {
+    background: linear-gradient(to bottom, #f8f9fa, #e9ecef);
+    color: #333;
+}
+
+.profile-card.light {
+    background-color: white;
+    border-left: 8px solid #4e73df;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.profile-header.light h1 {
+    color: #2c3e50;
+}
+
+.profile-button.light {
+    background-color: #e9ecef;
+    color: #2c3e50;
+}
+
+.profile-button.light:hover {
+    background-color: #dee2e6;
+}
+
+.profile-info-card.light {
+    background-color: #f8f9fa;
+    color: #495057;
+}
+
+.profile-info-label.light {
+    color: #6c757d;
+}
+
+/* Dark Theme (For Therapist) */
+.profile-container.dark {
+    background-color: var(--bg-primary);
+    color: var(--text-primary);
+}
+
+.profile-card.dark {
+    background-color: var(--bg-card);
+    border-left: 8px solid var(--accent-primary);
+    border: 1px solid var(--border-color);
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+}
+
+.profile-header.dark h1 {
+    color: var(--text-primary);
+}
+
+.profile-button.dark {
+    background-color: var(--bg-secondary);
+    color: var(--text-primary);
+    border: 1px solid var(--border-color);
+}
+
+.profile-button.dark:hover {
+    background-color: var(--hover-color);
+}
+
+.profile-info-card.dark {
+    background-color: var(--bg-secondary);
+    color: var(--text-primary);
+}
+
+.profile-info-label.dark {
+    color: var(--text-secondary);
+}
+
+/* Common Styles */
+.profile-container {
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.profile-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+}
+
+.profile-card {
+    border-radius: 12px;
+    padding: 2rem;
+    margin-bottom: 2rem;
+}
+
+.profile-avatar {
+    font-size: 5rem;
+    background-color: #dee2e6;
+    padding: 1.5rem;
+    border-radius: 50%;
+    margin-right: 2rem;
+}
+
+.profile-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem;
+    margin-bottom: 1rem;
+}
+
+.profile-info-card {
+    padding: 1rem;
+    border-radius: 8px;
+}
+
+.profile-info-label {
+    font-size: 0.875rem;
+    margin-bottom: 0.25rem;
+}
+
+.profile-info-value {
+    font-size: 1.25rem;
+    font-weight: 600;
+}
+
+.edit-button {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-top: 0.5rem;
+    cursor: pointer;
+}
+
+.game-badge, .child-badge {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.75rem 1rem;
+    border-radius: 9999px;
+    margin-right: 0.5rem;
+    margin-bottom: 0.5rem;
+}
+
+.game-badge.light {
+    background-color: #fff3cd;
+    color: #856404;
+}
+
+.child-badge.light {
+    background-color: #d4edda;
+    color: #155724;
+}
+
+.game-badge.dark {
+    background-color: var(--bg-accent);
+    color: var(--accent-primary);
+    border: 1px solid var(--border-color);
+}
+
+.child-badge.dark {
+    background-color: var(--bg-accent);
+    color: var(--accent-secondary);
+    border: 1px solid var(--border-color);
+}
+
+.logout-button {
+    padding: 0.75rem 1.5rem;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.logout-button.light {
+    background-color: #f8d7da;
+    color: #721c24;
+}
+
+.logout-button.dark {
+    background-color: var(--bg-accent);
+    color: var(--warning-color);
+    border: 1px solid var(--border-color);
+}
+
+.logout-button:hover {
+    opacity: 0.9;
+}
+
+/* Form Elements */
+.profile-input {
+    width: 100%;
+    padding: 0.75rem;
+    border-radius: 8px;
+    font-size: 1rem;
+    margin-bottom: 1rem;
+}
+
+.profile-input.light {
+    border: 2px solid #ced4da;
+    background-color: white;
+    color: #495057;
+}
+
+.profile-input.dark {
+    border: 1px solid var(--border-color);
+    background-color: var(--bg-secondary);
+    color: var(--text-primary);
+}
+
+.save-button, .cancel-button {
+    padding: 0.5rem 1rem;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+    margin-right: 0.5rem;
+}
+
+.save-button.light {
+    background-color: #28a745;
+    color: white;
+}
+
+.cancel-button.light {
+    background-color: #6c757d;
+    color: white;
+}
+
+.save-button.dark {
+    background-color: var(--success-color);
+    color: var(--text-primary);
+}
+
+.cancel-button.dark {
+    background-color: var(--text-secondary);
+    color: var(--text-primary);
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .profile-avatar {
+        margin-right: 0;
+        margin-bottom: 1.5rem;
+    }
+    
+    .profile-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 1rem;
+    }
+}
+/* Add this to your profile.css */
+.profile-container.light {
+  background: #f8f9fa !important; /* Or any light color you prefer */
+  width: 100%;
+}
+
+.profile-container.dark {
+  background: #111827 !important; /* Dark color for therapist */
+  width: 100%;
+}
+
+/* Ensure the body takes full width */
+body {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+}
+/* Ensure white background for child profile */
+.profile-container.light {
+  background: white !important;
+  width: 100%;
+}
+
+/* Make sure all text elements in light mode are properly contrasted */
+.profile-container.light {
+  color: #333;
+}
+
+/* Blue color for headings */
+.profile-header.light h1,
+.profile-card.light h2,
+.profile-card.light h3 {
+  color: #2563eb; /* blue-600 */
+}
+
+/* Dark theme adjustments */
+.profile-container.dark {
+  background: #111827 !important;
+  width: 100%;
+}
