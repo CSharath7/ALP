@@ -10,6 +10,10 @@ function LoginPage() {
   const location = useLocation();
   const [error, setError] = useState(location.state?.message || "");
   const [isLoading, setIsLoading] = useState(false);
+  const [isFocused, setIsFocused] = useState({
+    email: false,
+    password: false
+  });
 
   useEffect(() => {
     const token = localStorage.getItem("token");
@@ -46,50 +50,72 @@ function LoginPage() {
         navigate("/dashboard");
       }
     } catch (err) {
-      setError("Oops! That email and password combination didn't work. Please try again.");
+      setError(err.response?.data?.message || "Oops! That email and password combination didn't work. Please try again.");
     } finally {
       setIsLoading(false);
     }
   };
 
+  const handleFocus = (field) => {
+    setIsFocused(prev => ({ ...prev, [field]: true }));
+  };
+
+  const handleBlur = (field) => {
+    setIsFocused(prev => ({ ...prev, [field]: false }));
+  };
+
+  const handleBack = () => {
+    navigate("/"); // Navigate to the starting screen
+  };
+
   return (
     <div className="login-container">
-      <div className="login-card">
-        <div className="login-header">
-          <h2 className="login-title">Welcome Back!</h2>
-          <p className="login-subtitle">Sign in to continue learning</p>
+      <div className="register-card">
+        <button 
+          onClick={handleBack}
+          className="back-button"
+          aria-label="Go back"
+        >
+          <svg className="back-icon" viewBox="0 0 24 24" width="20" height="20">
+            <path fill="currentColor" d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z" />
+          </svg>
+        </button>
+        
+        <div className="register-header">
+          <h1 className="register-title">Welcome Back</h1>
+          <p className="text-sm text-gray-500">Sign in to your account to continue</p>
         </div>
 
-        <form onSubmit={handleLogin} className="login-content">
-          {error && (
-            <div className="error-message">
-              <p>⚠️ {error}</p>
-            </div>
-          )}
+        {error && (
+          <div className="mb-4 p-3 rounded-md bg-red-50 border border-red-200 text-red-600 text-sm">
+            {error}
+          </div>
+        )}
 
-          <div className="form-group">
-            <label className="form-label">
-              <span className="mr-2">✉️</span> Email Address
-            </label>
+        <form onSubmit={handleLogin} className="register-form">
+          <div>
+            <label className="register-form-label">Email Address</label>
             <input
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="form-input"
+              onFocus={() => handleFocus("email")}
+              onBlur={() => handleBlur("email")}
+              className={`register-form-input ${isFocused.email ? 'border-accent-primary shadow-input-focus' : ''}`}
               placeholder="your@email.com"
               required
             />
           </div>
 
-          <div className="form-group">
-            <label className="form-label">
-              <span className="mr-2">🔑</span> Password
-            </label>
+          <div>
+            <label className="register-form-label">Password</label>
             <input
               type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="form-input"
+              onFocus={() => handleFocus("password")}
+              onBlur={() => handleBlur("password")}
+              className={`register-form-input ${isFocused.password ? 'border-accent-primary shadow-input-focus' : ''}`}
               placeholder="Enter your password"
               required
             />
@@ -98,11 +124,11 @@ function LoginPage() {
           <button
             type="submit"
             disabled={isLoading}
-            className={`login-btn ${isLoading ? 'login-btn-disabled' : ''}`}
+            className="register-form-button"
           >
             {isLoading ? (
               <span className="flex items-center justify-center">
-                <svg className="spinner -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                   <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                   <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                 </svg>
@@ -114,30 +140,16 @@ function LoginPage() {
           </button>
         </form>
 
-        <div className="login-footer">
-          <div className="footer-links">
-            <div className="signup-line">
-              <span>Don't have an account? </span>
-              <button 
-                onClick={() => navigate("/signup")}
-                className="footer-link font-bold underline focus:outline-none"
-              >
-                Sign up here
-              </button>
-            </div>
-
+        <div className="mt-6 text-center">
+          <p className="text-sm text-gray-600">
+            Don't have an account?{' '}
             <button 
-              onClick={() => navigate("/forgot-password")}
-              className="footer-link hover:underline focus:outline-none"
+              onClick={() => navigate("/signup")}
+              className="font-medium text-accent-primary hover:underline focus:outline-none"
             >
-              Forgot password?
+              Sign up
             </button>
-            
-            <p className="pt-2">
-              Need help? Contact us at{' '}
-              <span className="font-bold">support@dyslexiaapp.com</span>
-            </p>
-          </div>
+          </p>
         </div>
       </div>
     </div>
