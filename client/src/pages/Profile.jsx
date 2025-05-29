@@ -1,48 +1,128 @@
-// import React from "react";
-
-// function Profile() {
-//   return <h2>Welcome to your Profile!</h2>;
-// }
-
-// export default Profile;
-import React, { useState } from "react";
-import { Link } from "react-router-dom";
+import React, { useState, useEffect } from "react";
+import { Link, useNavigate } from "react-router-dom";
 
 function Profile() {
+  const navigate = useNavigate();
+
   // Dyslexia-friendly styles
   const dyslexicStyles = {
     fontFamily: "'Comic Sans MS', 'OpenDyslexic', sans-serif",
     letterSpacing: "0.05em",
     lineHeight: "1.6",
     color: "#333",
-    textDecoration: "none"
+    textDecoration: "none",
   };
 
-  // User data - in a real app this would come from your backend
+  // User data state
   const [user, setUser] = useState({
-    name: localStorage.getItem("name"),
-    avatar: "👦", // Could be an image URL in a real app
-    level: "Explorer",
-    points: 450,
-    badges: ["Fast Learner", "Word Master", "Math Whiz"],
-    achievements: [
-      { name: "10 Games Played", completed: true },
-      { name: "5 Perfect Scores", completed: false },
-      { name: "3 Day Streak", completed: true }
-    ]
+    name: "",
+    email: "",
+    age: "",
+    id: "",
+    role: "",
+    uid: null,
+    numberOfGamesPlayed: 0,
+    selectedGames: [],
+    experience: "",
+    specialization: "",
+    contact: "",
+    children: [],
+    avatar: "👦",
   });
 
   // Edit mode state
   const [isEditing, setIsEditing] = useState(false);
   const [tempName, setTempName] = useState(user.name);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  // Fetch user data on component mount
+  useEffect(() => {
+    const fetchProfile = async () => {
+      try {
+        const id = localStorage.getItem("id");
+        const role = localStorage.getItem("role");
+        if (!id || !role) {
+          throw new Error("No user ID or role found in localStorage");
+        }
+
+        const response = await fetch(
+          `http://localhost:5000/profile/${id}?role=${role}`
+        );
+        if (!response.ok) {
+          throw new Error("Failed to fetch profile data");
+        }
+
+        const data = await response.json();
+        setUser({
+          name: data.name,
+          email: data.email,
+          age: data.age,
+          id: data.id,
+          role: data.role,
+          uid: data.uid || null,
+          numberOfGamesPlayed: data.numberOfGamesPlayed || 0,
+          selectedGames: data.selectedGames || [],
+          experience: data.experience || "",
+          specialization: data.specialization || "",
+          contact: data.contact || "",
+          children: data.children || [],
+          avatar: "👦",
+        });
+        setTempName(data.name);
+        setLoading(false);
+      } catch (err) {
+        setError(err.message);
+        setLoading(false);
+      }
+    };
+
+    fetchProfile();
+  }, []);
+
+  const handleLogout = () => {
+    if (user.role === "child") {
+      localStorage.removeItem("uid");
+    }
+    localStorage.removeItem("token");
+    localStorage.removeItem("role");
+    localStorage.removeItem("name");
+    localStorage.removeItem("email");
+    localStorage.removeItem("id");
+    localStorage.removeItem("isLoggedIn");
+    localStorage.removeItem("level");
+    localStorage.removeItem("game_Math_Quest");
+    localStorage.removeItem("game_Memory_Puzzle");
+    localStorage.removeItem("game_Shape_Pattern");
+    localStorage.removeItem("game_Word_Wizard");
+
+    navigate("/");
+  };
 
   const handleSave = () => {
     setUser({ ...user, name: tempName });
     setIsEditing(false);
+    // Optionally, send updated name to backend
   };
 
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        Loading...
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="min-h-screen flex items-center justify-center text-red-600">
+        {error}
+      </div>
+    );
+  }
+
   return (
-    <div 
+    <div
       className="min-h-screen bg-gradient-to-b from-blue-50 to-purple-50 p-6"
       style={dyslexicStyles}
     >
@@ -50,8 +130,8 @@ function Profile() {
         {/* Header */}
         <header className="flex justify-between items-center mb-8">
           <h1 className="text-3xl font-bold text-blue-800">Your Profile</h1>
-          <Link 
-            to="/dashboard" 
+          <Link
+            to="/dashboard"
             className="bg-blue-100 text-blue-800 px-4 py-2 rounded-lg hover:bg-blue-200 transition-colors"
           >
             Back to Dashboard
@@ -79,13 +159,13 @@ function Profile() {
                     style={dyslexicStyles}
                   />
                   <div className="flex gap-2 mt-2">
-                    <button 
+                    <button
                       onClick={handleSave}
                       className="bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600 transition-colors"
                     >
                       Save
                     </button>
-                    <button 
+                    <button
                       onClick={() => setIsEditing(false)}
                       className="bg-gray-300 px-4 py-2 rounded-lg hover:bg-gray-400 transition-colors"
                     >
@@ -95,8 +175,10 @@ function Profile() {
                 </div>
               ) : (
                 <div className="mb-4">
-                  <h2 className="text-2xl font-bold text-blue-800">{user.name}</h2>
-                  <button 
+                  <h2 className="text-2xl font-bold text-blue-800">
+                    {user.name}
+                  </h2>
+                  <button
                     onClick={() => {
                       setTempName(user.name);
                       setIsEditing(true);
@@ -108,88 +190,121 @@ function Profile() {
                 </div>
               )}
 
-              <div className="grid grid-cols-2 gap-4 mb-4">
-                <div className="bg-blue-50 p-3 rounded-lg">
-                  <p className="text-sm text-blue-600">Level</p>
-                  <p className="text-xl font-bold">{user.level}</p>
+              {user.role === "child" ? (
+                <div className="grid grid-cols-2 gap-4 mb-4">
+                  <div className="bg-blue-50 p-3 rounded-lg">
+                    <p className="text-sm text-blue-600">Email</p>
+                    <p className="text-xl font-bold">{user.email}</p>
+                  </div>
+                  <div className="bg-purple-50 p-3 rounded-lg">
+                    <p className="text-sm text-purple-600">Age</p>
+                    <p className="text-xl font-bold">{user.age}</p>
+                  </div>
+                  <div className="bg-blue-50 p-3 rounded-lg">
+                    <p className="text-sm text-blue-600">UID</p>
+                    <p className="text-xl font-bold">{user.uid || "N/A"}</p>
+                  </div>
+                  <div className="bg-purple-50 p-3 rounded-lg">
+                    <p className="text-sm text-purple-600">
+                      Total Game Sessions
+                    </p>
+                    <p className="text-xl font-bold">
+                      {user.numberOfGamesPlayed}
+                    </p>
+                  </div>
                 </div>
-                <div className="bg-purple-50 p-3 rounded-lg">
-                  <p className="text-sm text-purple-600">Points</p>
-                  <p className="text-xl font-bold">{user.points}</p>
+              ) : (
+                <div className="grid grid-cols-2 gap-4 mb-4">
+                  <div className="bg-blue-50 p-3 rounded-lg">
+                    <p className="text-sm text-blue-600">Email</p>
+                    <p className="text-xl font-bold">{user.email}</p>
+                  </div>
+                  <div className="bg-purple-50 p-3 rounded-lg">
+                    <p className="text-sm text-purple-600">Age</p>
+                    <p className="text-xl font-bold">{user.age}</p>
+                  </div>
+                  <div className="bg-blue-50 p-3 rounded-lg">
+                    <p className="text-sm text-blue-600">Experience</p>
+                    <p className="text-xl font-bold">{user.experience}</p>
+                  </div>
+                  <div className="bg-purple-50 p-3 rounded-lg">
+                    <p className="text-sm text-purple-600">Specialization</p>
+                    <p className="text-xl font-bold">{user.specialization}</p>
+                  </div>
+                  <div className="bg-blue-50 p-3 rounded-lg">
+                    <p className="text-sm text-blue-600">Contact</p>
+                    <p className="text-xl font-bold">{user.contact}</p>
+                  </div>
                 </div>
-              </div>
+              )}
             </div>
           </div>
         </div>
 
-        {/* Badges Section */}
-        <div className="bg-white rounded-xl shadow-lg p-6 mb-8 border-l-8 border-yellow-500">
-          <h2 className="text-2xl font-bold text-yellow-800 mb-4">Your Badges</h2>
-          {user.badges.length > 0 ? (
-            <div className="flex flex-wrap gap-3">
-              {user.badges.map((badge, index) => (
-                <div 
-                  key={index} 
-                  className="bg-yellow-100 text-yellow-800 px-4 py-2 rounded-full flex items-center gap-2"
-                >
-                  <span>🏆</span> {badge}
-                </div>
-              ))}
-            </div>
-          ) : (
-            <p>You haven't earned any badges yet. Keep playing to earn some!</p>
-          )}
-        </div>
-
-        {/* Achievements Section */}
-        <div className="bg-white rounded-xl shadow-lg p-6 mb-8 border-l-8 border-green-500">
-          <h2 className="text-2xl font-bold text-green-800 mb-4">Achievements</h2>
-          <div className="space-y-3">
-            {user.achievements.map((achievement, index) => (
-              <div 
-                key={index} 
-                className={`p-3 rounded-lg flex items-center gap-3 ${achievement.completed ? 'bg-green-100' : 'bg-gray-100'}`}
-              >
-                <span className={`text-2xl ${achievement.completed ? 'text-green-500' : 'text-gray-400'}`}>
-                  {achievement.completed ? '✅' : '🔲'}
-                </span>
-                <div>
-                  <p className="font-medium">{achievement.name}</p>
-                  <p className="text-sm">
-                    {achievement.completed ? 'Completed!' : 'Keep going!'}
-                  </p>
-                </div>
+        {/* Child-Specific: Selected Games Section */}
+        {user.role === "child" && (
+          <div className="bg-white rounded-xl shadow-lg p-6 mb-8 border-l-8 border-yellow-500">
+            <h2 className="text-2xl font-bold text-yellow-800 mb-4">
+              Selected Games
+            </h2>
+            {user.selectedGames.length > 0 ? (
+              <div className="flex flex-wrap gap-3">
+                {user.selectedGames.map((game, index) => (
+                  <div
+                    key={index}
+                    className="bg-yellow-100 text-yellow-800 px-4 py-2 rounded-full flex items-center gap-2"
+                  >
+                    <span>🎮</span>
+                    <div>
+                      <p>{game.name}</p>
+                      <p className="text-sm">
+                        Assigned Level: {game.assignedLevel}
+                      </p>
+                      <p className="text-sm">
+                        Current Level: {game.currentLevel}
+                      </p>
+                    </div>
+                  </div>
+                ))}
               </div>
-            ))}
+            ) : (
+              <p>No games selected yet.</p>
+            )}
           </div>
-        </div>
+        )}
 
-        {/* Settings Section */}
+        {/* Therapist-Specific: Associated Children Section */}
+        {user.role === "therapist" && (
+          <div className="bg-white rounded-xl shadow-lg p-6 mb-8 border-l-8 border-yellow-500">
+            <h2 className="text-2xl font-bold text-yellow-800 mb-4">
+              Associated Children
+            </h2>
+            {user.children.length > 0 ? (
+              <div className="flex flex-wrap gap-3">
+                {user.children.map((child, index) => (
+                  <div
+                    key={index}
+                    className="bg-yellow-100 text-yellow-800 px-4 py-2 rounded-full flex items-center gap-2"
+                  >
+                    <span>👧</span>
+                    <p>{child.name}</p>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <p>No children assigned yet.</p>
+            )}
+          </div>
+        )}
+
+        {/* Logout Button */}
         <div className="bg-white rounded-xl shadow-lg p-6 border-l-8 border-red-500">
-          <h2 className="text-2xl font-bold text-red-800 mb-4">Settings</h2>
-          <div className="space-y-4">
-            <div>
-              <h3 className="font-bold mb-2">Reading Preferences</h3>
-              <div className="flex items-center gap-3">
-                <button className="bg-blue-100 text-blue-800 px-4 py-2 rounded-lg">
-                  Larger Text
-                </button>
-                <button className="bg-blue-100 text-blue-800 px-4 py-2 rounded-lg">
-                  Dyslexia Font
-                </button>
-                <button className="bg-blue-100 text-blue-800 px-4 py-2 rounded-lg">
-                  Audio Help
-                </button>
-              </div>
-            </div>
-            
-            <div>
-              <h3 className="font-bold mb-2">Account</h3>
-              <button className="bg-red-100 text-red-800 px-4 py-2 rounded-lg hover:bg-red-200 transition-colors">
-                Log Out
-              </button>
-            </div>
-          </div>
+          <button
+            onClick={handleLogout}
+            className="bg-red-100 text-red-800 px-4 py-2 rounded-lg hover:bg-red-200 transition-colors"
+          >
+            Log Out
+          </button>
         </div>
       </div>
     </div>

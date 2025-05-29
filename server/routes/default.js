@@ -309,4 +309,78 @@ router.get('/getchildreport/:uid', async (req, res) => {
   }
 });
 
+
+router.get("/profile/:id", async (req, res) => {
+  try {
+    const childId = req.params.id;
+    const role = req.query.role;
+
+    if (!role || !["child", "therapist"].includes(role)) {
+      return res
+        .status(400)
+        .json({ message: "Invalid or missing role parameter" });
+    }
+
+    let responseData;
+
+    if (role === "child") {
+      // Find child by MongoDB _id
+      const child = await Child.findById(childId).select(
+        "name email age uid selectedGames session"
+      );
+
+      if (!child) {
+        return res.status(404).json({ message: "Child not found" });
+      }
+
+      responseData = {
+        name: child.name,
+        email: child.email,
+        age: child.age,
+        id: child._id.toString(),
+        role: "child",
+        uid: child.uid || null,
+        numberOfGamesPlayed: child.session.length,
+        selectedGames: child.selectedGames.map((game) => ({
+          name: game.name,
+          assignedLevel: game.assignedLevel,
+          currentLevel: game.currentLevel,
+        })),
+      };
+    } else {
+      // Find therapist by MongoDB _id and populate children
+      const therapist = await Therapist.findById(childId)
+        .select("name email age experience specialization contact children")
+        .populate("children", "name _id");
+
+      if (!therapist) {
+        return res.status(404).json({ message: "Therapist not found" });
+      }
+
+      responseData = {
+        name: therapist.name,
+        email: therapist.email,
+        age: therapist.age,
+        id: therapist._id.toString(),
+        role: "therapist",
+        experience: therapist.experience,
+        specialization: therapist.specialization,
+        contact: therapist.contact,
+        children: therapist.children.map((child) => ({
+          id: child._id.toString(),
+          name: child.name,
+        })),
+      };
+    }
+
+    res.status(200).json(responseData);
+  } catch (error) {
+    console.error("Error fetching profile:", error);
+    res.status(500).json({ message: "Server error" });
+  }
+});
+
+
+
+
 module.exports = router;
