@@ -49,9 +49,8 @@ function AdminPanel() {
       console.error("Error rejecting therapist:", error);
     }
   };
-
   return (
-    <div className="admin-panel-container">
+    <div className="admin-panel-container dark-theme">
       <h2 className="admin-panel-title">Admin Panel - Pending Therapists</h2>
       <div className="admin-panel-content">
         {loading ? (
