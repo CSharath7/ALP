@@ -300,39 +300,43 @@ const QuizGame = () => {
       <div className="quiz-container">
         <div className="completion-container">
           <h1>🎉 Session Completed!</h1>
-          <p>Final Score: {score}</p>
-          <p>New Level: {newLevel + 1}</p>
-          {questionData.map((q, i) => (
-            <div key={i}>
-              <p><strong>Q{i + 1}:</strong> {q.question}</p>
-              <p>Your Answer: {q.answer} {q.correct ? "✅" : "❌"}</p>
-              <p>Correct Answer: {q.correctAnswer}</p>
-              <p>Dominant: {q.dominantEmotion}, Least: {q.leastEmotion}, Score: {q.score}</p>
-            </div>
-          ))}
-          <button onClick={async () => {
-            const success = await updateLevelInBackend(newLevel);
-            await sendDominantDataToBackend();
-            if (success) {
-              updateLocalStorageLevel(newLevel);
-              setCurrentLevel(newLevel);
-            }
-            setGameCompleted(false);
-          }}>
-            Start New Session
-          </button>
+          <p className="score-display">Final Score: {score}</p>
+          <p className="emotion-display">New Level: {newLevel + 1}</p>
+          <div className="question-details">
+            {questionData.map((q, i) => (
+              <div className="question-detail" key={i}>
+                <p><strong>Q{i + 1}:</strong> {q.question}</p>
+                <p>Your Answer: {q.answer} {q.correct ? "✅" : "❌"}</p>
+                <p>Correct Answer: {q.correctAnswer}</p>
+                <p>Dominant: {q.dominantEmotion}, Least: {q.leastEmotion}, Score: {q.score}</p>
+              </div>
+            ))}
+          </div>
+          <div className="action-buttons">
+            <button className="action-button action-button-primary" onClick={async () => {
+              const success = await updateLevelInBackend(newLevel);
+              await sendDominantDataToBackend();
+              if (success) {
+                updateLocalStorageLevel(newLevel);
+                setCurrentLevel(newLevel);
+              }
+              setGameCompleted(false);
+            }}>
+              Start New Session
+            </button>
 
-          <button onClick={async () => {
-            const success = await updateLevelInBackend(newLevel);
-            await sendDominantDataToBackend();
-            if (success) {
-              updateLocalStorageLevel(newLevel);
-              setCurrentLevel(newLevel);
-              navigate("/games");
-            }
-          }}>
-            Return to Games
-          </button>
+            <button className="action-button action-button-secondary" onClick={async () => {
+              const success = await updateLevelInBackend(newLevel);
+              await sendDominantDataToBackend();
+              if (success) {
+                updateLocalStorageLevel(newLevel);
+                setCurrentLevel(newLevel);
+                navigate("/games");
+              }
+            }}>
+              Return to Games
+            </button>
+          </div>
         </div>
       </div>
     );

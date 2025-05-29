@@ -60,7 +60,7 @@
             {games.map((game, index) => (
               <Link key={index} to={game.path} className={`game-card ${game.color}`}>
                 <span className="game-icon">{game.icon}</span>
-                <span className="game-name">{game.name} (Level {game.level})</span>
+                <span className="game-name">{game.name}</span>
               </Link>
             ))}
           </div>
