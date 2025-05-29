@@ -5,6 +5,7 @@ import "../styles/Dashboard.css";
 import "../styles/superAdmin.css";
 import "../styles/View.css";
 import "../styles/Therapist.css";
+import "../styles/ChildDashboard.css";
 
 function RoleBasedDashboard() {
     const role = localStorage.getItem("role");
@@ -59,8 +60,8 @@ function ChildDashboard() {
         </div>
     );
 
-    return (
-        <div className="dashboard-container dark-theme">
+     return (
+        <div className="dashboard-container dyslexia-child-dashboard">
             <header className="dashboard-header">
                 <h1 className="dashboard-title">Your Learning Dashboard</h1>
                 <p className="dashboard-subtitle">{message}</p>

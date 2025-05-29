@@ -71,7 +71,7 @@ function Navbar() {
               
               <div className="divide-y divide-gray-100">
                 <Link
-                  to={role === "superadmin" ? "/dashboard" : "/admin-dashboard"}
+                  to={role === "superadmin" ? "/dashboard" : "/dashboard"}
                   className="flex items-center px-4 py-3 hover:bg-blue-50 transition-colors duration-200"
                   onClick={() => setDropdownOpen(false)}
                 >
