@@ -401,14 +401,18 @@ const WordWizard = () => {
       console.log("Updated localStorage with level:", newLevel + 1);
 
       // Send request to /update-child-level
-      const levelResponse = await fetch("/update-child-level", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          gameName,
-          currentLevel: newLevel,
-        }),
-      });
+      const levelResponse = await fetch(
+        "http://localhost:5000/update-child-level",
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            gameName,
+            currentLevel: newLevel,
+            id:localStorage.getItem("id")
+          }),
+        }
+      );
 
       if (levelResponse.ok) {
         console.log(
@@ -423,7 +427,7 @@ const WordWizard = () => {
   };
 
   const saveSessionStats = async (level) => {
-    const childId = localStorage.getItem("uid");
+    const childId = localStorage.getItem("id");
     if (!childId) {
       console.error("No child ID found in localStorage");
       return;
@@ -432,7 +436,7 @@ const WordWizard = () => {
     const { maxEmotion, minEmotion } = calculateDominantEmotions(emotions);
 
     try {
-      const statsResponse = await fetch("/save-session-stats", {
+      const statsResponse = await fetch("http://localhost:5000/save-session-stats", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -488,14 +492,17 @@ const WordWizard = () => {
       console.log("Updated localStorage on quit with level:", currentLevel + 1);
 
       // Send request to /update-child-level
-      const levelResponse = await fetch("/update-child-level", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          gameName,
-          currentLevel,
-        }),
-      });
+      const levelResponse = await fetch(
+        "http://localhost:5000/update-child-level",
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            gameName,
+            currentLevel,
+          }),
+        }
+      );
 
       if (levelResponse.ok) {
         console.log(
