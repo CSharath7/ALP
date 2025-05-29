@@ -472,6 +472,7 @@ const WordWizard = () => {
       currentLevel
     );
     setGameEnded(true);
+    setGameWon(true);
     const childId = localStorage.getItem("uid");
     if (!childId) {
       navigate("/games");
@@ -500,6 +501,7 @@ const WordWizard = () => {
           body: JSON.stringify({
             gameName,
             currentLevel,
+            id:localStorage.getItem("id")
           }),
         }
       );
