@@ -67,7 +67,7 @@ const HomePage = () => {
       {/* Professional Navbar */}
       <nav className="navbar">
         <div className="nav-logo" onClick={() => navigate("/")}>
-          <span role="img" aria-label="Spark">✨</span> LearnSpark
+          <span role="img" aria-label="Spark">✨</span> MindSpark
         </div>
         <div className="nav-options">
           <button 
@@ -86,7 +86,7 @@ const HomePage = () => {
             className="nav-btn"
             onClick={() => navigate("/signup")}
           >
-            Therapist
+            Signup
           </button>
         </div>
       </nav>
