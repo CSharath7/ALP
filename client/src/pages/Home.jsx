@@ -37,25 +37,25 @@ const HomePage = () => {
   // Game highlights
   const games = [
     {
-      name: "Math Explorer",
+      name: "Math Quest",
       desc: "Adaptive number games with visual aids",
       icon: "➕",
       color: "linear-gradient(135deg, #FF9E80 0%, #FF7043 100%)"
     },
     {
-      name: "Shape World",
+      name: "Shape Pattern",
       desc: "Geometry through interactive puzzles",
       icon: "🔷",
       color: "linear-gradient(135deg, #81D4FA 0%, #4FC3F7 100%)"
     },
     {
-      name: "Word Garden",
+      name: "Word Wizard",
       desc: "Reading skills with phonics games",
       icon: "📖",
       color: "linear-gradient(135deg, #CE93D8 0%, #BA68C8 100%)"
     },
     {
-      name: "Memory Lane",
+      name: "Memory Puzzle",
       desc: "Pattern recognition challenges",
       icon: "🧠",
       color: "linear-gradient(135deg, #A5D6A7 0%, #81C784 100%)"
