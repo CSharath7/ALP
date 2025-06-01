@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect,useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import Confetti from "react-confetti";
 import FacialExpression from "../components/FacialExpression";
@@ -19,14 +19,22 @@ const WordWizard = () => {
   const [levelScore, setLevelScore] = useState(0);
   const [questionCount, setQuestionCount] = useState(0);
   const [feedback, setFeedback] = useState({ text: "", color: "" });
-  const [showHint, setShowHint] = useState(false);
+
   const [gameWon, setGameWon] = useState(false);
   const [gameEnded, setGameEnded] = useState(false);
   const [wordChecked, setWordChecked] = useState(false);
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
+  const latestEmotionRef = useRef("");
   const gameName = "Word Wizard";
 
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setEmotions((prev) => [...prev, latestEmotionRef.current]);
+    }, 2000); // store emotion every 2 seconds
+
+    return () => clearInterval(interval);
+  }, []);
   useEffect(() => {
     const fetchLevels = async () => {
       try {
@@ -95,9 +103,9 @@ const WordWizard = () => {
         "Current Level:",
         currentLevel
       );
-      const newLevel = adjustLevel(emotions, score, currentLevel || 0);
-      updateBackendLevel(newLevel);
-      saveSessionStats(newLevel);
+    
+      updateBackendLevel(currentLevel);
+   
       const timer = setTimeout(() => {
         console.log("Redirecting to /games");
         navigate("/games");
@@ -147,7 +155,7 @@ const WordWizard = () => {
       setCurrentWord(selectedWords[0]);
       setScrambledLetters(shuffleArray([...selectedWords[0]]));
       setUserLetters([]);
-      setShowHint(false);
+      
       setWordChecked(false);
       console.log("First word set:", selectedWords[0]);
     } else {
@@ -169,7 +177,8 @@ const WordWizard = () => {
       setCurrentWord(nextWord);
       setScrambledLetters(shuffleArray([...nextWord]));
       setUserLetters([]);
-      setShowHint(false);
+
+      
       setWordChecked(false);
       setCurrentWordIndex((prev) => prev + 1);
       console.log("Next word set:", nextWord);
@@ -193,18 +202,7 @@ const WordWizard = () => {
     }
   };
 
-  const calculateEmotionBonus = () => {
-    const emotionScores = {
-      happy: 5,
-      surprised: 3,
-      neutral: 1,
-      sad: -1,
-      angry: -1,
-      disgusted: -1,
-      fearful: -1,
-    };
-    return emotionScores[expression] ?? 0;
-  };
+ 
 
   const checkWord = () => {
     if (wordChecked || gameEnded) return;
@@ -214,9 +212,9 @@ const WordWizard = () => {
     console.log("Checking word:", userWord, "against:", currentWord);
 
     if (userWord === currentWord) {
-      const emotionBonus = calculateEmotionBonus();
+     
       const baseScore = 10 + streak * 2;
-      const totalScore = baseScore + emotionBonus;
+      const totalScore = baseScore;
 
       const newLevelScore = levelScore + totalScore;
 
@@ -225,12 +223,7 @@ const WordWizard = () => {
       setStreak((prev) => prev + 1);
 
       let feedbackText = `Correct! +${baseScore} points`;
-      if (emotionBonus !== 0) {
-        feedbackText += ` (${
-          emotionBonus > 0 ? "+" : ""
-        }${emotionBonus} for ${expression} face)`;
-      }
-
+      
       setFeedback({ text: feedbackText, color: "green" });
       setWordChecked(true);
 
@@ -266,119 +259,12 @@ const WordWizard = () => {
     setFeedback({ text: "", color: "" });
   };
 
-  const getHint = () => {
-    setShowHint(true);
-    setStreak(0);
-  };
+ 
 
-  const renderHint = () => {
-    switch (levels[currentLevel]?.hintType) {
-      case "phonics":
-        return (
-          <div className="hint-container">
-            {currentWord.split("").map((letter, i) => (
-              <span key={i} className="phonics-letter">
-                {letter}
-              </span>
-            ))}
-          </div>
-        );
-      case "sound-boxes":
-        const digraphMatch = currentWord.match(/sh|ch|th|wh|ph|ck|ng/g);
-        return (
-          <div className="hint-container">
-            {digraphMatch ? (
-              <div>
-                <span className="digraph">{digraphMatch[0]}</span>
-                <span>{currentWord.replace(digraphMatch[0], "")}</span>
-              </div>
-            ) : (
-              <div>{currentWord}</div>
-            )}
-          </div>
-        );
-      case "color-coded":
-        return (
-          <div className="hint-container">
-            {currentWord.split("").map((letter, i) => (
-              <span key={i} className={i < 2 ? "blend-start" : "blend-end"}>
-                {letter}
-              </span>
-            ))}
-          </div>
-        );
-      default:
-        return null;
-    }
-  };
 
-  const adjustLevel = (emotionList, score, currentLevel) => {
-    const emotionValues = {
-      happy: 2,
-      surprised: 1.5,
-      neutral: 0,
-      sad: -2,
-      fear: -2,
-      anger: -3,
-      disgust: -3,
-      contempt: -2.5,
-    };
+   
 
-    if (!emotionList || emotionList.length === 0) {
-      console.warn("Emotion list is empty. Keeping current level.");
-      return currentLevel;
-    }
-
-    let totalEmotionScore = 0;
-    for (let emotion of emotionList) {
-      totalEmotionScore += emotionValues[emotion] ?? 0;
-    }
-    const avgEmotionScore = totalEmotionScore / emotionList.length;
-
-    const normalizedScore = score / 100;
-
-    const finalScore =
-      (0.4 * (avgEmotionScore + 3)) / 6 + 0.6 * normalizedScore;
-
-    let newLevel = currentLevel;
-    if (finalScore > 0.6) {
-      newLevel = Math.min(currentLevel + 1, levels.length - 1);
-    } else if (finalScore < 0.3) {
-      newLevel = Math.max(currentLevel - 1, 0);
-    }
-
-    console.log("Adjusted level:", newLevel, "Final score:", finalScore);
-    return newLevel;
-  };
-
-  const calculateDominantEmotions = (emotions) => {
-    if (!emotions || emotions.length === 0) {
-      return { maxEmotion: "neutral", minEmotion: "neutral" };
-    }
-
-    const emotionCounts = emotions.reduce((acc, emotion) => {
-      acc[emotion] = (acc[emotion] || 0) + 1;
-      return acc;
-    }, {});
-
-    const emotionEntries = Object.entries(emotionCounts);
-    const maxCount = Math.max(...emotionEntries.map(([, count]) => count));
-    const minCount = Math.min(...emotionEntries.map(([, count]) => count));
-
-    const maxEmotions = emotionEntries
-      .filter(([, count]) => count === maxCount)
-      .map(([emotion]) => emotion)
-      .sort();
-    const minEmotions = emotionEntries
-      .filter(([, count]) => count === minCount)
-      .map(([emotion]) => emotion)
-      .sort();
-
-    return {
-      maxEmotion: maxEmotions[0] || "neutral",
-      minEmotion: minEmotions[0] || "neutral",
-    };
-  };
+ 
 
   const updateBackendLevel = async (newLevel) => {
     const childId = localStorage.getItem("uid");
@@ -388,18 +274,6 @@ const WordWizard = () => {
     }
 
     try {
-      // Update localStorage
-      const gameData =
-        JSON.parse(localStorage.getItem("game_Word_Wizard")) || {};
-      localStorage.setItem(
-        "game_Word_Wizard",
-        JSON.stringify({
-          ...gameData,
-          currentLevel: newLevel + 1, // Store as 1-based index
-        })
-      );
-      console.log("Updated localStorage with level:", newLevel + 1);
-
       // Send request to /update-child-level
       const levelResponse = await fetch(
         "http://localhost:5000/update-child-level",
@@ -407,62 +281,43 @@ const WordWizard = () => {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
+            emotions,
             gameName,
-            currentLevel: newLevel,
-            id:localStorage.getItem("id")
+            score,
+            childId: localStorage.getItem("id"),
           }),
         }
       );
 
       if (levelResponse.ok) {
+        const data = await levelResponse.json();
         console.log(
-          `[INFO] Successfully updated level to ${newLevel} for game ${gameName}`
+          `[INFO] Successfully updated level from ${currentLevel} to ${data.newLevel} for game ${gameName}`
+        );
+        const gameData =
+          JSON.parse(localStorage.getItem("game_Word_Wizard")) || {};
+
+        localStorage.setItem(
+          "game_Word_Wizard",
+          JSON.stringify({
+            ...gameData,
+            currentLevel: data.newLevel,
+          })
         );
       } else {
         console.error("[ERROR] Failed to update level:", levelResponse.status);
       }
+
+      navigate("/games");
     } catch (error) {
-      console.error("[ERROR] Error updating level:", error);
+      console.error("Error quitting game:", error);
+      navigate("/games");
     }
+     
+  
   };
 
-  const saveSessionStats = async (level) => {
-    const childId = localStorage.getItem("id");
-    if (!childId) {
-      console.error("No child ID found in localStorage");
-      return;
-    }
-
-    const { maxEmotion, minEmotion } = calculateDominantEmotions(emotions);
-
-    try {
-      const statsResponse = await fetch("http://localhost:5000/save-session-stats", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          gameName,
-          level,
-          dominantEmotion: maxEmotion,
-          leastEmotion: minEmotion,
-          score,
-          id: childId,
-        }),
-      });
-
-      if (statsResponse.ok) {
-        console.log(
-          `[INFO] Successfully saved session stats for child ${childId}`
-        );
-      } else {
-        console.error(
-          "[ERROR] Failed to save session stats:",
-          statsResponse.status
-        );
-      }
-    } catch (error) {
-      console.error("[ERROR] Error saving session stats:", error);
-    }
-  };
+  
 
   const quitGame = async () => {
     console.log(
@@ -480,18 +335,6 @@ const WordWizard = () => {
     }
 
     try {
-      // Update localStorage
-      const gameData =
-        JSON.parse(localStorage.getItem("game_Word_Wizard")) || {};
-      localStorage.setItem(
-        "game_Word_Wizard",
-        JSON.stringify({
-          ...gameData,
-          currentLevel: currentLevel + 1, // Store as 1-based index
-        })
-      );
-      console.log("Updated localStorage on quit with level:", currentLevel + 1);
-
       // Send request to /update-child-level
       const levelResponse = await fetch(
         "http://localhost:5000/update-child-level",
@@ -499,23 +342,36 @@ const WordWizard = () => {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
+            emotions,
             gameName,
-            currentLevel,
-            id:localStorage.getItem("id")
+            score,
+            childId: localStorage.getItem("id"),
           }),
         }
       );
 
+
       if (levelResponse.ok) {
+        const data = await levelResponse.json();
         console.log(
-          `[INFO] Successfully updated level to ${currentLevel} for game ${gameName}`
+          `[INFO] Successfully updated level from ${currentLevel} to ${data.newLevel} for game ${gameName}`
+        ); 
+        const gameData =
+          JSON.parse(localStorage.getItem("game_Word_Wizard")) || {};
+         
+        localStorage.setItem(
+          "game_Word_Wizard",
+          JSON.stringify({
+            ...gameData,
+            currentLevel: data.newLevel, 
+          })
         );
       } else {
         console.error("[ERROR] Failed to update level:", levelResponse.status);
       }
 
-      // Send request to /save-session-stats
-      await saveSessionStats(currentLevel);
+      
+   
       navigate("/games");
     } catch (error) {
       console.error("Error quitting game:", error);
@@ -534,11 +390,12 @@ const WordWizard = () => {
       )}
       <FacialExpression
         onEmotionDetected={(emo) => {
-          setExpression(emo);
-          setEmotions((prev) => [...prev, emo]);
+          latestEmotionRef.current = emo; // always update latest emotion
+          setExpression(emo); // update UI display
         }}
         isActive={!gameWon && !gameEnded}
       />
+
       <div className="emotion-indicator">Detected Emotion: {expression}</div>
 
       <div className="header">
@@ -585,8 +442,6 @@ const WordWizard = () => {
             <div className={`feedback ${feedback.color}`}>{feedback.text}</div>
           </div>
 
-          {showHint && renderHint()}
-
           <div className="letter-buttons">
             {scrambledLetters.map((letter, index) => (
               <button
@@ -606,9 +461,7 @@ const WordWizard = () => {
             <button className="action-button" onClick={resetWord}>
               Reset Word
             </button>
-            <button className="action-button" onClick={getHint}>
-              Get Hint
-            </button>
+
             <button className="action-button quit-button" onClick={quitGame}>
               Quit Game
             </button>

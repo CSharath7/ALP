@@ -1,6 +1,6 @@
 [
     {
-      "name": "level1",
+      "name": "level0",
       "words": [
         "cat", "dog", "sun", "hat", "pen", "red", "man", "box", "bat", "jam",
         "pot", "top", "bug", "fan", "lip", "net", "cap", "bed", "run", "cup",
@@ -8,7 +8,7 @@
       ]
     },
     {
-      "name": "level2",
+      "name": "level1",
       "words": [
         "ship", "fish", "chat", "thin", "bath", "duck", "rock", "hand", "lamp", "flag",
         "clap", "snap", "sock", "kite", "bell", "milk", "nest", "gift", "jump", "frog",
@@ -16,7 +16,7 @@
       ]
     },
     {
-      "name": "level3",
+      "name": "level2",
       "words": [
         "glad", "trap", "crab", "spin", "sled", "flag", "trip", "frog", "whip", "grab",
         "slug", "trim", "brick", "clap", "drip", "slide", "brag", "snap", "grid", "plot",
@@ -24,7 +24,7 @@
       ]
     },
     {
-      "name": "level4",
+      "name": "level3",
       "words": [
         "apple", "plant", "stone", "green", "chair", "truck", "grape", "cloud", "sweet", "clean",
         "smile", "train", "bring", "swing", "shine", "bread", "drink", "flame", "brush", "drill",
@@ -32,7 +32,7 @@
       ]
     },
     {
-      "name": "level5",
+      "name": "level4",
       "words": [
         "happy", "candy", "table", "zebra", "panda", "water", "sunny", "tiger", "house", "robot",
         "apple", "bunny", "quiet", "light", "wheat", "banana", "shape", "bread", "cloud", "smile",

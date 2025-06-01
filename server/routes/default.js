@@ -13,6 +13,98 @@ const { childmail } = require("./mail");
 const JWT_SECRET = process.env.JWT_SECRET;
 
 /* --------------------------------------------
+   ✅ Helper Functions for Level Adjustment
+-------------------------------------------- */
+const adjustLevel = (emotionList, score, currentLevel) => {
+  console.log("adjustLevel called with:", { emotionList, score, currentLevel });
+
+  const emotionValues = {
+    happy: 2,
+    surprised: 1.5,
+    neutral: 0.5,
+    sad: -0.5,
+    fear: -0.5,
+    anger: -0.5,
+    disgust: -0.5,
+    contempt: -0.5,
+  };
+
+  if (!emotionList || emotionList.length === 0) {
+    console.warn("Emotion list is empty. Keeping current level:", currentLevel);
+    return currentLevel;
+  }
+
+  let totalEmotionScore = 0;
+  for (let emotion of emotionList) {
+    totalEmotionScore += emotionValues[emotion] ?? 0;
+    console.log(
+      `Processing emotion: ${emotion}, value: ${
+        emotionValues[emotion] ?? 0
+      }, running total: ${totalEmotionScore}`
+    );
+  }
+  const avgEmotionScore = totalEmotionScore / emotionList.length;
+  console.log(`Average emotion score: ${avgEmotionScore}`);
+
+  const normalizedScore = score / 100;
+  console.log(`Normalized score: ${normalizedScore}`);
+
+  const finalScore = (0.4 * (avgEmotionScore + 3)) / 6 + 0.6 * normalizedScore;
+  console.log(`Final score: ${finalScore}`);
+
+  const levels = [0, 1, 2, 3, 4]; // Adjust based on WordWizard.json
+  let newLevel = currentLevel;
+  if (finalScore > 0.6) {
+    newLevel = Math.min(currentLevel + 1, levels.length - 1);
+    console.log(`Final score > 0.6, increasing level to: ${newLevel}`);
+  } else if (finalScore < 0.3) {
+    newLevel = Math.max(currentLevel - 1, 0);
+    console.log(`Final score < 0.3, decreasing level to: ${newLevel}`);
+  } else {
+    console.log(`Final score between 0.3 and 0.6, keeping level: ${newLevel}`);
+  }
+
+  console.log("Adjusted level:", newLevel);
+  return newLevel;
+};
+
+const calculateDominantEmotions = (emotions) => {
+  console.log("calculateDominantEmotions called with:", emotions);
+
+  if (!emotions || emotions.length === 0) {
+    console.warn("Emotions array is empty. Returning neutral emotions.");
+    return { maxEmotion: "neutral", minEmotion: "neutral" };
+  }
+
+  const emotionCounts = emotions.reduce((acc, emotion) => {
+    acc[emotion] = (acc[emotion] || 0) + 1;
+    return acc;
+  }, {});
+  console.log("Emotion counts:", emotionCounts);
+
+  const emotionEntries = Object.entries(emotionCounts);
+  const maxCount = Math.max(...emotionEntries.map(([, count]) => count));
+  const minCount = Math.min(...emotionEntries.map(([, count]) => count));
+  console.log(`Max count: ${maxCount}, Min count: ${minCount}`);
+
+  const maxEmotions = emotionEntries
+    .filter(([, count]) => count === maxCount)
+    .map(([emotion]) => emotion)
+    .sort();
+  const minEmotions = emotionEntries
+    .filter(([, count]) => count === minCount)
+    .map(([emotion]) => emotion)
+    .sort();
+
+  const result = {
+    maxEmotion: maxEmotions[0] || "neutral",
+    minEmotion: minEmotions[0] || "neutral",
+  };
+  console.log("Dominant emotions:", result);
+  return result;
+};
+
+/* --------------------------------------------
    ✅ SuperAdmin & Therapist Login
 -------------------------------------------- */
 router.post("/login", async (req, res) => {
@@ -20,20 +112,29 @@ router.post("/login", async (req, res) => {
     const { email, password } = req.body;
 
     const admin = await Admin.findOne({ email });
-    if (admin && await bcrypt.compare(password, admin.password)) {
-      const token = jwt.sign({ id: admin._id }, JWT_SECRET, { expiresIn: "1h" });
-      return res.json({ token, role: "superadmin", name: admin.name, email: admin.email });
+    if (admin && (await bcrypt.compare(password, admin.password))) {
+      const token = jwt.sign({ id: admin._id }, JWT_SECRET, {
+        expiresIn: "1h",
+      });
+      return res.json({
+        token,
+        role: "superadmin",
+        name: admin.name,
+        email: admin.email,
+      });
     }
 
     const therapist = await Therapist.findOne({ email });
-    if (therapist && await bcrypt.compare(password, therapist.password)) {
-      const token = jwt.sign({ id: therapist._id }, JWT_SECRET, { expiresIn: "1h" });
+    if (therapist && (await bcrypt.compare(password, therapist.password))) {
+      const token = jwt.sign({ id: therapist._id }, JWT_SECRET, {
+        expiresIn: "1h",
+      });
       return res.json({
         token,
         role: "therapist",
         name: therapist.name,
         email: therapist.email,
-        id: therapist._id
+        id: therapist._id,
       });
     }
 
@@ -52,7 +153,10 @@ router.post("/reset-password/:token", async (req, res) => {
     const decoded = jwt.verify(req.params.token, JWT_SECRET);
     const hashedPassword = await bcrypt.hash(req.body.password, 10);
     await Therapist.findByIdAndUpdate(decoded.id, { password: hashedPassword });
-    res.json({ message: "Password reset successfully. Please log in again.", logout: true });
+    res.json({
+      message: "Password reset successfully. Please log in again.",
+      logout: true,
+    });
   } catch (error) {
     res.status(400).json({ error: "Invalid or expired token." });
   }
@@ -77,9 +181,9 @@ router.post("/child-login", async (req, res) => {
         email: user.email,
         uid: user.uid,
         id: user._id,
-        selectedGames:user.selectedGames
+        selectedGames: user.selectedGames,
       },
-      role: "child"
+      role: "child",
     });
   } catch (error) {
     res.status(500).json({ error: error.message });
@@ -93,16 +197,25 @@ router.post("/child-register", async (req, res) => {
   try {
     const { name, age, gender, email, therapistid, selectedGames } = req.body;
 
-    if (!name || !age || !gender || !email || !therapistid || !Array.isArray(selectedGames)) {
-      return res.status(400).json({ success: false, message: "Missing required fields." });
+    if (
+      !name ||
+      !age ||
+      !gender ||
+      !email ||
+      !therapistid ||
+      !Array.isArray(selectedGames)
+    ) {
+      return res
+        .status(400)
+        .json({ success: false, message: "Missing required fields." });
     }
 
     const uid = Math.floor(100000 + Math.random() * 900000);
 
-    const gamesWithLevels = selectedGames.map(game => ({
+    const gamesWithLevels = selectedGames.map((game) => ({
       name: game.name,
       assignedLevel: game.level,
-      currentLevel: 0
+      currentLevel: 0,
     }));
 
     const newChild = new Child({
@@ -112,47 +225,139 @@ router.post("/child-register", async (req, res) => {
       email,
       uid,
       therapist: therapistid,
-      selectedGames: gamesWithLevels
+      selectedGames: gamesWithLevels,
     });
 
     await newChild.save();
     await childmail(req.body, uid);
 
-    res.status(201).json({ success: true, message: "Child registered successfully", uid });
+    res
+      .status(201)
+      .json({ success: true, message: "Child registered successfully", uid });
   } catch (err) {
     console.error("Child registration failed:", err.message);
-    res.status(500).json({ success: false, message: "Server error during registration" });
+    res
+      .status(500)
+      .json({ success: false, message: "Server error during registration" });
   }
 });
 
 /* --------------------------------------------
-  ✅ Update Game Level + Session Log
+   ✅ Update Game Level + Session Log
 -------------------------------------------- */
-// POST /save-session-stats
-router.post('/save-session-stats', async (req, res) => {
+router.post("/update-child-level", async (req, res) => {
   try {
-    const {gameName, level,dominantEmotion, leastEmotion, score,id } = req.body;
-    console.log("Received request to save session stats:", gameName, level,dominantEmotion,leastEmotion, score, id);
-    if ( !gameName || level === undefined || score === undefined) {
+    const { childId, gameName, score, emotions } = req.body;
+    console.log("Received /update-child-level request:", {
+      childId,
+      gameName,
+      score,
+      emotions,
+    });
+
+    if (
+      !childId ||
+      !gameName ||
+      score === undefined ||
+      !Array.isArray(emotions)
+    ) {
+      console.error("Missing required fields in request body");
       return res.status(400).json({ error: "Missing required fields" });
     }
 
-    const child = await Child.findById(id);
-
+    console.log("Fetching child from database with ID:", childId);
+    const child = await Child.findById(childId);
     if (!child) {
+      console.error("Child not found for ID:", childId);
       return res.status(404).json({ error: "Child not found" });
     }
 
-    // Add new session data
-    child.session.push({ gameName, level, maxEmotion:dominantEmotion,minEmotion:leastEmotion, score });
-
-    // Optionally update currentLevel of the game
-    const game = child.selectedGames.find(g => g.name === gameName);
-    if (game) {
-      game.currentLevel = level;
+    console.log("Child found:", { name: child.name, uid: child.uid });
+    const game = child.selectedGames.find((g) => g.name === gameName);
+    if (!game) {
+      console.error(`Game ${gameName} not assigned to child`);
+      return res
+        .status(404)
+        .json({ error: `Game ${gameName} not assigned to child` });
     }
 
+    console.log("Found game:", { gameName, currentLevel: game.currentLevel });
+    const currentLevel = game.currentLevel;
+    const newLevel = adjustLevel(emotions, score, currentLevel);
+    const { maxEmotion, minEmotion } = calculateDominantEmotions(emotions);
+
+    console.log("Updating game currentLevel to:", newLevel);
+    game.currentLevel = newLevel;
+
+    console.log("Adding session data:", {
+      gameName,
+      level: newLevel,
+      maxEmotion,
+      minEmotion,
+      score,
+    });
+    child.session.push({
+      gameName,
+      level: newLevel,
+      maxEmotion,
+      minEmotion,
+      score,
+      timestamp: new Date(),
+    });
+
+    console.log("Saving child document to database");
     await child.save();
+    console.log("Child document saved successfully");
+
+    res.status(200).json({ newLevel });
+    console.log("Response sent with newLevel:", newLevel);
+  } catch (error) {
+    console.error("Error in /update-child-level:", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
+
+/* --------------------------------------------
+   ✅ Save Session Stats
+-------------------------------------------- */
+router.post("/save-session-stats", async (req, res) => {
+  try {
+    // const { gameName, level, dominantEmotion, leastEmotion, score, id } =
+    //   req.body;
+    // console.log(
+    //   "Received request to save session stats:",
+    //   gameName,
+    //   level,
+    //   dominantEmotion,
+    //   leastEmotion,
+    //   score,
+    //   id
+    // );
+    // if (!gameName || level === undefined || score === undefined) {
+    //   return res.status(400).json({ error: "Missing required fields" });
+    // }
+
+    // const child = await Child.findById(id);
+    // if (!child) {
+    //   return res.status(404).json({ error: "Child not found" });
+    // }
+
+    // // Add new session data
+    // child.session.push({
+    //   gameName,
+    //   level,
+    //   maxEmotion: dominantEmotion,
+    //   minEmotion: leastEmotion,
+    //   score,
+    // });
+
+    //  Optionally update currentLevel of the game
+    // const game = child.selectedGames.find((g) => g.name === gameName);
+    // if (game) {
+    //   game.currentLevel = level;
+    // }
+
+    // await child.save();
     res.status(200).json({ message: "Session stats saved successfully" });
   } catch (err) {
     console.error("Error saving session stats:", err);
@@ -160,67 +365,29 @@ router.post('/save-session-stats', async (req, res) => {
   }
 });
 
-
-router.post("/update-child-level", async (req, res) => {
-  const { gameName, currentLevel, id } = req.body;
-  console.log("Received request to update level:", gameName, currentLevel, id);
-
-  try {
-    const child = await Child.findOneAndUpdate(
-      {
-        _id: id,
-        "selectedGames.name": gameName
-      },
-      {
-        $set: {
-          "selectedGames.$.currentLevel": currentLevel
-        }
-      },
-      { new: true }
-    );
-
-    if (!child) {
-      return res.status(404).json({ message: "Child or game not found." });
-    }
-
-    res.status(200).json({ message: "Current level updated successfully.", child });
-  } catch (error) {
-    console.error("Error updating current level:", error);
-    res.status(500).json({ message: "Internal server error." });
-  }
-});
-
-
-
-
 /* --------------------------------------------
    ✅ Get Game Levels for a Specific Game
 -------------------------------------------- */
-router.get('/getlevel/:childId/:gameName', async (req, res) => {
+router.get("/getlevel/:childId/:gameName", async (req, res) => {
   try {
     const { childId, gameName } = req.params;
 
-    // Find the child by ID (assuming childId is _id in MongoDB)
-const child = await Child.findOne({ uid: Number(childId) });
-
+    const child = await Child.findOne({ uid: Number(childId) });
     if (!child) {
-      return res.status(404).json({ success: false, message: "Child not found" });
+      return res
+        .status(404)
+        .json({ success: false, message: "Child not found" });
     }
 
-    // Find the game in the child's selectedGames array
-const gameData = child.selectedGames.find(game => game.name === gameName);
-
+    const gameData = child.selectedGames.find((game) => game.name === gameName);
     if (!gameData) {
-      // If the game is not found, you can respond with level 0 or some default
       return res.json({ success: true, currentLevel: 0 });
     }
 
-    // Respond with the currentLevel for the game
     res.json({ success: true, currentLevel: gameData.currentLevel });
-
   } catch (error) {
-    console.error('[ERROR] getlevel route failed:', error);
-    res.status(500).json({ success: false, message: 'Server error' });
+    console.error("[ERROR] getlevel route failed:", error);
+    res.status(500).json({ success: false, message: "Server error" });
   }
 });
 
@@ -232,9 +399,8 @@ router.get("/child/:uid", async (req, res) => {
     const child = await Child.findOne({ uid: req.params.uid });
     if (!child) return res.status(404).json({ message: "Child not found" });
 
-    // Filter out games where assignedLevel equals currentLevel
     const gamesToShow = child.selectedGames.filter(
-      game => game.assignedLevel > game.currentLevel
+      (game) => game.assignedLevel > game.currentLevel
     );
 
     res.json({ selectedGames: gamesToShow });
@@ -243,73 +409,36 @@ router.get("/child/:uid", async (req, res) => {
   }
 });
 
-router.post("/update-child-level", async (req, res) => {
-  const { gameName, currentLevel } = req.body;
-
-  if (typeof gameName !== "string" || typeof currentLevel !== "number") {
-    return res.status(400).json({ message: "Invalid request body" });
-  }
-
-  try {
-    // Assuming you have a way to identify the child without authentication
-    // You might want to pass child's ID in the request body or query parameters
-    // For example:
-    const childId = req.body.childId;
-    if (!childId) {
-      return res.status(400).json({ message: "Missing childId" });
-    }
-
-    const child = await Child.findById(childId);
-    if (!child) return res.status(404).json({ message: "Child not found" });
-
-    // Find the game in selectedGames array
-    const game = child.selectedGames.find((g) => g.name === gameName);
-    if (!game) {
-      return res.status(404).json({ message: `Game ${gameName} not assigned to child` });
-    }
-
-    // Update currentLevel, ensure it is between 1 and 5
-    if (currentLevel < 1 || currentLevel > 5) {
-      return res.status(400).json({ message: "currentLevel must be between 1 and 5" });
-    }
-
-    game.currentLevel = currentLevel;
-
-    await child.save();
-
-    return res.json({
-      message: "Child's currentLevel updated successfully",
-      selectedGame: game,
-    });
-  } catch (err) {
-    console.error(err);
-    return res.status(500).json({ message: "Server error" });
-  }
-});
-
-
 /* --------------------------------------------
    ✅ Get Child's Game Report
 -------------------------------------------- */
-router.get('/getchildreport/:uid', async (req, res) => {
+router.get("/getchildreport/:uid", async (req, res) => {
   try {
     const uid = parseInt(req.params.uid, 10);
     const child = await Child.findOne({ uid });
 
-    if (!child) return res.status(404).json({ success: false, message: 'Child not found' });
+    if (!child)
+      return res
+        .status(404)
+        .json({ success: false, message: "Child not found" });
 
     if (!child.selectedGames || child.selectedGames.length === 0) {
-      return res.json({ success: false, message: 'No games assigned to this child' });
+      return res.json({
+        success: false,
+        message: "No games assigned to this child",
+      });
     }
 
     res.json({ success: true, games: child.selectedGames });
   } catch (error) {
-    console.error('Error fetching child report:', error);
-    res.status(500).json({ success: false, message: 'Server error' });
+    console.error("Error fetching child report:", error);
+    res.status(500).json({ success: false, message: "Server error" });
   }
 });
 
-
+/* --------------------------------------------
+   ✅ Get Profile
+-------------------------------------------- */
 router.get("/profile/:id", async (req, res) => {
   try {
     const childId = req.params.id;
@@ -324,7 +453,6 @@ router.get("/profile/:id", async (req, res) => {
     let responseData;
 
     if (role === "child") {
-      // Find child by MongoDB _id
       const child = await Child.findById(childId).select(
         "name email age uid selectedGames session"
       );
@@ -348,7 +476,6 @@ router.get("/profile/:id", async (req, res) => {
         })),
       };
     } else {
-      // Find therapist by MongoDB _id and populate children
       const therapist = await Therapist.findById(childId)
         .select("name email age experience specialization contact children")
         .populate("children", "name _id");
@@ -379,8 +506,5 @@ router.get("/profile/:id", async (req, res) => {
     res.status(500).json({ message: "Server error" });
   }
 });
-
-
-
 
 module.exports = router;
