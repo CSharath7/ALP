@@ -17,16 +17,22 @@ function RoleBasedDashboard() {
 }
 
 // ------------------ CHILD DASHBOARD ------------------
+
+import "../styles/Games.css"; // Reuse styles from Games component
+
 function ChildDashboard() {
     const [message, setMessage] = useState("");
     const [userData, setUserData] = useState({ name: "", progress: 0 });
     const [recentActivities, setRecentActivities] = useState([]);
+    const [games, setGames] = useState([]);
+    const [gamesMessage, setGamesMessage] = useState("");
     const [isLoading, setIsLoading] = useState(true);
 
     useEffect(() => {
-        const fetchProtectedData = async () => {
+        const fetchDashboardData = async () => {
             try {
                 const token = localStorage.getItem("token");
+                const uid = localStorage.getItem("uid");
                 await axios.get("http://localhost:5000/api/auth/protected", {
                     headers: { Authorization: `Bearer ${token}` },
                 });
@@ -44,14 +50,39 @@ function ChildDashboard() {
                 ]);
 
                 setMessage(`Welcome back, ${name}!`);
-            } catch {
+
+                // Fetch selected games
+                const res = await axios.get(`http://localhost:5000/child/${uid}`);
+                const allGameInfo = {
+                    "Shape Pattern": { path: "/pattern", color: "bg-indigo-500", icon: "🔵🟡" },
+                    "Story Time": { path: "/story", color: "bg-green-500", icon: "📖" },
+                    "Math Quest": { path: "/math", color: "bg-purple-500", icon: "➕➖" },
+                    "Memory Puzzle": { path: "/Memory", color: "bg-red-500", icon: "🧩" },
+                    "Memory Matrix": { path: "/MemoryMatrix", color: "bg-blue-500", icon: "🧠" },
+                    "Spell Bee": { path: "/SpellBee", color: "bg-yellow-500", icon: "🐝" },
+                    "Word Wizard": { path: "/wordwizard", color: "bg-pink-500", icon: "🧙" },
+                    "Word Detective": { path: "/WordDetective", color: "bg-orange-500", icon: "🔍" },
+                };
+
+                const selected = res.data.selectedGames.map(({ name, level }) => ({
+                    name,
+                    level,
+                    ...allGameInfo[name],
+                }));
+
+                if (selected.length === 0) {
+                    setGamesMessage("🎉 You have completed all of your games! Please visit your consulted therapist for further instructions.");
+                } else {
+                    setGames(selected);
+                }
+            } catch (error) {
                 setMessage("Oops! Something went wrong. Please try again.");
             } finally {
                 setIsLoading(false);
             }
         };
 
-        fetchProtectedData();
+        fetchDashboardData();
     }, []);
 
     if (isLoading) return (
@@ -60,53 +91,41 @@ function ChildDashboard() {
         </div>
     );
 
-     return (
+    return (
         <div className="dashboard-container dyslexia-child-dashboard">
             <header className="dashboard-header">
                 <h1 className="dashboard-title">Your Learning Dashboard</h1>
                 <p className="dashboard-subtitle">{message}</p>
             </header>
 
-            <div className="grid-cols-3">
+            <div className="grid grid-cols-2 gap-4">
                 <div className="card welcome-card">
                     <h2 className="card-title accent-primary">Hello, {userData.name}!</h2>
                     <p>Ready for some fun learning today?</p>
-                    <Link to="/games" className="play-btn accent-primary-bg">Play Games</Link>
+                    {/* <Link to="/games" className="play-btn accent-primary-bg">Play Games</Link> */}
                 </div>
-
-                <div className="card progress-card">
-                    <h2 className="card-title accent-secondary">Your Progress</h2>
-                    <div className="progress-bar-container">
-                        <div 
-                            className="progress-bar" 
-                            style={{ width: `${userData.progress}%` }}
-                        ></div>
-                    </div>
-                    <p>Keep going! You're doing great!</p>
-                </div>
-
                 <div className="card actions-card">
                     <h2 className="card-title text-primary">Quick Actions</h2>
                     <Link to="/games" className="quick-action">Continue Last Game</Link>
-                    <Link to="/rewards" className="quick-action">View Your Rewards</Link>
-                    <Link to="/settings" className="quick-action">Change Settings</Link>
+                    <Link to="/profile" className="quick-action">View your profile</Link>
+                    {/* <Link to="/settings" className="quick-action">Change Settings</Link> */}
                 </div>
             </div>
 
             <div className="card">
-                <h2 className="card-title text-primary">Recent Activities</h2>
-                <table className="activities-table">
-                    <thead>
-                        <tr><th>Game</th><th>Score</th><th>When</th></tr>
-                    </thead>
-                    <tbody>
-                        {recentActivities.map((a, i) => (
-                            <tr key={i} className={i % 2 === 0 ? "striped-row" : ""}>
-                                <td>{a.game}</td><td className="font-bold">{a.score}</td><td>{a.date}</td>
-                            </tr>
+                <h2 className="card-title text-primary">Your Games</h2>
+                {gamesMessage ? (
+                    <p className="therapy-message">{gamesMessage}</p>
+                ) : (
+                    <div className="games-grid">
+                        {games.map((game, index) => (
+                            <Link key={index} to={game.path} className={`game-card ${game.color}`}>
+                                <span className="game-icon">{game.icon}</span>
+                                <span className="game-name">{game.name}</span>
+                            </Link>
                         ))}
-                    </tbody>
-                </table>
+                    </div>
+                )}
             </div>
         </div>
     );
@@ -162,8 +181,8 @@ function SuperAdminDashboard() {
                                 <td>{t.phone}</td>
                                 <td>{t.location}</td>
                                 <td>
-                                    <button 
-                                        className="view-details-btn accent-primary-bg" 
+                                    <button
+                                        className="view-details-btn accent-primary-bg"
                                         onClick={() => navigate(`/therapist/${t._id}`)}
                                     >
                                         View Details
@@ -184,6 +203,7 @@ function TherapistDashboard() {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const [selectedReport, setSelectedReport] = useState(null);
+    const [activeTab, setActiveTab] = useState('children'); // 'children' or 'sessions'
 
     const therapistName = localStorage.getItem('name');
     const id = localStorage.getItem('id');
@@ -225,79 +245,289 @@ function TherapistDashboard() {
 
     if (loading) return <div className="loading">Loading children data...</div>;
     if (error) return <div className="error-message">Error: {error}</div>;
-    if (children.length === 0) return <div className="no-data">No children found for therapist: {therapistName}</div>;
 
     return (
-        <div className="therapist-table-container dark-theme">
-            <h2 className="text-primary">Children Assigned to Therapist: {therapistName}</h2>
-            
-            <table className="therapist-children-table">
-                <thead>
-                    <tr>
-                        <th>Name</th>
-                        <th>Age</th>
-                        <th>Gender</th>
-                        <th>Actions</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {children.map((child) => (
-                        <React.Fragment key={child.uid}>
-                            <tr>
-                                <td>{child.name}</td>
-                                <td>{child.age}</td>
-                                <td>{child.gender}</td>
-                                <td>
-                                    <button 
-                                        className={`view-report-btn ${selectedReport?.uid === child.uid ? 'active' : ''}`}
-                                        onClick={() => toggleReport(child.uid)}
-                                    >
-                                        {selectedReport?.uid === child.uid ? "Hide Report" : "View Report"}
-                                    </button>
-                                </td>
-                            </tr>
-                            
-                            {selectedReport?.uid === child.uid && (
-                                <tr className="report-row">
-                                    <td colSpan="4">
-                                        <div className="report-section">
-                                            {selectedReport.error ? (
-                                                <p className="error-message">{selectedReport.error}</p>
-                                            ) : (
-                                                <div>
-                                                    <h4 className="text-primary">Assigned Games & Levels</h4>
-                                                    {selectedReport.games.length > 0 ? (
-                                                        <table className="games-table">
-                                                            <thead>
-                                                                <tr>
-                                                                    <th>Game Name</th>
-                                                                    <th>Assigned Level</th>
-                                                                    <th>Current Level</th>
-                                                                </tr>
-                                                            </thead>
-                                                            <tbody>
-                                                                {selectedReport.games.map((game, index) => (
-                                                                    <tr key={index}>
-                                                                        <td>{game.name}</td>
-                                                                        <td>{game.assignedLevel}</td>
-                                                                        <td>{game.currentLevel}</td>
-                                                                    </tr>
-                                                                ))}
-                                                            </tbody>
-                                                        </table>
-                                                    ) : (
-                                                        <p className="no-data">No games assigned yet</p>
-                                                    )}
-                                                </div>
-                                            )}
-                                        </div>
-                                    </td>
+        <div className="therapist-dashboard-container dark-theme">
+            <h1 className="dashboard-title">Therapist Dashboard</h1>
+            {/* <p className="dashboard-subtitle">Welcome, {therapistName}</p> */}
+
+            <div className="therapist-tabs">
+                <button 
+                    className={`tab-btn ${activeTab === 'children' ? 'active' : ''}`}
+                    onClick={() => setActiveTab('children')}
+                >
+                    My Children
+                </button>
+                <button 
+                    className={`tab-btn ${activeTab === 'sessions' ? 'active' : ''}`}
+                    onClick={() => setActiveTab('sessions')}
+                >
+                    Session History
+                </button>
+            </div>
+
+            {activeTab === 'children' ? (
+                <div className="therapist-table-container">
+                    <h2 className="text-primary">Children Assigned to You</h2>
+
+                    {children.length === 0 ? (
+                        <div className="no-data">No children assigned yet</div>
+                    ) : (
+                        <table className="therapist-children-table">
+                            <thead>
+                                <tr>
+                                    <th>Name</th>
+                                    <th>Age</th>
+                                    <th>Gender</th>
+                                    <th>Actions</th>
                                 </tr>
+                            </thead>
+                            <tbody>
+                                {children.map((child) => (
+                                    <React.Fragment key={child.uid}>
+                                        <tr>
+                                            <td>{child.name}</td>
+                                            <td>{child.age}</td>
+                                            <td>{child.gender}</td>
+                                            <td>
+                                                <button
+                                                    className={`view-report-btn ${selectedReport?.uid === child.uid ? 'active' : ''}`}
+                                                    onClick={() => toggleReport(child.uid)}
+                                                >
+                                                    {selectedReport?.uid === child.uid ? "Hide Report" : "View Report"}
+                                                </button>
+                                            </td>
+                                        </tr>
+
+                                        {selectedReport?.uid === child.uid && (
+                                            <tr className="report-row">
+                                                <td colSpan="4">
+                                                    <div className="report-section">
+                                                        {selectedReport.error ? (
+                                                            <p className="error-message">{selectedReport.error}</p>
+                                                        ) : (
+                                                            <div>
+                                                                <h4 className="text-primary">Assigned Games & Levels</h4>
+                                                                {selectedReport.games.length > 0 ? (
+                                                                    <table className="games-table">
+                                                                        <thead>
+                                                                            <tr>
+                                                                                <th>Game Name</th>
+                                                                                <th>Assigned Level</th>
+                                                                                <th>Current Level</th>
+                                                                            </tr>
+                                                                        </thead>
+                                                                        <tbody>
+                                                                            {selectedReport.games.map((game, index) => (
+                                                                                <tr key={index}>
+                                                                                    <td>{game.name}</td>
+                                                                                    <td>{game.assignedLevel}</td>
+                                                                                    <td>{game.currentLevel}</td>
+                                                                                </tr>
+                                                                            ))}
+                                                                        </tbody>
+                                                                    </table>
+                                                                ) : (
+                                                                    <p className="no-data">No games assigned yet</p>
+                                                                )}
+                                                            </div>
+                                                        )}
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        )}
+                                    </React.Fragment>
+                                ))}
+                            </tbody>
+                        </table>
+                    )}
+                </div>
+            ) : (
+                <div className="session-history-container">
+                    <h2 className="text-primary">Session History</h2>
+                    {children.length === 0 ? (
+                        <div className="no-data">No sessions recorded yet</div>
+                    ) : (
+                        <div className="session-list">
+                            {children.flatMap(child => 
+                                child.session?.map((session, index) => (
+                                    <div key={`${child.uid}-${index}`} className="session-card">
+                                        <div className="session-header">
+                                            <h3>{child.name}</h3>
+                                            <span className="session-date">{new Date(session.date).toLocaleDateString()}</span>
+                                        </div>
+                                        <div className="session-details">
+                                            <div className="detail-item">
+                                                <span className="detail-label">Game:</span>
+                                                <span className="detail-value">{session.gameName}</span>
+                                            </div>
+                                            <div className="detail-item">
+                                                <span className="detail-label">Level:</span>
+                                                <span className="detail-value">{session.level}</span>
+                                            </div>
+                                            <div className="detail-item">
+                                                <span className="detail-label">Score:</span>
+                                                <span className="detail-value">{session.score}</span>
+                                            </div>
+                                            <div className="detail-item">
+                                                <span className="detail-label">Emotion State:</span>
+                                                <span className="detail-value">
+                                                    {session.minEmotion && session.maxEmotion ? 
+                                                        `${session.minEmotion} → ${session.maxEmotion}` : 'N/A'}
+                                                </span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                ))
                             )}
-                        </React.Fragment>
-                    ))}
-                </tbody>
-            </table>
+                        </div>
+                    )}
+                </div>
+            )}
+        </div>
+    );
+}
+
+// ------------------ THERAPIST DETAILS ------------------
+function TherapistDetails() {
+    const { id } = useParams();
+    const [therapist, setTherapist] = useState(null);
+    const [children, setChildren] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
+
+    useEffect(() => {
+        const fetchData = async () => {
+            try {
+                const Res = await axios.get(`http://localhost:5000/superadmin/children/${id}`);
+                setChildren(Res.data.children);
+                setTherapist(Res.data.therapist);
+                setLoading(false);
+            } catch (err) {
+                setError(err.response?.data?.message || "Failed to fetch data");
+                setLoading(false);
+            }
+        };
+
+        fetchData();
+    }, [id]);
+
+    if (loading) return <div className="loading">Loading...</div>;
+    if (error) return <div className="error">{error}</div>;
+    if (!therapist) return <div className="no-data">Therapist not found</div>;
+
+    return (
+        <div className="therapist-details-container">
+            <h1>Therapist Management</h1>
+            
+            <div className="details-layout">
+                <div className="therapist-sidebar">
+                    <div className="sidebar-content">
+                        <h2>Therapist Profile</h2>
+                        <div className="therapist-avatar">
+                            <div className="avatar-placeholder">
+                                {therapist.name.charAt(0).toUpperCase()}
+                            </div>
+                            <h3>{therapist.name}</h3>
+                            <p className="specialization">{therapist.specialization}</p>
+                        </div>
+                        
+                        <div className="therapist-meta">
+                            <div className="meta-item">
+                                <span className="meta-label">Email:</span>
+                                <span className="meta-value">{therapist.email}</span>
+                            </div>
+                            <div className="meta-item">
+                                <span className="meta-label">Contact:</span>
+                                <span className="meta-value">{therapist.contact}</span>
+                            </div>
+                            <div className="meta-item">
+                                <span className="meta-label">Experience:</span>
+                                <span className="meta-value">{therapist.experience} years</span>
+                            </div>
+                            <div className="meta-item">
+                                <span className="meta-label">Gender:</span>
+                                <span className="meta-value">{therapist.gender}</span>
+                            </div>
+                            <div className="meta-item">
+                                <span className="meta-label">Age:</span>
+                                <span className="meta-value">{therapist.age}</span>
+                            </div>
+                        </div>
+                        
+                        <div className="stats-card">
+                            <div className="stat-item">
+                                <span className="stat-number">{children.length}</span>
+                                <span className="stat-label">Assigned Children</span>
+                            </div>
+                            <div className="stat-item">
+                                <span className="stat-number">
+                                    {children.reduce((acc, child) => acc + (child.selectedGames?.length || 0), 0)}
+                                </span>
+                                <span className="stat-label">Total Games Assigned</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div className="children-content">
+                    <div className="content-header">
+                        <h2>Assigned Children</h2>
+                        <p className="subtitle">Showing {children.length} children under this therapist's care</p>
+                    </div>
+
+                    {children.length === 0 ? (
+                        <div className="empty-state">
+                            <p>No children assigned to this therapist yet</p>
+                        </div>
+                    ) : (
+                        <div className="children-list">
+                            {children.map(child => (
+                                <div key={child._id} className="child-card">
+                                    <div className="child-header">
+                                        <div className="child-avatar">
+                                            {child.name.charAt(0).toUpperCase()}
+                                        </div>
+                                        <div className="child-info">
+                                            <h3>{child.name}</h3>
+                                            <div className="child-meta">
+                                                <span>Age: {child.age}</span>
+                                                <span>Gender: {child.gender}</span>
+                                                <span>Games: {child.selectedGames?.length || 0}</span>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div className="assigned-games">
+                                        {child.selectedGames && child.selectedGames.length > 0 ? (
+                                            <table className="child-table">
+                                                <thead>
+                                                    <tr>
+                                                        <th>Game Name</th>
+                                                        <th>Assigned Level</th>
+                                                        <th>Current Level</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    {child.selectedGames.map((game, index) => (
+                                                        <tr key={index}>
+                                                            <td>{game.name}</td>
+                                                            <td>{game.assignedLevel}</td>
+                                                            <td>{game.currentLevel}</td>
+                                                        </tr>
+                                                    ))}
+                                                </tbody>
+                                            </table>
+                                        ) : (
+                                            <p className="no-data">No games assigned</p>
+                                        )}
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                    )}
+                </div>
+            </div>
         </div>
     );
 }

@@ -97,11 +97,11 @@ def train_model():
 
     input_dim = 468 * 3
     hidden_dim = 128
-    n_layers = 1
+    n_layers = 4
     n_heads = 8
     dropout = 0.3
-    batch_size = 32
-    epochs = 50
+    batch_size = 64
+    epochs = 100
     learning_rate = 0.0001
 
     dataset_path = 'JoyVerseDataSet_Filled.xlsx'

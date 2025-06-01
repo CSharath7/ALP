@@ -9,7 +9,6 @@ function TherapistDetails() {
     const [children, setChildren] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
-    const [activeChildTab, setActiveChildTab] = useState({}); // Stores active tab per child
 
     useEffect(() => {
         const fetchData = async () => {
@@ -17,14 +16,6 @@ function TherapistDetails() {
                 const Res = await axios.get(`http://localhost:5000/superadmin/children/${id}`);
                 setChildren(Res.data.children);
                 setTherapist(Res.data.therapist);
-                
-                // Initialize tabs for each child
-                const tabs = {};
-                Res.data.children.forEach(child => {
-                    tabs[child._id] = 'games'; // Default to games tab
-                });
-                setActiveChildTab(tabs);
-                
                 setLoading(false);
             } catch (err) {
                 setError(err.response?.data?.message || "Failed to fetch data");
@@ -35,13 +26,6 @@ function TherapistDetails() {
         fetchData();
     }, [id]);
 
-    const switchChildTab = (childId, tab) => {
-        setActiveChildTab(prev => ({
-            ...prev,
-            [childId]: tab
-        }));
-    };
-
     if (loading) return <div className="loading">Loading...</div>;
     if (error) return <div className="error">{error}</div>;
     if (!therapist) return <div className="no-data">Therapist not found</div>;
@@ -51,7 +35,7 @@ function TherapistDetails() {
             <h1>Therapist Management</h1>
             
             <div className="details-layout">
-                {/* Therapist Profile Sidebar (unchanged) */}
+                {/* Therapist Profile Sidebar */}
                 <div className="therapist-sidebar">
                     <div className="sidebar-content">
                         <h2>Therapist Profile</h2>
@@ -101,7 +85,7 @@ function TherapistDetails() {
                     </div>
                 </div>
 
-                {/* Children Details Section (updated) */}
+                {/* Children Details Section (Only Games Tab) */}
                 <div className="children-content">
                     <div className="content-header">
                         <h2>Assigned Children</h2>
@@ -126,79 +110,32 @@ function TherapistDetails() {
                                                 <span>Age: {child.age}</span>
                                                 <span>Gender: {child.gender}</span>
                                                 <span>Games: {child.selectedGames?.length || 0}</span>
-                                                <span>Sessions: {child.session?.length || 0}</span>
                                             </div>
                                         </div>
                                     </div>
 
-                                    <div className="child-tabs">
-                                        <button 
-                                            className={`tab-btn ${activeChildTab[child._id] === 'games' ? 'active' : ''}`}
-                                            onClick={() => switchChildTab(child._id, 'games')}
-                                        >
-                                            Assigned Games
-                                        </button>
-                                        <button 
-                                            className={`tab-btn ${activeChildTab[child._id] === 'sessions' ? 'active' : ''}`}
-                                            onClick={() => switchChildTab(child._id, 'sessions')}
-                                        >
-                                            Session History
-                                        </button>
-                                    </div>
-
                                     <div className="tab-content">
-                                        {activeChildTab[child._id] === 'games' ? (
-                                            child.selectedGames && child.selectedGames.length > 0 ? (
-                                                <table className="child-table">
-                                                    <thead>
-                                                        <tr>
-                                                            <th>Game Name</th>
-                                                            <th>Assigned Level</th>
-                                                            <th>Current Level</th>
+                                        {child.selectedGames && child.selectedGames.length > 0 ? (
+                                            <table className="child-table">
+                                                <thead>
+                                                    <tr>
+                                                        <th>Game Name</th>
+                                                        <th>Assigned Level</th>
+                                                        <th>Current Level</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    {child.selectedGames.map((game, index) => (
+                                                        <tr key={index}>
+                                                            <td>{game.name}</td>
+                                                            <td>{game.assignedLevel}</td>
+                                                            <td>{game.currentLevel}</td>
                                                         </tr>
-                                                    </thead>
-                                                    <tbody>
-                                                        {child.selectedGames.map((game, index) => (
-                                                            <tr key={index}>
-                                                                <td>{game.name}</td>
-                                                                <td>{game.assignedLevel}</td>
-                                                                <td>{game.currentLevel}</td>
-                                                            </tr>
-                                                        ))}
-                                                    </tbody>
-                                                </table>
-                                            ) : (
-                                                <p className="no-data">No games assigned</p>
-                                            )
+                                                    ))}
+                                                </tbody>
+                                            </table>
                                         ) : (
-                                            child.session && child.session.length > 0 ? (
-                                                <table className="child-table">
-                                                    <thead>
-                                                        <tr>
-                                                            <th>Game</th>
-                                                            <th>Level</th>
-                                                            <th>Score</th>
-                                                            <th>Emotion State</th>
-                                                        </tr>
-                                                    </thead>
-                                                    <tbody>
-                                                        {child.session.map((session, index) => (
-                                                            <tr key={index}>
-                                                                <td>{session.gameName}</td>
-                                                                <td>{session.level}</td>
-                                                                <td>{session.score}</td>
-                                                                <td>
-                                                                    {session.minEmotion && session.maxEmotion ? (
-                                                                        `${session.minEmotion} → ${session.maxEmotion}`
-                                                                    ) : 'N/A'}
-                                                                </td>
-                                                            </tr>
-                                                        ))}
-                                                    </tbody>
-                                                </table>
-                                            ) : (
-                                                <p className="no-data">No sessions recorded</p>
-                                            )
+                                            <p className="no-data">No games assigned</p>
                                         )}
                                     </div>
                                 </div>

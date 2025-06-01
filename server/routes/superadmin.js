@@ -74,7 +74,7 @@ router.get("/children/:id", async (req, res) => {
   try {
     const therapist=await Therapist.findById(req.params.id);
     const children = await Child.find({therapist:req.params.id}); // Fetch all therapists
-    console.log("Therapists fetched:", children); // Log the fetched data
+    console.log("Children fetched:", children); // Log the fetched data
     res.json({children,therapist});
   } catch (error) {
     console.error("Error fetching therapists:", error); // Log any errors
