@@ -20,13 +20,15 @@ function RoleBasedDashboard() {
 
 import "../styles/Games.css"; // Reuse styles from Games component
 
+
 function ChildDashboard() {
     const [message, setMessage] = useState("");
     const [userData, setUserData] = useState({ name: "", progress: 0 });
-    const [recentActivities, setRecentActivities] = useState([]);
     const [games, setGames] = useState([]);
     const [gamesMessage, setGamesMessage] = useState("");
     const [isLoading, setIsLoading] = useState(true);
+    const [activeTab, setActiveTab] = useState('games'); // 'games' or 'sessions'
+    const [sessions, setSessions] = useState([]);
 
     useEffect(() => {
         const fetchDashboardData = async () => {
@@ -42,12 +44,6 @@ function ChildDashboard() {
                     name,
                     progress: Math.floor(Math.random() * 100),
                 });
-
-                setRecentActivities([
-                    { game: "Math Quest", score: "85%", date: "Today" },
-                    { game: "Word Wizard", score: "70%", date: "Yesterday" },
-                    { game: "Memory Puzzle", score: "90%", date: "2 days ago" },
-                ]);
 
                 setMessage(`Welcome back, ${name}!`);
 
@@ -75,6 +71,10 @@ function ChildDashboard() {
                 } else {
                     setGames(selected);
                 }
+
+                // Fetch session history
+                const sessionRes = await axios.get(`http://localhost:5000/child/sessions/${uid}`);
+                setSessions(sessionRes.data.sessions || []);
             } catch (error) {
                 setMessage("Oops! Something went wrong. Please try again.");
             } finally {
@@ -102,28 +102,78 @@ function ChildDashboard() {
                 <div className="card welcome-card">
                     <h2 className="card-title accent-primary">Hello, {userData.name}!</h2>
                     <p>Ready for some fun learning today?</p>
-                    {/* <Link to="/games" className="play-btn accent-primary-bg">Play Games</Link> */}
                 </div>
                 <div className="card actions-card">
                     <h2 className="card-title text-primary">Quick Actions</h2>
                     <Link to="/games" className="quick-action">Continue Last Game</Link>
                     <Link to="/profile" className="quick-action">View your profile</Link>
-                    {/* <Link to="/settings" className="quick-action">Change Settings</Link> */}
                 </div>
             </div>
 
             <div className="card">
-                <h2 className="card-title text-primary">Your Games</h2>
-                {gamesMessage ? (
-                    <p className="therapy-message">{gamesMessage}</p>
+                <div className="tabs">
+                    <button 
+                        className={`tab-btn ${activeTab === 'games' ? 'active' : ''}`}
+                        onClick={() => setActiveTab('games')}
+                    >
+                        Your Games
+                    </button>
+                    <button 
+                        className={`tab-btn ${activeTab === 'sessions' ? 'active' : ''}`}
+                        onClick={() => setActiveTab('sessions')}
+                    >
+                        Session History
+                    </button>
+                </div>
+
+                {activeTab === 'games' ? (
+                    <>
+                        {gamesMessage ? (
+                            <p className="therapy-message">{gamesMessage}</p>
+                        ) : (
+                            <div className="games-grid">
+                                {games.map((game, index) => (
+                                    <Link key={index} to={game.path} className={`game-card ${game.color}`}>
+                                        <span className="game-icon">{game.icon}</span>
+                                        <span className="game-name">{game.name}</span>
+                                        <span className="game-level">Level: {game.level}</span>
+                                    </Link>
+                                ))}
+                            </div>
+                        )}
+                    </>
                 ) : (
-                    <div className="games-grid">
-                        {games.map((game, index) => (
-                            <Link key={index} to={game.path} className={`game-card ${game.color}`}>
-                                <span className="game-icon">{game.icon}</span>
-                                <span className="game-name">{game.name}</span>
-                            </Link>
-                        ))}
+                    <div className="session-history">
+                        {sessions.length > 0 ? (
+                            <table className="session-table">
+                                <thead>
+                                    <tr>
+                                        <th>Game</th>
+                                        <th>Level</th>
+                                        <th>Score</th>
+                                        <th>Date</th>
+                                        <th>Emotion State</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {sessions.map((session, index) => (
+                                        <tr key={index}>
+                                            <td>{session.gameName}</td>
+                                            <td>{session.level}</td>
+                                            <td>{session.score}</td>
+                                            <td>{new Date(session.createdAt).toLocaleDateString()}</td>
+                                            <td>
+                                                {session.minEmotion && session.maxEmotion ? (
+                                                    `${session.minEmotion} → ${session.maxEmotion}`
+                                                ) : 'N/A'}
+                                            </td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table>
+                        ) : (
+                            <p className="no-sessions">No session history available yet. Play some games to see your progress here!</p>
+                        )}
                     </div>
                 )}
             </div>

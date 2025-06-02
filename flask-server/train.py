@@ -10,15 +10,45 @@ import os
 import sys
 import traceback
 import json
+import math
 
 print("Starting train.py...")
 
-# Define the EmotionTransformer model
+
+class SinusoidalPositionalEncoding(nn.Module):
+    def _init_(self, d_model, max_len=5000):
+        super()._init_()
+        pe = torch.zeros(max_len, d_model)  # (max_len, d_model)
+        position = torch.arange(0, max_len, dtype=torch.float).unsqueeze(1)
+        div_term = torch.exp(torch.arange(0, d_model, 2).float() * (-math.log(10000.0) / d_model))
+        pe[:, 0::2] = torch.sin(position * div_term)
+        pe[:, 1::2] = torch.cos(position * div_term)
+        pe = pe.unsqueeze(0)  # (1, max_len, d_model)
+        self.register_buffer('pe', pe)
+
+    def forward(self, x):
+        # x: (batch, seq_len, d_model)
+        seq_len = x.size(1)
+        x = x + self.pe[:, :seq_len, :]
+        return x
+
+class CustomTransformerEncoderLayer(nn.TransformerEncoderLayer):
+    def _init_(self, *args, **kwargs):
+        super()._init_(*args, **kwargs)
+        self.final_norm = nn.LayerNorm(self.self_attn.embed_dim)
+
+    def forward(self, src, src_mask=None, src_key_padding_mask=None):
+        src = super().forward(src, src_mask=src_mask, src_key_padding_mask=src_key_padding_mask)
+        src = self.final_norm(src)
+        return src
+
 class EmotionTransformer(nn.Module):
-    def __init__(self, input_dim, hidden_dim, n_layers, n_heads, dropout, n_classes):
-        super().__init__()
+    def _init_(self, input_dim, hidden_dim, n_layers, n_heads, dropout, n_classes, max_len=500):
+        super()._init_()
         self.input_proj = nn.Linear(input_dim, hidden_dim)
-        encoder_layer = nn.TransformerEncoderLayer(
+        self.pos_encoder = SinusoidalPositionalEncoding(hidden_dim, max_len=max_len)
+
+        encoder_layer = CustomTransformerEncoderLayer(
             d_model=hidden_dim,
             nhead=n_heads,
             dim_feedforward=hidden_dim * 4,
@@ -26,35 +56,17 @@ class EmotionTransformer(nn.Module):
             batch_first=True
         )
         self.transformer = nn.TransformerEncoder(encoder_layer, num_layers=n_layers)
-        self.fc = nn.Linear(hidden_dim, n_classes)
         self.dropout = nn.Dropout(dropout)
+        self.fc = nn.Linear(hidden_dim, n_classes)
 
     def forward(self, x):
-        x = self.input_proj(x)
-        x = x.unsqueeze(1)
-        x = self.transformer(x)
-        x = x.squeeze(1)
+        # x shape expected: (batch, seq_len, input_dim)
+        x = self.input_proj(x)                 
+        x = self.pos_encoder(x)              
+        x = self.transformer(x)                 
         x = self.dropout(x)
-        x = self.fc(x)
+        x = self.fc(x)                         
         return x
-
-# Custom dataset class
-class EmotionDataset(Dataset):
-    def __init__(self, features, labels, augment=False):
-        self.features = torch.FloatTensor(features)
-        self.labels = torch.LongTensor(labels)
-        self.augment = augment
-
-    def __len__(self):
-        return len(self.labels)
-
-    def __getitem__(self, idx):
-        features = self.features[idx]
-        if self.augment:
-            noise = torch.normal(0, 0.01, features.shape)
-            features = features + noise
-        return features, self.labels[idx]
-
 # Function to load and preprocess dataset
 def load_data(file_path):
     print(f"Loading dataset from: {file_path}")
