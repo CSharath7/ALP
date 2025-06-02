@@ -111,11 +111,11 @@ const QuizGame = () => {
       try {
         const gameData = JSON.parse(
           localStorage.getItem("game_Math_Quest")
-        ) || { currentLevel: 1 };
-        const levelFromStorage = Number(gameData.currentLevel) || 1;
+        ) || { currentLevel: 0 }; // Changed default to 0
+        const levelFromStorage = Number(gameData.currentLevel) || 0;
         const validLevel = Math.max(
           0,
-          Math.min(levelFromStorage - 1, Object.keys(levels).length - 1)
+          Math.min(levelFromStorage, Object.keys(levels).length - 1)
         );
         setCurrentLevel(validLevel);
         setLoading(false);
@@ -158,7 +158,7 @@ const QuizGame = () => {
       return;
     }
 
-    const levelKey = `level${currentLevel + 1}`;
+    const levelKey = `level${currentLevel}`; // Removed the +1
     const questions = levels[levelKey] || [];
     if (questions.length === 0) {
       setFeedback({ text: "No questions available for this level!", color: "red" });
