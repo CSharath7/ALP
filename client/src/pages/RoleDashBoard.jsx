@@ -35,7 +35,7 @@ function ChildDashboard() {
             try {
                 const token = localStorage.getItem("token");
                 const uid = localStorage.getItem("uid");
-                await axios.get("http://localhost:5000/api/auth/protected", {
+                await axios.get("https://alp-rjd5.onrender.com/api/auth/protected", {
                     headers: { Authorization: `Bearer ${token}` },
                 });
 
@@ -48,7 +48,7 @@ function ChildDashboard() {
                 setMessage(`Welcome back, ${name}!`);
 
                 // Fetch selected games
-                const res = await axios.get(`http://localhost:5000/child/${uid}`);
+                const res = await axios.get(`https://alp-rjd5.onrender.com/child/${uid}`);
                 const allGameInfo = {
                     "Shape Pattern": { path: "/pattern", color: "bg-indigo-500", icon: "🔵🟡" },
                     "Story Time": { path: "/story", color: "bg-green-500", icon: "📖" },
@@ -73,7 +73,7 @@ function ChildDashboard() {
                 }
 
                 // Fetch session history
-                const sessionRes = await axios.get(`http://localhost:5000/child/sessions/${uid}`);
+                const sessionRes = await axios.get(`https://alp-rjd5.onrender.com/child/sessions/${uid}`);
                 setSessions(sessionRes.data.sessions || []);
             } catch (error) {
                 setMessage("Oops! Something went wrong. Please try again.");
@@ -191,7 +191,7 @@ function SuperAdminDashboard() {
     useEffect(() => {
         const fetchTherapists = async () => {
             try {
-                const res = await axios.get("http://localhost:5000/superadmin/therapists");
+                const res = await axios.get("https://alp-rjd5.onrender.com/superadmin/therapists");
                 setTherapists(res.data);
             } catch {
                 setError("Failed to fetch therapists.");
@@ -261,7 +261,7 @@ function TherapistDashboard() {
     useEffect(() => {
         const fetchChildren = async () => {
             try {
-                const res = await axios.post(`http://localhost:5000/api/getchild/${id}`);
+                const res = await axios.post(`https://alp-rjd5.onrender.com/api/getchild/${id}`);
                 if (res.data.success) {
                     setChildren(res.data.children);
                 } else throw new Error(res.data.message);
@@ -282,7 +282,7 @@ function TherapistDashboard() {
         }
 
         try {
-            const res = await axios.get(`http://localhost:5000/getchildreport/${uid}`);
+            const res = await axios.get(`https://alp-rjd5.onrender.com/getchildreport/${uid}`);
             setSelectedReport({
                 uid,
                 games: res.data.success ? res.data.games : [],
@@ -449,7 +449,7 @@ function TherapistDetails() {
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const Res = await axios.get(`http://localhost:5000/superadmin/children/${id}`);
+                const Res = await axios.get(`https://alp-rjd5.onrender.com/superadmin/children/${id}`);
                 setChildren(Res.data.children);
                 setTherapist(Res.data.therapist);
                 setLoading(false);

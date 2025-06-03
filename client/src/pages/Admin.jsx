@@ -12,7 +12,7 @@ function AdminPanel() {
     const fetchRequests = async () => {
       try {
         setLoading(true);
-        const response = await axios.get("http://localhost:5000/api/admin");
+        const response = await axios.get("https://alp-rjd5.onrender.com/api/admin");
         if (isMounted) {
           setRequests(response.data);
         }
@@ -32,7 +32,7 @@ function AdminPanel() {
 
   const handleApprove = async (id) => {
     try {
-      await axios.post(`http://localhost:5000/api/admin/approve/${id}`, {});
+      await axios.post(`https://alp-rjd5.onrender.com/api/admin/approve/${id}`, {});
       setRequests(requests.filter((req) => req._id !== id));
       alert("Therapist Approved!");
     } catch (error) {
@@ -42,7 +42,7 @@ function AdminPanel() {
 
   const handleReject = async (id) => {
     try {
-      await axios.delete(`http://localhost:5000/api/admin/reject/${id}`);
+      await axios.delete(`https://alp-rjd5.onrender.com/api/admin/reject/${id}`);
       setRequests(requests.filter((req) => req._id !== id));
       alert("Therapist Rejected!");
     } catch (error) {

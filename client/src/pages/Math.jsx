@@ -245,7 +245,7 @@ const QuizGame = () => {
         ? Object.entries(emotionFreq).sort((a, b) => b[1] - a[1])[0][0]
         : 'neutral';
 
-      const response = await fetch("http://localhost:5000/update-child-level", {
+      const response = await fetch("https://alp-rjd5.onrender.com/update-child-level", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({

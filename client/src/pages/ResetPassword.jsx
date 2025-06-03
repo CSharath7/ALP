@@ -12,7 +12,7 @@ function ResetPassword() {
     e.preventDefault();
     try {
       const res = await axios.post(
-        `http://localhost:5000/reset-password/${token}`,
+        `https://alp-rjd5.onrender.com/reset-password/${token}`,
         { password }
       );
       setMessage(res.data.message);

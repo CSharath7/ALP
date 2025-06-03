@@ -276,7 +276,7 @@ const WordWizard = () => {
     try {
       // Send request to /update-child-level
       const levelResponse = await fetch(
-        "http://localhost:5000/update-child-level",
+        "https://alp-rjd5.onrender.com/update-child-level",
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -337,7 +337,7 @@ const WordWizard = () => {
     try {
       // Send request to /update-child-level
       const levelResponse = await fetch(
-        "http://localhost:5000/update-child-level",
+        "https://alp-rjd5.onrender.com/update-child-level",
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },

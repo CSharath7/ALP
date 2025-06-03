@@ -118,7 +118,7 @@ export default function Pattern() {
 
   const updateLevelInBackend = async (levelToUpdate) => {
     try {
-      const res = await fetch("http://localhost:5000/update-child-level", {
+      const res = await fetch("https://alp-rjd5.onrender.com/update-child-level", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

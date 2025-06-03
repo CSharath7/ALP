@@ -12,7 +12,7 @@
       const fetchGames = async () => {
         const uid = localStorage.getItem("uid");
         try {
-          const res = await axios.get(`http://localhost:5000/child/${uid}`);
+          const res = await axios.get(`https://alp-rjd5.onrender.com/child/${uid}`);
           
           const allGameInfo = {
             "Shape Pattern": { path: "/pattern", color: "bg-indigo-500", icon: "🔵🟡" },

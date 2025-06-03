@@ -14,7 +14,7 @@
         useEffect(() => {
             const fetchData = async () => {
                 try {
-                    const Res = await axios.get(`http://localhost:5000/superadmin/children/${id}`);
+                    const Res = await axios.get(`https://alp-rjd5.onrender.com/superadmin/children/${id}`);
                     setChildren(Res.data.children);
                     setTherapist(Res.data.therapist);
                     

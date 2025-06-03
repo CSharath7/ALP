@@ -56,7 +56,7 @@ function ChildRegister() {
         selectedGames: selectedGamesArray
       };
 
-      const response = await axios.post("http://localhost:5000/child-register", completeRegistrationData);
+      const response = await axios.post("https://alp-rjd5.onrender.com/child-register", completeRegistrationData);
       setSuccessMessage("Registration successful! Check email for UID.");
       setRegisterData({ name: "", age: "", gender: "", email: "" });
       navigate("/dashboard");

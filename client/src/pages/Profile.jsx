@@ -39,7 +39,7 @@ function Profile() {
         }
 
         const response = await fetch(
-          `http://localhost:5000/profile/${id}?role=${role}`
+          `https://alp-rjd5.onrender.com/profile/${id}?role=${role}`
         );
         if (!response.ok) {
           throw new Error("Failed to fetch profile data");

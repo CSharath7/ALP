@@ -28,7 +28,7 @@ function TherapistSignup() {
     setSuccessMessage("");
     
     try {
-      await axios.post("http://localhost:5000/api/register", formData);
+      await axios.post("https://alp-rjd5.onrender.com/api/register", formData);
       setSuccessMessage("Registration submitted successfully! We'll contact you soon.");
       setFormData({
         name: "",

@@ -32,7 +32,7 @@ function ChildLogin() {
   setSuccessMessage("");
 
   try {
-    const response = await axios.post("http://localhost:5000/child-login", loginData);
+    const response = await axios.post("https://alp-rjd5.onrender.com/child-login", loginData);
     const { token, role, child } = response.data;
 
     // Store basic child info

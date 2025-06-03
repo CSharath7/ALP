@@ -34,7 +34,7 @@ function LoginPage() {
     setError("");
 
     try {
-      const response = await axios.post("http://localhost:5000/login", {
+      const response = await axios.post("https://alp-rjd5.onrender.com/login", {
         email,
         password,
       });
