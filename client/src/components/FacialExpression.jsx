@@ -82,7 +82,7 @@ const FacialExpression = ({ onEmotionDetected, isActive }) => {
         console.log(`[SEND] Sending landmark [index: ${payload.landmarks.index}]`);
 
         try {
-          const response = await fetch('http://localhost:8000/predict', {
+          const response = await fetch('https://alp-model.onrender.com/predict', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(payload),
